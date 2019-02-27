@@ -1,0 +1,11 @@
+.Form {
+	background-color: #cef;
+	padding: 20px;
+	position: absolute;
+	width: 300px;
+}
+
+.Form textarea {
+	height: 300px;
+	width: 100%;
+}

@@ -54,7 +54,7 @@ class D3Chart {
 			.force('link', d3.forceLink(data.links).id(d => d.id))
 			.force('charge', d3.forceManyBody())
 			.force('center', d3.forceCenter(
-				this.svg.attr('width') / 2, this.svg.attr('height') / 2)
+				(this.svg.attr('width') / 2) + 100, this.svg.attr('height') / 2)
 			);
 	}
 

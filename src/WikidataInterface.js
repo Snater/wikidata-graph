@@ -26,7 +26,8 @@ class Wikidatainterface {
 	static sparqlQuery(sparql) {
 		return this.request(wdk.sparqlQuery(sparql))
 			.then(response => wdk.simplify.sparqlResults(response))
-			.then(results => this.convertToNodesAndLinks(results));
+			.then(results => this.convertToNodesAndLinks(results))
+			.catch(error => console.error(error));
 	}
 
 	/**

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Chart from './Chart';
 import Form from './Form';
+import SparqlGenerator from './SparqlGenerator';
 import Wikidata from './WikidataInterface';
 
 class App extends Component {
@@ -9,13 +10,17 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 
+		this._sparqlGenerator = new SparqlGenerator();
+
+		this._form = React.createRef();
+
 		this.state = {
 			data: null,
 		}
 	}
 
 	componentDidMount() {
-		this.query(this.props.defaultQuery);
+		this.updateChart(this._form.current.state);
 	}
 
 	/**
@@ -30,16 +35,21 @@ class App extends Component {
 	};
 
 	/**
-	 * @param {string} sparqlQuery
+	 * @param {Object} queryData
 	 */
-	onFormUpdate = sparqlQuery => {
-		this.query(sparqlQuery);
+	updateChart = queryData => {
+		const query = this._sparqlGenerator.generate(queryData);
+		this._form.current.updateQuery(query);
+		this.query(query);
 	};
 
 	render() {
 		return (
 			<div className="App">
-				<Form defaultQuery={this.props.defaultQuery} onUpdate={this.onFormUpdate} />
+				<Form
+					ref={this._form}
+					{...this.props.defaultQueryProperties}
+					onUpdate={this.updateChart} />
 				{this.state.data === null ? 'loading' : <Chart data={this.state.data} />}
 			</div>
 		);

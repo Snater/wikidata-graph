@@ -20,6 +20,21 @@ class Wikidatainterface {
 	}
 
 	/**
+	 * @param {string} searchString
+	 * @param {string} [type]
+	 * @return {Promise}
+	 */
+	static search(searchString, type) {
+		let url = wdk.searchEntities(searchString);
+
+		if (type === 'property') {
+			url += '&type=property';
+		}
+
+		return this.request(url);
+	}
+
+	/**
 	 * @param {string} sparql
 	 * @return {Promise.<Object[]>}
 	 */

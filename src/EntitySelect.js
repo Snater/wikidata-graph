@@ -49,7 +49,7 @@ class EntitySelect extends Component {
 	/**
 	 * @param {Object} selectedOption
 	 */
-	handleChange = selectedOption => this.props.onChange(selectedOption);
+	handleChange = selectedOption => this.props.onChange(selectedOption.value);
 
 	resetSelect = () => this._select.current.setState({defaultOptions: []});
 

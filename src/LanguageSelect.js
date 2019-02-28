@@ -53,7 +53,7 @@ class LanguageSelect extends Component {
 	/**
 	 * @param {Object} selectedOption
 	 */
-	handleChange = selectedOption => this.props.onChange(selectedOption);
+	handleChange = selectedOption => this.props.onChange(selectedOption.value);
 
 	/**
 	 * @inheritdoc

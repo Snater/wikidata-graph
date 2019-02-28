@@ -35,15 +35,15 @@ class Form extends Component {
 	 * @param {string} formElementKey
 	 */
 	handleChange(e, formElementKey) {
-		this.setState({[formElementKey]: e.target.value});
+		this.changeValue(e.target.value, formElementKey);
 	}
 
 	/**
-	 * @param {Object} selectedOption
+	 * @param {string} value
 	 * @param {string} formElementKey
 	 */
-	handleSelectChange(selectedOption, formElementKey) {
-		this.setState({[formElementKey]: selectedOption.value});
+	changeValue(value, formElementKey) {
+		this.setState({[formElementKey]: value});
 	}
 
 	/**
@@ -59,10 +59,10 @@ class Form extends Component {
 	render() {
 		return (
 			<form className="Form">
-				<EntitySelect entityType="item" entityId={this.props.item} onChange={selectedOption => this.handleSelectChange(selectedOption, 'item')} />
-				<EntitySelect entityType="property" entityId={this.props.property} onChange={selectedOption => this.handleSelectChange(selectedOption, 'property')} />
+				<EntitySelect entityType="item" entityId={this.props.item} onChange={value => this.changeValue(value, 'item')} />
+				<EntitySelect entityType="property" entityId={this.props.property} onChange={value => this.changeValue(value, 'property')} />
 				<input type="text" defaultValue={this.props.mode} onChange={e => this.handleChange(e, 'mode')} placeholder="Mode" />
-				<LanguageSelect initialLanguage={this.props.language} onChange={selectedOption => this.handleSelectChange(selectedOption, 'language')}/>
+				<LanguageSelect initialLanguage={this.props.language} onChange={value => this.changeValue(value, 'language')}/>
 				<input type="number" min="0" defaultValue={this.props.iterations} onChange={e => this.handleChange(e, 'iterations')} placeholder="Iterations" />
 				<input type="number" min="0" defaultValue={this.props.limit} onChange={e => this.handleChange(e, 'limit')} placeholder="Limit" />
 				<textarea ref={this._textarea} />

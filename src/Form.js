@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import Select from 'react-select';
 import AsyncSelect from 'react-select/lib/Async';
 import WikidataInterface from './WikidataInterface';
+import LanguageSelect from './LanguageSelect';
 import './Form.css';
 
 class Form extends Component {
@@ -13,7 +13,6 @@ class Form extends Component {
 		super(props);
 		this._itemSelect = React.createRef();
 		this._propertySelect = React.createRef();
-		this._languageSelect = React.createRef();
 		this._textarea = React.createRef();
 
 		this.state = {
@@ -23,7 +22,6 @@ class Form extends Component {
 			language: this.props.language,
 			iterations: this.props.iterations,
 			limit: this.props.limit,
-			languages: [],
 		}
 	}
 
@@ -33,33 +31,6 @@ class Form extends Component {
 	componentDidMount() {
 		this.initAsyncSelect(this._itemSelect, this.props.item);
 		this.initAsyncSelect(this._propertySelect, this.props.property, 'property');
-
-		WikidataInterface.getLanguages()
-			.then(results => {
-				this.setState({
-					languages: results.map(
-						result => Object.create({value: result.code, label: result.label})
-					)
-				});
-			});
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	componentDidUpdate(prevProps, prevState) {
-		// Languages are filled just once, so simply comparing length is sufficient:
-		if (this.state.languages.length !== prevState.languages.length) {
-			const defaultLanguage = this.state.languages
-				.filter(language => language.value === this.props.language)[0];
-
-			this._languageSelect.current.setState({
-				value: {
-					value: defaultLanguage.language,
-					label: defaultLanguage.label,
-				}
-			});
-		}
 	}
 
 	/**
@@ -151,13 +122,16 @@ class Form extends Component {
 		this._textarea.current.value = query;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	render() {
 		return (
 			<form className="Form">
 				<AsyncSelect ref={this._itemSelect} loadOptions={this.itemOptions} defaultValue={this.props.item} onChange={selectedOption => this.handleSelectChange(selectedOption, 'item')} onKeyDown={e => this.resetSelect(this._itemSelect)} placeholder="Root Item" />
 				<AsyncSelect ref={this._propertySelect} loadOptions={this.propertyOptions} defaultValue={this.props.property} onChange={selectedOption => this.handleSelectChange(selectedOption, 'property')} onKeyDown={e => this.resetSelect(this._propertySelect)} placeholder="Traversal Property" />
 				<input type="text" defaultValue={this.props.mode} onChange={e => this.handleChange(e, 'mode')} placeholder="Mode" />
-				<Select ref={this._languageSelect} options={this.state.languages} defaultValue={this.props.language} onChange={selectedOption => this.handleSelectChange(selectedOption, 'language')} />
+				<LanguageSelect initialLanguage={this.props.language} onChange={selectedOption => this.handleSelectChange(selectedOption, 'language')}/>
 				<input type="text" defaultValue={this.props.iterations} onChange={e => this.handleChange(e, 'iterations')} placeholder="Iterations" />
 				<input type="text" defaultValue={this.props.limit} onChange={e => this.handleChange(e, 'limit')} placeholder="Limit" />
 				<textarea ref={this._textarea} />

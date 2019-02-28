@@ -41,9 +41,9 @@ class SparqlGenerator {
   gas:in wd:${data.item};
   gas:traversalDirection "${SparqlGenerator.capitalize(data.mode)}";
   gas:out ?item;
-  gas:out1 ?depth;${data.iterations === 0 ? '' : `
+  gas:out1 ?depth;${typeof data.iterations !== 'number' || data.iterations === 0 ? '' : `
   gas:maxIterations ${data.iterations};`
-  }${data.limit === 0 ? '' : `
+  }${typeof data.limit !== 'number' || data.limit === 0 ? '' : `
   gas:maxVisited ${data.limit};`
   }
   gas:linkType wdt:${data.property}.

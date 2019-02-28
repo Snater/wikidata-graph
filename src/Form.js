@@ -63,8 +63,8 @@ class Form extends Component {
 				<EntitySelect entityType="property" entityId={this.props.property} onChange={selectedOption => this.handleSelectChange(selectedOption, 'property')} />
 				<input type="text" defaultValue={this.props.mode} onChange={e => this.handleChange(e, 'mode')} placeholder="Mode" />
 				<LanguageSelect initialLanguage={this.props.language} onChange={selectedOption => this.handleSelectChange(selectedOption, 'language')}/>
-				<input type="text" defaultValue={this.props.iterations} onChange={e => this.handleChange(e, 'iterations')} placeholder="Iterations" />
-				<input type="text" defaultValue={this.props.limit} onChange={e => this.handleChange(e, 'limit')} placeholder="Limit" />
+				<input type="number" min="0" defaultValue={this.props.iterations} onChange={e => this.handleChange(e, 'iterations')} placeholder="Iterations" />
+				<input type="number" min="0" defaultValue={this.props.limit} onChange={e => this.handleChange(e, 'limit')} placeholder="Limit" />
 				<textarea ref={this._textarea} />
 				<button onClick={this.update}>Update</button>
 			</form>

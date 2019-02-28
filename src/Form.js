@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import EntitySelect from './EntitySelect';
 import LanguageSelect from './LanguageSelect';
 import ModeSelect from './ModeSelect';
+import NumberInput from './NumberInput';
 import './Form.css';
 
 class Form extends Component {
@@ -32,14 +33,6 @@ class Form extends Component {
 	};
 
 	/**
-	 * @param {Object} e
-	 * @param {string} formElementKey
-	 */
-	handleChange(e, formElementKey) {
-		this.changeValue(e.target.value, formElementKey);
-	}
-
-	/**
 	 * @param {string} value
 	 * @param {string} formElementKey
 	 */
@@ -64,8 +57,8 @@ class Form extends Component {
 				<EntitySelect entityType="property" entityId={this.props.property} onChange={value => this.changeValue(value, 'property')} />
 				<ModeSelect defaultValue={this.props.mode} onChange={value => this.changeValue(value, 'mode')} />
 				<LanguageSelect initialLanguage={this.props.language} onChange={value => this.changeValue(value, 'language')}/>
-				<input type="number" min="0" defaultValue={this.props.iterations} onChange={e => this.handleChange(e, 'iterations')} placeholder="Iterations" />
-				<input type="number" min="0" defaultValue={this.props.limit} onChange={e => this.handleChange(e, 'limit')} placeholder="Limit" />
+				<NumberInput defaultValue={this.props.iterations} onChange={value => this.changeValue(value, 'iterations')} />
+				<NumberInput defaultValue={this.props.limit} onChange={value => this.changeValue(value, 'limit')} />
 				<textarea ref={this._textarea} />
 				<button onClick={this.update}>Update</button>
 			</form>

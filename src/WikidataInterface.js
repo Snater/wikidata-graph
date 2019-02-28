@@ -35,6 +35,34 @@ class Wikidatainterface {
 	}
 
 	/**
+	 * Retrieves all available languages. Each object contains the fields "code"
+	 * and "label" with "label" being the native language label or, if none is
+	 * provided, the English label. Languages featuring the same English label are
+	 * filtered out.
+	 * @return {Promise.<Object[]>}
+	 */
+	static getLanguages() {
+		return this.request(wdk.sparqlQuery(`
+			SELECT ?item ?itemLabel ?language_code ?native_label WHERE {
+				?item wdt:P424 ?language_code.
+				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q14827288. }
+				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q17442446. }
+				OPTIONAL { ?item wdt:P1705 ?native_label. }
+				SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+			}`))
+			.then(response => wdk.simplify.sparqlResults(response))
+			.then(results => results.filter((el, index, self) => self.findIndex(
+					t => t.item.label === el.item.label
+				) === index)
+			)
+			.then(results => results.map(el => Object.create(
+					{code: el.language_code, label: el.native_label || el.item.label}
+				)))
+			.then(results => results.sort((a, b) => a.label < b.label ? -1 : 1))
+			.catch(error => console.error(error));
+	}
+
+	/**
 	 * @param {string} sparql
 	 * @return {Promise.<Object[]>}
 	 */

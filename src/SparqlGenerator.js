@@ -26,7 +26,7 @@ class SparqlGenerator {
 	_generateClause(data) {
 		if (data.mode === 'both') {
 			return `{ ${this._generateClause({...data, mode: 'forward' })} }`
-				+ `UNION { ${this._generateClause({...data, mode: 'reverse' })} }`;
+				+ ` UNION { ${this._generateClause({...data, mode: 'reverse' })} }`;
 		} else if (!SparqlGenerator.useGAS(data)) {
 			if (data.mode === 'forward') {
 				return `wd:${data.item} wdt:${data.property}* ?item`;
@@ -59,7 +59,7 @@ class SparqlGenerator {
 	 * @return {boolean}
 	 */
 	static useGAS(data) {
-		return data.limit > 0 || data.iterations > 0 || data.mode === 'undirected';
+		return data.limit > 0 || data.iterations > 0;
 	}
 
 	/**

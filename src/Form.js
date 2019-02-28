@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import EntitySelect from './EntitySelect';
 import LanguageSelect from './LanguageSelect';
+import ModeSelect from './ModeSelect';
 import './Form.css';
 
 class Form extends Component {
@@ -61,7 +62,7 @@ class Form extends Component {
 			<form className="Form">
 				<EntitySelect entityType="item" entityId={this.props.item} onChange={value => this.changeValue(value, 'item')} />
 				<EntitySelect entityType="property" entityId={this.props.property} onChange={value => this.changeValue(value, 'property')} />
-				<input type="text" defaultValue={this.props.mode} onChange={e => this.handleChange(e, 'mode')} placeholder="Mode" />
+				<ModeSelect defaultValue={this.props.mode} onChange={value => this.changeValue(value, 'mode')} />
 				<LanguageSelect initialLanguage={this.props.language} onChange={value => this.changeValue(value, 'language')}/>
 				<input type="number" min="0" defaultValue={this.props.iterations} onChange={e => this.handleChange(e, 'iterations')} placeholder="Iterations" />
 				<input type="number" min="0" defaultValue={this.props.limit} onChange={e => this.handleChange(e, 'limit')} placeholder="Limit" />

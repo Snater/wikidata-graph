@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import AsyncSelect from 'react-select/lib/Async';
-import WikidataInterface from './WikidataInterface';
+import EntitySelect from './EntitySelect';
 import LanguageSelect from './LanguageSelect';
 import './Form.css';
 
@@ -11,8 +10,6 @@ class Form extends Component {
 	 */
 	constructor(props) {
 		super(props);
-		this._itemSelect = React.createRef();
-		this._propertySelect = React.createRef();
 		this._textarea = React.createRef();
 
 		this.state = {
@@ -23,37 +20,6 @@ class Form extends Component {
 			iterations: this.props.iterations,
 			limit: this.props.limit,
 		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	componentDidMount() {
-		this.initAsyncSelect(this._itemSelect, this.props.item);
-		this.initAsyncSelect(this._propertySelect, this.props.property, 'property');
-	}
-
-	/**
-	 * @param {Object} asyncSelectRef
-	 * @param {string} search
-	 * @param {string} [type]
-	 */
-	initAsyncSelect(asyncSelectRef, search, type) {
-		WikidataInterface.search(search, type)
-			.then(response => {
-				asyncSelectRef.current.setState({
-					defaultOptions: response.search.map(
-						result => Object.create({value: result.id, label: result.label})
-					),
-				});
-
-				asyncSelectRef.current.select.setState({
-					value: {
-						value: response.search[0].value,
-						label: response.search[0].label
-					},
-				});
-			});
 	}
 
 	/**
@@ -81,41 +47,6 @@ class Form extends Component {
 	}
 
 	/**
-	 * @param {Object} selectRef
-	 */
-	resetSelect = selectRef => {
-		selectRef.current.setState({defaultOptions: []});
-	};
-
-	/**
-	 * @param {string} input
-	 * @return {Promise}
-	 */
-	itemOptions = input => {
-		return this.retrieveOptions(input);
-	};
-
-	/**
-	 * @param {string} input
-	 * @return {Promise}
-	 */
-	propertyOptions = input => {
-		return this.retrieveOptions(input, 'property');
-	};
-
-	/**
-	 * @param {string} input
-	 * @param {string} [type]
-	 * @return {Promise}
-	 */
-	retrieveOptions(input, type) {
-		return WikidataInterface.search(input, type)
-			.then(response => response.search.map(
-				result => Object.create({value: result.id, label: result.label})
-			));
-	}
-
-	/**
 	 * @param {string} query
 	 */
 	updateQuery(query) {
@@ -128,8 +59,8 @@ class Form extends Component {
 	render() {
 		return (
 			<form className="Form">
-				<AsyncSelect ref={this._itemSelect} loadOptions={this.itemOptions} defaultValue={this.props.item} onChange={selectedOption => this.handleSelectChange(selectedOption, 'item')} onKeyDown={e => this.resetSelect(this._itemSelect)} placeholder="Root Item" />
-				<AsyncSelect ref={this._propertySelect} loadOptions={this.propertyOptions} defaultValue={this.props.property} onChange={selectedOption => this.handleSelectChange(selectedOption, 'property')} onKeyDown={e => this.resetSelect(this._propertySelect)} placeholder="Traversal Property" />
+				<EntitySelect entityType="item" entityId={this.props.item} onChange={selectedOption => this.handleSelectChange(selectedOption, 'item')} />
+				<EntitySelect entityType="property" entityId={this.props.property} onChange={selectedOption => this.handleSelectChange(selectedOption, 'property')} />
 				<input type="text" defaultValue={this.props.mode} onChange={e => this.handleChange(e, 'mode')} placeholder="Mode" />
 				<LanguageSelect initialLanguage={this.props.language} onChange={selectedOption => this.handleSelectChange(selectedOption, 'language')}/>
 				<input type="text" defaultValue={this.props.iterations} onChange={e => this.handleChange(e, 'iterations')} placeholder="Iterations" />

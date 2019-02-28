@@ -46,33 +46,54 @@ class Form extends Component {
 	render() {
 		return (
 			<form className="Form">
-				<EntitySelect
-					entityType="item"
-					entityId={this.props.item}
-					onChange={value => this.setState({item: value})}
-				/>
-				<EntitySelect
-					entityType="property"
-					entityId={this.props.property}
-					onChange={value => this.setState({property: value})}
-				/>
-				<ModeSelect
-					defaultValue={this.props.mode}
-					onChange={value => this.setState({mode: value})}
-				/>
-				<LanguageSelect
-					initialLanguage={this.props.language}
-					onChange={value => this.setState({language: value})}
-				/>
-				<NumberInput
-					defaultValue={this.props.iterations}
-					onChange={value => this.setState({iterations: value})}
-				/>
-				<NumberInput
-					defaultValue={this.props.limit}
-					onChange={value => this.setState({limit: value})}
-				/>
-				<textarea ref={this._textarea} />
+				<label>
+					Root Item
+					<EntitySelect
+						entityType="item"
+						entityId={this.props.item}
+						onChange={value => this.setState({item: value})}
+					/>
+				</label>
+				<label>
+					Traversal Property
+					<EntitySelect
+						entityType="property"
+						entityId={this.props.property}
+						onChange={value => this.setState({property: value})}
+					/>
+				</label>
+				<label>
+					Mode
+					<ModeSelect
+						defaultValue={this.props.mode}
+						onChange={value => this.setState({mode: value})}
+					/>
+				</label>
+				<label>
+					Language
+					<LanguageSelect
+						initialLanguage={this.props.language}
+						onChange={value => this.setState({language: value})}
+					/>
+				</label>
+				<label>
+					Iterations
+					<NumberInput
+						defaultValue={this.props.iterations}
+						onChange={value => this.setState({iterations: value})}
+					/>
+				</label>
+				<label>
+					Limit
+					<NumberInput
+						defaultValue={this.props.limit}
+						onChange={value => this.setState({limit: value})}
+					/>
+				</label>
+				<label>
+					SPARQL Query
+					<textarea ref={this._textarea} />
+				</label>
 				<button onClick={this.update}>Update</button>
 			</form>
 		);

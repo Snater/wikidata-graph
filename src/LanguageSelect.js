@@ -60,7 +60,11 @@ class LanguageSelect extends Component {
 	 */
 	render() {
 		return (
-			<Select ref={this._select} options={this.state.languages} onChange={selectedOption => this.handleChange(selectedOption)} />
+			<Select
+				ref={this._select}
+				options={this.state.languages}
+				onChange={selectedOption => this.handleChange(selectedOption)}
+			/>
 		);
 	}
 }

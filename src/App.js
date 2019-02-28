@@ -4,6 +4,7 @@ import Chart from './Chart';
 import Form from './Form';
 import SparqlGenerator from './SparqlGenerator';
 import Wikidata from './WikidataInterface';
+import './App.css';
 
 class App extends Component {
 
@@ -46,10 +47,12 @@ class App extends Component {
 	render() {
 		return (
 			<div className="App">
-				<Form
-					ref={this._form}
-					{...this.props.defaultQueryProperties}
-					onUpdate={this.updateChart} />
+				<div className="App__form-container">
+					<Form
+						ref={this._form}
+						{...this.props.defaultQueryProperties}
+						onUpdate={this.updateChart} />
+				</div>
 				{this.state.data === null ? 'loading' : <Chart data={this.state.data} />}
 			</div>
 		);

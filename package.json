@@ -10,6 +10,7 @@
     "react-dom": "^16.8.3",
     "react-scripts": "2.1.5",
     "react-select": "^2.4.1",
+    "roboto-fontface": "^0.10.0",
     "wikidata-sdk": "^5.15.10"
   },
   "scripts": {

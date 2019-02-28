@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import D3Chart from './D3Chart';
+import './Chart.css';
 
 class Chart extends Component {
 
@@ -49,7 +50,7 @@ class Chart extends Component {
 
 	render() {
 		return (
-			<div className="chart"></div>
+			<div className="Chart"></div>
 		);
 	}
 }

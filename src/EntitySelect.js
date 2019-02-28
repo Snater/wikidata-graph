@@ -55,7 +55,12 @@ class EntitySelect extends Component {
 
 	render() {
 		return(
-			<AsyncSelect ref={this._select} loadOptions={this.loadOptions} onChange={selectedOption => this.handleChange(selectedOption)} onKeyDown={e => this.resetSelect()} />
+			<AsyncSelect
+				ref={this._select}
+				loadOptions={this.loadOptions}
+				onChange={selectedOption => this.handleChange(selectedOption)}
+				onKeyDown={e => this.resetSelect()}
+			/>
 		);
 	}
 }

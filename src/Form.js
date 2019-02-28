@@ -90,11 +90,11 @@ class Form extends Component {
 						onChange={value => this.setState({limit: value})}
 					/>
 				</label>
-				<label>
-					SPARQL Query
-					<textarea ref={this._textarea} />
-				</label>
 				<button onClick={this.update}>Update</button>
+				<label className="Form__sparql">
+					Generated SPARQL Query
+					<textarea ref={this._textarea} readOnly={true} />
+				</label>
 			</form>
 		);
 	}

@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import './D3Chart.css';
 
 class D3Chart {
 
@@ -14,7 +15,7 @@ class D3Chart {
 	 */
 	create(state) {
 		this.svg = d3.select(this.element).append('svg')
-			.attr('class', 'd3');
+			.attr('class', 'D3Chart');
 
 		this.update(state);
 	}

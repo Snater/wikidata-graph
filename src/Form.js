@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import EntitySelect from './EntitySelect';
 import LanguageSelect from './LanguageSelect';
@@ -65,5 +66,15 @@ class Form extends Component {
 		);
 	}
 }
+
+Form.propTypes = {
+	item: PropTypes.string,
+	property: PropTypes.string,
+	mode: PropTypes.string,
+	language: PropTypes.string,
+	iterations: PropTypes.number,
+	limit: PropTypes.number,
+	onUpdate: PropTypes.func,
+};
 
 export default Form;

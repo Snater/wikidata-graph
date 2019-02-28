@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import Select from 'react-select';
 
 class ModeSelect extends Component {
 
@@ -17,13 +18,13 @@ class ModeSelect extends Component {
 	 */
 	render() {
 		return (
-			<select
-				defaultValue={this.props.defaultValue}
-				onChange={e => this.props.onChange(e.target.value)}>
-				{ModeSelect.options.map(
-					option => <option value={option.value}>{option.label}</option>
+			<Select
+				options={ModeSelect.options}
+				defaultValue={ModeSelect.options.find(
+					option => option.value === this.props.defaultValue
 				)}
-			</select>
+				onChange={selectedOption => this.props.onChange(selectedOption.value)}
+				/>
 		);
 	}
 }

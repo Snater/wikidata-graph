@@ -34,14 +34,6 @@ class Form extends Component {
 	};
 
 	/**
-	 * @param {string} value
-	 * @param {string} formElementKey
-	 */
-	changeValue(value, formElementKey) {
-		this.setState({[formElementKey]: value});
-	}
-
-	/**
 	 * @param {string} query
 	 */
 	updateQuery(query) {
@@ -54,12 +46,32 @@ class Form extends Component {
 	render() {
 		return (
 			<form className="Form">
-				<EntitySelect entityType="item" entityId={this.props.item} onChange={value => this.changeValue(value, 'item')} />
-				<EntitySelect entityType="property" entityId={this.props.property} onChange={value => this.changeValue(value, 'property')} />
-				<ModeSelect defaultValue={this.props.mode} onChange={value => this.changeValue(value, 'mode')} />
-				<LanguageSelect initialLanguage={this.props.language} onChange={value => this.changeValue(value, 'language')}/>
-				<NumberInput defaultValue={this.props.iterations} onChange={value => this.changeValue(value, 'iterations')} />
-				<NumberInput defaultValue={this.props.limit} onChange={value => this.changeValue(value, 'limit')} />
+				<EntitySelect
+					entityType="item"
+					entityId={this.props.item}
+					onChange={value => this.setState({item: value})}
+				/>
+				<EntitySelect
+					entityType="property"
+					entityId={this.props.property}
+					onChange={value => this.setState({property: value})}
+				/>
+				<ModeSelect
+					defaultValue={this.props.mode}
+					onChange={value => this.setState({mode: value})}
+				/>
+				<LanguageSelect
+					initialLanguage={this.props.language}
+					onChange={value => this.setState({language: value})}
+				/>
+				<NumberInput
+					defaultValue={this.props.iterations}
+					onChange={value => this.setState({iterations: value})}
+				/>
+				<NumberInput
+					defaultValue={this.props.limit}
+					onChange={value => this.setState({limit: value})}
+				/>
 				<textarea ref={this._textarea} />
 				<button onClick={this.update}>Update</button>
 			</form>

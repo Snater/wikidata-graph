@@ -1,4 +1,32 @@
 .D3Chart {
+	--dark-color: #064;
+	--light-color: #0fa;
+
+	cursor: grab;
 	height: 100%;
 	width: 100%;
+}
+
+.D3Chart #triangle {
+	fill: var(--dark-color);
+}
+
+.D3Chart circle {
+	cursor: move;
+	fill: var(--light-color);
+	stroke: var(--dark-color);
+}
+
+.D3Chart line {
+	marker-end: url(#triangle);
+	stroke: var(--dark-color);
+	stroke-width: 1.5;
+}
+
+.D3Chart text {
+	text-shadow:
+		-0.5px -0.5px 0 #fff,
+		0.5px -0.5px 0 #fff,
+		-0.5px 0.5px 0 #fff,
+		0.5px 0.5px 0 #fff;
 }

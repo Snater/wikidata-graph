@@ -40,11 +40,25 @@ class D3Chart {
 
 		this._createSimulation(state.data);
 
-		const nodes = this._drawNodes(state.data.nodes);
+		this._drawDefs();
 		const links = this._drawLinks(state.data.links);
+		const nodes = this._drawNodes(state.data.nodes);
 		const labels = this._drawLabels(state.data.nodes);
 
 		this.simulation.on('tick', () => this._onTick(nodes, links, labels));
+	}
+
+	_drawDefs() {
+		const defs = this.svg.append('defs').append('marker')
+			.attr('id', 'triangle')
+			.attr('viewBox', '0 -5 10 10')
+			.attr('refX', '15')
+			.attr('markerUnits', 'strokeWidth')
+			.attr('markerWidth', '6')
+			.attr('markerHeight', '6')
+			.attr('orient', 'auto')
+			.append('path')
+			.attr('d', 'M 0 -5 L 10 0 L 0 5');
 	}
 
 	/**
@@ -65,8 +79,6 @@ class D3Chart {
 	 */
 	_drawNodes(nodes) {
 		return this.container.append('g')
-			.attr('stroke', '#999')
-			.attr('stroke-width', 1.5)
 			.selectAll('circle')
 			.data(nodes)
 			.join('circle')
@@ -80,12 +92,9 @@ class D3Chart {
 	 */
 	_drawLinks(links) {
 		return this.container.append('g')
-			.attr('stroke', '#999')
-			.attr('stroke-opacity', 0.6)
 			.selectAll('line')
 			.data(links)
-			.join('line')
-			.attr('stroke-width', 1);
+			.join('line');
 	}
 
 	/**
@@ -141,14 +150,14 @@ class D3Chart {
 	 */
 	_onTick(nodes, links, labels) {
 		nodes
-			.attr("cx", d => d.x)
-			.attr("cy", d => d.y);
+			.attr('cx', d => d.x)
+			.attr('cy', d => d.y);
 
 		links
-			.attr("x1", d => d.source.x)
-			.attr("y1", d => d.source.y)
-			.attr("x2", d => d.target.x)
-			.attr("y2", d => d.target.y);
+			.attr('x1', d => d.source.x)
+			.attr('y1', d => d.source.y)
+			.attr('x2', d => d.target.x)
+			.attr('y2', d => d.target.y);
 
 		labels.attr('transform', d => `translate(${d.x},${d.y})`);
 	}

@@ -9,27 +9,12 @@ import './Form.css';
 class Form extends Component {
 
 	/**
-	 * @inheritdoc
-	 */
-	constructor(props) {
-		super(props);
-		this._textarea = React.createRef();
-	}
-
-	/**
 	 * @param {Object} e
 	 */
 	submit = e => {
 		e.preventDefault();
 		this.props.onSubmit();
 	};
-
-	/**
-	 * @param {string} query
-	 */
-	updateQuery(query) {
-		this._textarea.current.value = query;
-	}
 
 	/**
 	 * @inheritdoc
@@ -84,7 +69,7 @@ class Form extends Component {
 				<button onClick={this.submit}>Draw</button>
 				<label className="Form__sparql">
 					Generated SPARQL Query
-					<textarea ref={this._textarea} readOnly={true} />
+					<textarea value={this.props.sparqlQuery} readOnly={true} />
 				</label>
 			</form>
 		);
@@ -100,6 +85,7 @@ Form.propTypes = {
 	limit: PropTypes.number,
 	onSubmit: PropTypes.func,
 	onUpdate: PropTypes.func,
+	sparqlQuery: PropTypes.string,
 };
 
 export default Form;

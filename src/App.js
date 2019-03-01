@@ -16,8 +16,6 @@ class App extends Component {
 
 		this._sparqlGenerator = new SparqlGenerator();
 
-		this._form = React.createRef();
-
 		this.state = {
 			queryProps: {
 				item: this.props.defaultQueryProps.item,
@@ -27,6 +25,7 @@ class App extends Component {
 				iterations: this.props.defaultQueryProps.iterations,
 				limit: this.props.defaultQueryProps.limit,
 			},
+			sparqlQuery: '',
 			data: null,
 		}
 	}
@@ -49,10 +48,19 @@ class App extends Component {
 		});
 	};
 
+	/**
+	 * @inheritdoc
+	 */
+	componentDidUpdate(prevProps, prevState) {
+		if (prevState.sparqlQuery !== this.state.sparqlQuery) {
+			this.query(this.state.sparqlQuery);
+		}
+	}
+
 	updateChart = () => {
-		const query = this._sparqlGenerator.generate(this.state.queryProps);
-		this._form.current.updateQuery(query);
-		this.query(query);
+		this.setState({
+			sparqlQuery: this._sparqlGenerator.generate(this.state.queryProps)
+		});
 	};
 
 	/**
@@ -63,12 +71,13 @@ class App extends Component {
 			<div className="App">
 				<div className="App__form-container">
 					<Form
-						ref={this._form}
 						{...this.props.defaultQueryProps}
 						onChange={value => this.setState(
 							{queryProps: Object.assign(this.state.queryProps, value)}
 						)}
-						onSubmit={this.updateChart} />
+						onSubmit={this.updateChart}
+						sparqlQuery={this.state.sparqlQuery}
+					/>
 				</div>
 				{this.state.data === null ? 'loading' : <Chart data={this.state.data} />}
 			</div>
@@ -78,7 +87,6 @@ class App extends Component {
 
 App.propTypes = {
 	defaultQueryProps: PropTypes.object,
-	query: PropTypes.string,
 };
 
 export default App;

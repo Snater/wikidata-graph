@@ -4,7 +4,7 @@ import './index.css';
 import 'roboto-fontface';
 import App from './App';
 
-const defaultQueryProperties = {
+const defaultQueryProps = {
 	item: 'Q9682',
 	property: 'P40',
 	mode: 'both',
@@ -13,4 +13,4 @@ const defaultQueryProperties = {
 	limit: 0,
 };
 
-ReactDOM.render(<App defaultQueryProperties={defaultQueryProperties} />, document.getElementById('root'));
+ReactDOM.render(<App defaultQueryProps={defaultQueryProps} />, document.getElementById('root'));

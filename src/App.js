@@ -8,6 +8,9 @@ import './App.css';
 
 class App extends Component {
 
+	/**
+	 * @inheritdoc
+	 */
 	constructor(props) {
 		super(props);
 
@@ -16,12 +19,23 @@ class App extends Component {
 		this._form = React.createRef();
 
 		this.state = {
+			queryProps: {
+				item: this.props.defaultQueryProps.item,
+				property: this.props.defaultQueryProps.property,
+				mode: this.props.defaultQueryProps.mode,
+				language: this.props.defaultQueryProps.language,
+				iterations: this.props.defaultQueryProps.iterations,
+				limit: this.props.defaultQueryProps.limit,
+			},
 			data: null,
 		}
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	componentDidMount() {
-		this.updateChart(this._form.current.state);
+		this.updateChart(this.state.queryProps);
 	}
 
 	/**
@@ -35,23 +49,26 @@ class App extends Component {
 		});
 	};
 
-	/**
-	 * @param {Object} queryData
-	 */
-	updateChart = queryData => {
-		const query = this._sparqlGenerator.generate(queryData);
+	updateChart = () => {
+		const query = this._sparqlGenerator.generate(this.state.queryProps);
 		this._form.current.updateQuery(query);
 		this.query(query);
 	};
 
+	/**
+	 * @inheritdoc
+	 */
 	render() {
 		return (
 			<div className="App">
 				<div className="App__form-container">
 					<Form
 						ref={this._form}
-						{...this.props.defaultQueryProperties}
-						onUpdate={this.updateChart} />
+						{...this.props.defaultQueryProps}
+						onChange={value => this.setState(
+							{queryProps: Object.assign(this.state.queryProps, value)}
+						)}
+						onSubmit={this.updateChart} />
 				</div>
 				{this.state.data === null ? 'loading' : <Chart data={this.state.data} />}
 			</div>
@@ -59,7 +76,8 @@ class App extends Component {
 	}
 }
 
-Chart.propTypes = {
+App.propTypes = {
+	defaultQueryProps: PropTypes.object,
 	query: PropTypes.string,
 };
 

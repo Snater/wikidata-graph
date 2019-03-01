@@ -14,23 +14,14 @@ class Form extends Component {
 	constructor(props) {
 		super(props);
 		this._textarea = React.createRef();
-
-		this.state = {
-			item: this.props.item,
-			property: this.props.property,
-			mode: this.props.mode,
-			language: this.props.language,
-			iterations: this.props.iterations,
-			limit: this.props.limit,
-		}
 	}
 
 	/**
 	 * @param {Object} e
 	 */
-	update = e => {
+	submit = e => {
 		e.preventDefault();
-		this.props.onUpdate(this.state);
+		this.props.onSubmit();
 	};
 
 	/**
@@ -51,7 +42,7 @@ class Form extends Component {
 					<EntitySelect
 						entityType="item"
 						entityId={this.props.item}
-						onChange={value => this.setState({item: value})}
+						onChange={value => this.props.onChange({item: value})}
 					/>
 				</label>
 				<label>
@@ -59,38 +50,38 @@ class Form extends Component {
 					<EntitySelect
 						entityType="property"
 						entityId={this.props.property}
-						onChange={value => this.setState({property: value})}
+						onChange={value => this.props.onChange({property: value})}
 					/>
 				</label>
 				<label>
 					Mode
 					<ModeSelect
 						defaultValue={this.props.mode}
-						onChange={value => this.setState({mode: value})}
+						onChange={value => this.props.onChange({mode: value})}
 					/>
 				</label>
 				<label>
 					Language
 					<LanguageSelect
 						initialLanguage={this.props.language}
-						onChange={value => this.setState({language: value})}
+						onChange={value => this.props.onChange({language: value})}
 					/>
 				</label>
 				<label>
 					Iterations
 					<NumberInput
 						defaultValue={this.props.iterations}
-						onChange={value => this.setState({iterations: value})}
+						onChange={value => this.props.onChange({iterations: value})}
 					/>
 				</label>
 				<label>
 					Limit
 					<NumberInput
 						defaultValue={this.props.limit}
-						onChange={value => this.setState({limit: value})}
+						onChange={value => this.props.onChange({limit: value})}
 					/>
 				</label>
-				<button onClick={this.update}>Update</button>
+				<button onClick={this.submit}>Draw</button>
 				<label className="Form__sparql">
 					Generated SPARQL Query
 					<textarea ref={this._textarea} readOnly={true} />
@@ -107,6 +98,7 @@ Form.propTypes = {
 	language: PropTypes.string,
 	iterations: PropTypes.number,
 	limit: PropTypes.number,
+	onSubmit: PropTypes.func,
 	onUpdate: PropTypes.func,
 };
 

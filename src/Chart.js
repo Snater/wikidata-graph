@@ -6,6 +6,9 @@ import './Chart.css';
 
 class Chart extends Component {
 
+	/**
+	 * @inheritdoc
+	 */
 	constructor(props) {
 		super(props);
 
@@ -15,6 +18,9 @@ class Chart extends Component {
 		}
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	componentDidMount() {
 		this.d3Chart = new D3Chart(ReactDom.findDOMNode(this));
 		this.d3Chart.create(this.getChartState());
@@ -22,6 +28,9 @@ class Chart extends Component {
 		window.addEventListener('resize', this.updateDimensions);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	componentDidUpdate() {
 		this.d3Chart.update(this.getChartState());
 	}
@@ -37,8 +46,18 @@ class Chart extends Component {
 		};
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	componentWillUnmount() {
 		window.removeEventListener('resize', this.updateDimensions);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	shouldComponentUpdate(nextProps) {
+		return nextProps.data !== this.props.data;
 	}
 
 	updateDimensions = () => {
@@ -48,6 +67,9 @@ class Chart extends Component {
 		});
 	};
 
+	/**
+	 * @inheritdoc
+	 */
 	render() {
 		return (
 			<div className="Chart"></div>
@@ -56,7 +78,7 @@ class Chart extends Component {
 }
 
 Chart.propTypes = {
-	data: PropTypes.array,
+	data: PropTypes.object,
 };
 
 export default Chart;

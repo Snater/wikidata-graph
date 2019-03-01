@@ -79,7 +79,11 @@ class Wikidatainterface {
 	 */
 	static convertToNodesAndLinks(simplifiedResults) {
 		const nodes = simplifiedResults
-			.map(el => Object.create({id: el.item.value, label: el.item.label}))
+			.map(el => Object.create({
+				id: el.item.value,
+				label: el.item.label,
+				uri: `https://www.wikidata.org/entity/${el.item.value}`,
+			}))
 			.filter(
 				(el, index, self) => self.findIndex(t => t.id === el.id) === index
 			);

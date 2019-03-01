@@ -118,7 +118,8 @@ class D3Chart {
 			.append('text')
 			.attr('x', 8)
 			.attr('y', '.31em')
-			.text(d => d.label);
+			.text(d => d.label)
+			.on('click', d => window.open(d.uri));
 	}
 
 	/**

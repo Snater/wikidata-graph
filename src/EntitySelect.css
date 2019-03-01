@@ -1,0 +1,7 @@
+.EntitySelect .EntitySelect__option__description {
+	font-size: 0.8em;
+}
+
+.EntitySelect .EntitySelect__value-container .EntitySelect__option__description {
+	display: none;
+}

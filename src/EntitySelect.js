@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import AsyncSelect from 'react-select/lib/Async';
 import WikidataInterface from './WikidataInterface';
+import './EntitySelect.css';
 
 class EntitySelect extends Component {
 
@@ -20,12 +21,6 @@ class EntitySelect extends Component {
 	componentDidMount() {
 		WikidataInterface.search(this.props.entityId, this.props.entityType)
 			.then(response => {
-				this._select.current.setState({
-					defaultOptions: response.search.map(
-						result => Object.create({value: result.id, label: result.label})
-					),
-				});
-
 				this._select.current.select.setState({
 					value: {
 						value: response.search[0].value,
@@ -42,7 +37,11 @@ class EntitySelect extends Component {
 	loadOptions = input => {
 		return WikidataInterface.search(input, this.props.entityType)
 			.then(response => response.search.map(
-				result => Object.create({value: result.id, label: result.label})
+				result => Object.create({
+					value: result.id,
+					label: result.label,
+					description: result.description,
+				})
 			));
 	};
 
@@ -53,6 +52,19 @@ class EntitySelect extends Component {
 
 	resetSelect = () => this._select.current.setState({defaultOptions: []});
 
+	/**
+	 * @param {Object} option
+	 * @return {*}
+	 */
+	formatOptionLabel(option) {
+		return (
+			<div className="EntitySelect__option">
+				<div className="EntitySelect__option__label">{option.label}</div>
+				<div className="EntitySelect__option__description">{option.description}</div>
+			</div>
+		);
+	}
+
 	render() {
 		return(
 			<AsyncSelect
@@ -60,6 +72,9 @@ class EntitySelect extends Component {
 				loadOptions={this.loadOptions}
 				onChange={selectedOption => this.handleChange(selectedOption)}
 				onKeyDown={e => this.resetSelect()}
+				className="EntitySelect"
+				classNamePrefix="EntitySelect"
+				formatOptionLabel={this.formatOptionLabel}
 			/>
 		);
 	}

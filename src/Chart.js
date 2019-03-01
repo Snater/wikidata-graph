@@ -56,8 +56,10 @@ class Chart extends Component {
 	/**
 	 * @inheritdoc
 	 */
-	shouldComponentUpdate(nextProps) {
-		return nextProps.data !== this.props.data;
+	shouldComponentUpdate(nextProps, nextState) {
+		return nextProps.data !== this.props.data
+			|| nextState.width !== this.state.width
+			|| nextState.height !== this.state.height;
 	}
 
 	updateDimensions = () => {

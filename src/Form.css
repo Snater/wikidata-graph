@@ -22,7 +22,7 @@
 	flex-direction: column;
 }
 
-.Form label * {
+.Form label > * {
 	color: #000;
 }
 

@@ -65,6 +65,15 @@ class EntitySelect extends Component {
 		);
 	}
 
+	/**
+	 * @param {string|null} inputValue
+	 * @return {string}
+	 */
+	noOptionsMessage({inputValue}) {
+		return inputValue === '' || inputValue === null
+			? 'Start typing to search for entities' : 'No options';
+	}
+
 	render() {
 		return(
 			<AsyncSelect
@@ -75,6 +84,7 @@ class EntitySelect extends Component {
 				className="EntitySelect"
 				classNamePrefix="EntitySelect"
 				formatOptionLabel={this.formatOptionLabel}
+				noOptionsMessage={this.noOptionsMessage}
 			/>
 		);
 	}

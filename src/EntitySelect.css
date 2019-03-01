@@ -5,3 +5,7 @@
 .EntitySelect .EntitySelect__value-container .EntitySelect__option__description {
 	display: none;
 }
+
+.EntitySelect .EntitySelect__control--is-focused .EntitySelect__single-value {
+	color: #aaa;
+}

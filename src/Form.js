@@ -9,14 +9,6 @@ import './Form.css';
 class Form extends Component {
 
 	/**
-	 * @param {Object} e
-	 */
-	submit = e => {
-		e.preventDefault();
-		this.props.onSubmit();
-	};
-
-	/**
 	 * @inheritdoc
 	 */
 	render() {
@@ -66,7 +58,6 @@ class Form extends Component {
 						onChange={value => this.props.onChange({limit: value})}
 					/>
 				</label>
-				<button onClick={this.submit}>Draw</button>
 				<label className="Form__sparql">
 					Generated SPARQL Query
 					<textarea value={this.props.sparqlQuery} readOnly={true} />
@@ -83,8 +74,6 @@ Form.propTypes = {
 	language: PropTypes.string,
 	iterations: PropTypes.number,
 	limit: PropTypes.number,
-	onSubmit: PropTypes.func,
-	onUpdate: PropTypes.func,
 	sparqlQuery: PropTypes.string,
 };
 

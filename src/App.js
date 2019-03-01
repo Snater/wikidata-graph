@@ -34,7 +34,9 @@ class App extends Component {
 	 * @inheritdoc
 	 */
 	componentDidMount() {
-		this.updateChart(this.state.queryProps);
+		this.setState({
+			sparqlQuery: this._sparqlGenerator.generate(this.state.queryProps)
+		});
 	}
 
 	/**
@@ -52,16 +54,14 @@ class App extends Component {
 	 * @inheritdoc
 	 */
 	componentDidUpdate(prevProps, prevState) {
-		if (prevState.sparqlQuery !== this.state.sparqlQuery) {
+		const sparqlQuery = this._sparqlGenerator.generate(this.state.queryProps);
+
+		if (sparqlQuery !== this.state.sparqlQuery) {
+			this.setState({sparqlQuery: sparqlQuery});
+		} else if (prevState.sparqlQuery !== this.state.sparqlQuery) {
 			this.query(this.state.sparqlQuery);
 		}
 	}
-
-	updateChart = () => {
-		this.setState({
-			sparqlQuery: this._sparqlGenerator.generate(this.state.queryProps)
-		});
-	};
 
 	/**
 	 * @inheritdoc
@@ -75,7 +75,6 @@ class App extends Component {
 						onChange={value => this.setState(
 							{queryProps: Object.assign(this.state.queryProps, value)}
 						)}
-						onSubmit={this.updateChart}
 						sparqlQuery={this.state.sparqlQuery}
 					/>
 				</div>

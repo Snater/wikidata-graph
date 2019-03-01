@@ -28,6 +28,7 @@
 
 Form .Form__sparql {
 	font-style: italic;
+	margin-top: 40px;
 }
 
 .Form input[type='number'] {
@@ -41,17 +42,4 @@ Form .Form__sparql {
 	border: var(--border);
 	height: 300px;
 	width: 100%;
-}
-
-.Form button {
-	border-radius: var(--border-radius);
-	border: var(--border);
-	margin-bottom: 30px;
-	margin-top: 30px;
-	padding: 10px;
-	transition: all 0.4s ease;
-}
-
-.Form button:hover {
-	background-color: #eee;
 }

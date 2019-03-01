@@ -31,7 +31,7 @@ class Form extends Component {
 					/>
 				</label>
 				<label>
-					Mode
+					Direction
 					<ModeSelect
 						defaultValue={this.props.mode}
 						onChange={value => this.props.onChange({mode: value})}
@@ -44,20 +44,22 @@ class Form extends Component {
 						onChange={value => this.props.onChange({language: value})}
 					/>
 				</label>
-				<label>
-					Iterations
-					<NumberInput
-						defaultValue={this.props.iterations}
-						onChange={value => this.props.onChange({iterations: value})}
-					/>
-				</label>
-				<label>
-					Limit
-					<NumberInput
-						defaultValue={this.props.limit}
-						onChange={value => this.props.onChange({limit: value})}
-					/>
-				</label>
+				<div className="Form__number-inputs">
+					<label>
+						Depth
+						<NumberInput
+							defaultValue={this.props.iterations}
+							onChange={value => this.props.onChange({iterations: value})}
+						/>
+					</label>
+					<label>
+						Limit
+						<NumberInput
+							defaultValue={this.props.limit}
+							onChange={value => this.props.onChange({limit: value})}
+						/>
+					</label>
+				</div>
 				<label className="Form__sparql">
 					Generated SPARQL Query
 					<textarea value={this.props.sparqlQuery} readOnly={true} />

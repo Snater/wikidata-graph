@@ -26,15 +26,21 @@
 	color: #000;
 }
 
-Form .Form__sparql {
-	font-style: italic;
-	margin-top: 40px;
+.Form .Form__number-inputs {
+	display: grid;
+	grid-gap: 4%;
+	grid-template-columns: 48% 48%;
 }
 
 .Form input[type='number'] {
 	border-radius: var(--border-radius);
 	border: var(--border);
 	padding: 10px;
+}
+
+Form .Form__sparql {
+	font-style: italic;
+	margin-top: 40px;
 }
 
 .Form textarea {

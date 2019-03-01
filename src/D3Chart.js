@@ -25,6 +25,14 @@ class D3Chart {
 	 */
 	update(state) {
 		this.svg.selectAll('*').remove();
+
+		if (this._zoom) {
+			this.svg
+				.transition()
+				.duration(800)
+				.call(this._zoom.transform, d3.zoomIdentity);
+		}
+
 		this._draw(state);
 	}
 
@@ -33,10 +41,11 @@ class D3Chart {
 	 */
 	_draw(state) {
 		this.container = this.svg.append('g');
+
 		this.svg
 			.attr('width', state.width)
 			.attr('height', state.height)
-			.call(d3.zoom().on('zoom', () => this._onZoom()));
+			.call(this._zoom = d3.zoom().on('zoom', () => this._onZoom()));
 
 		this._createSimulation(state.data);
 
@@ -49,7 +58,7 @@ class D3Chart {
 	}
 
 	_drawDefs() {
-		const defs = this.svg.append('defs').append('marker')
+		this.svg.append('defs').append('marker')
 			.attr('id', 'triangle')
 			.attr('viewBox', '0 -5 10 10')
 			.attr('refX', '15')

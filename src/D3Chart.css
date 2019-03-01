@@ -1,6 +1,6 @@
 .D3Chart {
 	--dark-color: #064;
-	--light-color: #0fa;
+	--light-color: #00e699;
 
 	cursor: grab;
 	height: 100%;
@@ -15,6 +15,11 @@
 	cursor: move;
 	fill: var(--light-color);
 	stroke: var(--dark-color);
+}
+
+.D3Chart circle.root {
+	fill: #e62a00;
+	stroke: #b22300;
 }
 
 .D3Chart line {

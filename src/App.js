@@ -78,7 +78,11 @@ class App extends Component {
 						sparqlQuery={this.state.sparqlQuery}
 					/>
 				</div>
-				{this.state.data === null ? 'loading' : <Chart data={this.state.data} />}
+				{
+					this.state.data === null
+						? 'loading'
+						: <Chart data={this.state.data} root={this.state.queryProps.item} />
+				}
 			</div>
 		);
 	}

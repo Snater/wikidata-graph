@@ -41,6 +41,7 @@ class Chart extends Component {
 	getChartState() {
 		return {
 			data: this.props.data,
+			root: this.props.root,
 			width: this.state.width,
 			height: this.state.height,
 		};
@@ -81,6 +82,7 @@ class Chart extends Component {
 
 Chart.propTypes = {
 	data: PropTypes.object,
+	root: PropTypes.string,
 };
 
 export default Chart;

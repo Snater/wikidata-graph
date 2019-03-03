@@ -1,10 +1,10 @@
 import * as wdk from 'wikidata-sdk';
 
-class Wikidatainterface {
+class WikidataInterface {
 
 	/**
 	 * @param {string} url
-	 * @return {Promise}
+	 * @return {Promise<*>}
 	 */
 	static request(url) {
 		return new Promise((resolve, reject) => {
@@ -22,7 +22,7 @@ class Wikidatainterface {
 	/**
 	 * @param {string} searchString
 	 * @param {string} [type]
-	 * @return {Promise}
+	 * @return {Promise<Object[]>}
 	 */
 	static search(searchString, type) {
 		let url = wdk.searchEntities(searchString);
@@ -39,7 +39,7 @@ class Wikidatainterface {
 	 * and "label" with "label" being the native language label or, if none is
 	 * provided, the English label. Languages featuring the same English label are
 	 * filtered out.
-	 * @return {Promise.<Object[]>}
+	 * @return {Promise<Object[]>}
 	 */
 	static getLanguages() {
 		return this.request(wdk.sparqlQuery(`
@@ -64,7 +64,7 @@ class Wikidatainterface {
 
 	/**
 	 * @param {string} sparql
-	 * @return {Promise.<Object[]>}
+	 * @return {Promise<Object[]>}
 	 */
 	static sparqlQuery(sparql) {
 		return this.request(wdk.sparqlQuery(sparql))
@@ -99,4 +99,4 @@ class Wikidatainterface {
 	}
 }
 
-export default Wikidatainterface;
+export default WikidataInterface;

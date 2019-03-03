@@ -1,15 +1,23 @@
 class SparqlGenerator {
 
 	/**
-	 * @param data
+	 * @type {Object}
+	 */
+	static _defaultProps = {
+		mode: 'both',
+		language: 'en',
+		iterations: 5,
+		limit: 0,
+	};
+
+	/**
+	 * @param {Object} data
 	 * @return {string}
 	 */
-	generate(data) {
-		if (!data.item || !data.property) {
-			throw new Error('Item and property are required to generate a SPARQL query.')
-		}
+	static generate(data = this._defaultProps) {
+		this._sanitizeData(data);
 
-		const prefix = SparqlGenerator.useGAS(data)
+		const prefix = this._useGAS(data.limit, data.iterations)
 			? 'PREFIX gas: <http://www.bigdata.com/rdf/gas#>\n\n' : '';
 
 			return `${prefix}SELECT ?item ?itemLabel ?linkTo {
@@ -23,11 +31,11 @@ class SparqlGenerator {
 	 * @param {Object} data
 	 * @return {string}
 	 */
-	_generateClause(data) {
+	static _generateClause(data) {
 		if (data.mode === 'both') {
 			return `{ ${this._generateClause({...data, mode: 'forward' })} }`
 				+ ` UNION { ${this._generateClause({...data, mode: 'reverse' })} }`;
-		} else if (!SparqlGenerator.useGAS(data)) {
+		} else if (!this._useGAS(data.limit, data.iterations)) {
 			if (data.mode === 'forward') {
 				return `wd:${data.item} wdt:${data.property}* ?item`;
 			} else if (data.mode === 'reverse') {
@@ -39,7 +47,7 @@ class SparqlGenerator {
 			return `SERVICE gas:service {
   gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.SSSP";
   gas:in wd:${data.item};
-  gas:traversalDirection "${SparqlGenerator.capitalize(data.mode)}";
+  gas:traversalDirection "${this._capitalize(data.mode)}";
   gas:out ?item;
   gas:out1 ?depth;${typeof data.iterations !== 'number' || data.iterations === 0 ? '' : `
   gas:maxIterations ${data.iterations};`
@@ -52,21 +60,34 @@ class SparqlGenerator {
 	}
 
 	/**
+	 *
+	 * @param {Object} data
+	 * @return {Object}
+	 */
+	static _sanitizeData(data) {
+		if (!data.item || !data.property) {
+			throw new Error('Item and property are required to generate a SPARQL query.')
+		}
+		return Object.assign({}, this._defaultProps, data);
+	}
+
+	/**
 	 * Whether to use the Gather Apply Scatter model.
 	 * (https://wiki.blazegraph.com/wiki/index.php/RDF_GAS_API)
 	 *
-	 * @param {Object} data
+	 * @param {number} limit
+	 * @param {number} iterations
 	 * @return {boolean}
 	 */
-	static useGAS(data) {
-		return data.limit > 0 || data.iterations > 0;
+	static _useGAS(limit, iterations) {
+		return limit > 0 || iterations > 0;
 	}
 
 	/**
 	 * @param {string} string
 	 * @return {string}
 	 */
-	static capitalize(string) {
+	static _capitalize(string) {
 		return string.charAt(0).toUpperCase() + string.slice(1);
 	}
 }

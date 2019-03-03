@@ -14,8 +14,6 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 
-		this._sparqlGenerator = new SparqlGenerator();
-
 		this.state = {
 			queryProps: {
 				item: this.props.defaultQueryProps.item,
@@ -35,7 +33,7 @@ class App extends Component {
 	 */
 	componentDidMount() {
 		this.setState({
-			sparqlQuery: this._sparqlGenerator.generate(this.state.queryProps)
+			sparqlQuery: SparqlGenerator.generate(this.state.queryProps)
 		});
 	}
 
@@ -54,7 +52,7 @@ class App extends Component {
 	 * @inheritdoc
 	 */
 	componentDidUpdate(prevProps, prevState) {
-		const sparqlQuery = this._sparqlGenerator.generate(this.state.queryProps);
+		const sparqlQuery = SparqlGenerator.generate(this.state.queryProps);
 
 		if (sparqlQuery !== this.state.sparqlQuery) {
 			this.setState({sparqlQuery: sparqlQuery});

@@ -79,7 +79,11 @@ class App extends Component {
 				{
 					this.state.data === null
 						? 'loading'
-						: <Chart data={this.state.data} root={this.state.queryProps.item} />
+						: <Chart
+								data={this.state.data}
+								root={this.state.queryProps.item}
+								getEntityImage={Wikidata.getEntityImage}
+							/>
 				}
 			</div>
 		);

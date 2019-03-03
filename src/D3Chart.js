@@ -1,13 +1,16 @@
 import * as d3 from 'd3';
+import tip from 'd3-tip';
 import './D3Chart.css';
 
 class D3Chart {
 
 	/**
 	 * @param {HTMLElement} element
+	 * @param {Function} getEntityImage
 	 */
-	constructor(element) {
+	constructor(element, getEntityImage) {
 		this.element = element;
+		this._getEntityImage = getEntityImage;
 	}
 
 	/**
@@ -45,7 +48,8 @@ class D3Chart {
 		this.svg
 			.attr('width', state.width)
 			.attr('height', state.height)
-			.call(this._zoom = d3.zoom().on('zoom', () => this._onZoom()));
+			.call(this._zoom = d3.zoom().on('zoom', () => this._onZoom()))
+			.call(this._tooltip = this._createTooltip());
 
 		this._createSimulation(state.data);
 
@@ -94,7 +98,12 @@ class D3Chart {
 			.join('circle')
 			.attr('r', 5)
 			.attr('class', d => d.id === root ? 'root' : '')
-			.call(this._attachDragHandlers());
+			.call(this._attachDragHandlers())
+			.on(
+				'mouseover',
+				(d, index, circles) => this._enterTooltip(d, circles[index])
+			)
+			.on('mouseout', () => this._exitTooltip());
 	}
 
 	/**
@@ -122,6 +131,37 @@ class D3Chart {
 			.attr('y', '.31em')
 			.text(d => d.label)
 			.on('click', d => window.open(d.uri));
+	}
+
+	/**
+	 * @return {Object}
+	 */
+	_createTooltip() {
+		return tip()
+			.attr('class', 'd3-tip')
+			.offset([-10, 0]);
+	}
+
+	/**
+	 * @param {Object} d
+	 * @param {HTMLElement} target
+	 *   Node to attach the tooltip to.
+	 */
+	_enterTooltip(d, target) {
+		this._getEntityImage(d.id)
+			.then(imgUrl => {
+				this._tooltip.html(`<img src="${imgUrl}">`);
+				this._tooltip.show(d, target);
+			})
+			.catch(() => {
+				this._tooltip.html('no image');
+				this._tooltip.show(d, target);
+			});
+	}
+
+	_exitTooltip() {
+		this._tooltip.html('');
+		this._tooltip.hide();
 	}
 
 	/**
@@ -153,6 +193,7 @@ class D3Chart {
 
 	_onZoom() {
 		this.container.attr('transform', d3.event.transform);
+		this._exitTooltip();
 	}
 
 	/**

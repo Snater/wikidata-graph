@@ -1,4 +1,5 @@
 import * as wdk from 'wikidata-sdk';
+import MD5 from 'md5';
 
 class WikidataInterface {
 
@@ -20,6 +21,19 @@ class WikidataInterface {
 	}
 
 	/**
+	 * @param {string} id
+	 * @return {Promise<Object>}
+	 */
+	static getEntity(id) {
+		return WikidataInterface.request(wdk.getEntities({
+			ids: [id],
+			languages: ['en'],
+			props: ['claims'],
+		}))
+			.then(response => response.entities[id]);
+	}
+
+	/**
 	 * @param {string} searchString
 	 * @param {string} [type]
 	 * @return {Promise<Object[]>}
@@ -31,7 +45,7 @@ class WikidataInterface {
 			url += '&type=property';
 		}
 
-		return this.request(url);
+		return WikidataInterface.request(url);
 	}
 
 	/**
@@ -42,7 +56,7 @@ class WikidataInterface {
 	 * @return {Promise<Object[]>}
 	 */
 	static getLanguages() {
-		return this.request(wdk.sparqlQuery(`
+		return WikidataInterface.request(wdk.sparqlQuery(`
 			SELECT ?item ?itemLabel ?language_code ?native_label WHERE {
 				?item wdt:P424 ?language_code.
 				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q14827288. }
@@ -67,9 +81,9 @@ class WikidataInterface {
 	 * @return {Promise<Object[]>}
 	 */
 	static sparqlQuery(sparql) {
-		return this.request(wdk.sparqlQuery(sparql))
+		return WikidataInterface.request(wdk.sparqlQuery(sparql))
 			.then(response => wdk.simplify.sparqlResults(response))
-			.then(results => this.convertToNodesAndLinks(results))
+			.then(results => WikidataInterface.convertToNodesAndLinks(results))
 			.catch(error => console.error(error));
 	}
 
@@ -96,6 +110,43 @@ class WikidataInterface {
 			nodes: nodes,
 			links: links,
 		}
+	}
+
+	/**
+	 * @param {string} id
+	 * @return {Promise<string>}
+	 */
+	static getEntityImage(id) {
+		return new Promise((resolve, reject) => {
+			WikidataInterface.getEntity(id)
+				.then(entity => {
+					if (entity.claims.P18) {
+						const mainsnak = entity.claims.P18[0].mainsnak;
+
+						if (mainsnak.datatype = 'commonsMedia') {
+							const filename = mainsnak.datavalue.value.replace(/ /g, '_');
+							const imgUrl = WikidataInterface.createCommonsUrl(filename);
+							const img = new Image();
+
+							img.src = imgUrl;
+							img.onload = () => {
+								resolve(imgUrl);
+							};
+						}
+					} else {
+						reject(Error('Entity has no image.'))
+					}
+				});
+		});
+	}
+
+	/**
+	 * @param {string} filename
+	 * @return {string}
+	 */
+	static createCommonsUrl(filename) {
+		const md5 = MD5(filename);
+		return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}`;
 	}
 }
 

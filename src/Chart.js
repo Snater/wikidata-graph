@@ -22,7 +22,10 @@ class Chart extends Component {
 	 * @inheritdoc
 	 */
 	componentDidMount() {
-		this.d3Chart = new D3Chart(ReactDom.findDOMNode(this));
+		this.d3Chart = new D3Chart(
+			ReactDom.findDOMNode(this),
+			this.props.getEntityImage
+		);
 		this.d3Chart.create(this.getChartState());
 
 		window.addEventListener('resize', this.updateDimensions);

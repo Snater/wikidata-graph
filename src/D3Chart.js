@@ -11,6 +11,16 @@ class D3Chart {
 	constructor(element, getEntityImage) {
 		this.element = element;
 		this._getEntityImage = getEntityImage;
+		this._tooltip = this._createTooltip();
+	}
+
+	/**
+	 * @return {Object}
+	 */
+	_createTooltip() {
+		return tip()
+			.attr('class', 'd3-tip')
+			.offset([-10, 0]);
 	}
 
 	/**
@@ -37,6 +47,8 @@ class D3Chart {
 		}
 
 		this._draw(state);
+
+		this._tooltip.hide();
 	}
 
 	/**
@@ -49,16 +61,16 @@ class D3Chart {
 			.attr('width', state.width)
 			.attr('height', state.height)
 			.call(this._zoom = d3.zoom().on('zoom', () => this._onZoom()))
-			.call(this._tooltip = this._createTooltip());
+			.call(this._tooltip);
 
 		this._createSimulation(state.data);
 
 		this._drawDefs();
 		const links = this._drawLinks(state.data.links);
-		const nodes = this._drawNodes(state.data.nodes, state.root);
-		const labels = this._drawLabels(state.data.nodes);
+		const circles = this._drawNodes(state.data.nodes, state.root);
+		const labels = this._drawLabels(state.data.nodes, circles);
 
-		this.simulation.on('tick', () => this._onTick(nodes, links, labels));
+		this.simulation.on('tick', () => this._onTick(circles, links, labels));
 	}
 
 	_drawDefs() {
@@ -119,9 +131,10 @@ class D3Chart {
 
 	/**
 	 * @param {Object[]} nodes
+	 * @param {d3.selection} circles
 	 * @return {d3.selection}
 	 */
-	_drawLabels(nodes) {
+	_drawLabels(nodes, circles) {
 		return this.container.append('g')
 			.selectAll('text')
 			.data(nodes)
@@ -130,16 +143,15 @@ class D3Chart {
 			.attr('x', 8)
 			.attr('y', '.31em')
 			.text(d => d.label)
-			.on('click', d => window.open(d.uri));
-	}
-
-	/**
-	 * @return {Object}
-	 */
-	_createTooltip() {
-		return tip()
-			.attr('class', 'd3-tip')
-			.offset([-10, 0]);
+			.on('click', d => window.open(d.uri))
+			.on(
+				'mouseover',
+				d => this._enterTooltip(
+					d,
+					circles.filter(`:nth-child(${d.index + 1})`).node()
+				)
+			)
+			.on('mouseout', () => this._exitTooltip());
 	}
 
 	/**

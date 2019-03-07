@@ -120,22 +120,24 @@ class WikidataInterface {
 		return new Promise((resolve, reject) => {
 			WikidataInterface.getEntity(id)
 				.then(entity => {
+					const img = new Image();
+					let imgUrl = null;
+
 					if (entity.claims.P18) {
 						const mainsnak = entity.claims.P18[0].mainsnak;
 
 						if (mainsnak.datatype = 'commonsMedia') {
 							const filename = mainsnak.datavalue.value.replace(/ /g, '_');
-							const imgUrl = WikidataInterface.createCommonsUrl(filename);
-							const img = new Image();
-
-							img.src = imgUrl;
-							img.onload = () => {
-								resolve(imgUrl);
-							};
+							imgUrl = WikidataInterface.createCommonsUrl(filename);
 						}
 					} else {
-						reject(Error('Entity has no image.'))
+						imgUrl =  WikidataInterface.createCommonsUrl(
+							'No_image_available_500_x_500.svg'
+						);
 					}
+
+					img.src = imgUrl;
+					img.onload = () => resolve(imgUrl);
 				});
 		});
 	}
@@ -146,7 +148,8 @@ class WikidataInterface {
 	 */
 	static createCommonsUrl(filename) {
 		const md5 = MD5(filename);
-		return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}`;
+		const extension = filename.endsWith('.svg') ? '.png' : '';
+		return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}${extension}`;
 	}
 }
 

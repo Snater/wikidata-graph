@@ -68,9 +68,9 @@ class D3Chart {
 		this._drawDefs();
 		const links = this._drawLinks(state.data.links);
 		const circles = this._drawNodes(state.data.nodes, state.root);
-		const labels = this._drawLabels(state.data.nodes, circles);
+		this._labels = this._drawLabels(state.data.nodes, circles);
 
-		this.simulation.on('tick', () => this._onTick(circles, links, labels));
+		this.simulation.on('tick', () => this._onTick(circles, links, this._labels));
 	}
 
 	_drawDefs() {
@@ -113,7 +113,7 @@ class D3Chart {
 			.call(this._attachDragHandlers())
 			.on(
 				'mouseover',
-				(d, index, circles) => this._enterTooltip(d, circles[index])
+				(d, index, circles) => this._enterTooltip(d, circles[index], index)
 			)
 			.on('mouseout', () => this._exitTooltip());
 	}
@@ -146,9 +146,10 @@ class D3Chart {
 			.on('click', d => window.open(d.uri))
 			.on(
 				'mouseover',
-				d => this._enterTooltip(
+				(d, index, labels) => this._enterTooltip(
 					d,
-					circles.filter(`:nth-child(${d.index + 1})`).node()
+					circles.filter(`:nth-child(${d.index + 1})`).node(),
+					index
 				)
 			)
 			.on('mouseout', () => this._exitTooltip());
@@ -158,8 +159,11 @@ class D3Chart {
 	 * @param {Object} d
 	 * @param {HTMLElement} target
 	 *   Node to attach the tooltip to.
+	 * @param {number} index
 	 */
-	_enterTooltip(d, target) {
+	_enterTooltip(d, target, index) {
+		this._labels.filter(`:not(:nth-child(${index + 1}))`).style('opacity', 0.3);
+
 		this._getEntityImage(d.id)
 			.then(imgUrl => {
 				this._tooltip.html(`<img src="${imgUrl}">`);
@@ -174,6 +178,7 @@ class D3Chart {
 	_exitTooltip() {
 		this._tooltip.html('');
 		this._tooltip.hide();
+		this._labels.style('opacity', 1);
 	}
 
 	/**

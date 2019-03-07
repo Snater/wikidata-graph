@@ -36,3 +36,28 @@
 		-0.5px 0.5px 0 #fff,
 		0.5px 0.5px 0 #fff;
 }
+
+.d3-tip {
+	--shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+
+	background-color: #fff;
+	border: 1px solid black;
+	box-shadow: var(--shadow);
+	display: flex;
+}
+
+.d3-tip:after {
+	text-shadow: var(--shadow);
+	box-sizing: border-box;
+	color: rgba(0, 0, 0, 0.8);
+	content: '\25BC';
+	display: inline;
+	font-size: 10px;
+	left: 0;
+	line-height: 1;
+	margin: -1px 0 0 0;
+	position: absolute;
+	text-align: center;
+	top: 100%;
+	width: 100%;
+}

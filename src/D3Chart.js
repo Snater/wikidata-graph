@@ -230,6 +230,11 @@ class D3Chart {
 			.attr('y2', d => d.target.y);
 
 		labels.attr('transform', d => `translate(${d.x},${d.y})`);
+
+		if (this._tooltip.style('opacity') === '1') {
+			// Reset tooltip position:
+			this._tooltip.hide().show();
+		}
 	}
 }
 

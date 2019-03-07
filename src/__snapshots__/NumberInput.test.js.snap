@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<input
+  min="0"
+  onChange={[Function]}
+  type="number"
+/>
+`;
+
+exports[`renders default value 1`] = `
+<input
+  defaultValue={99}
+  min="0"
+  onChange={[Function]}
+  type="number"
+/>
+`;

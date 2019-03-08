@@ -3,13 +3,13 @@ import renderer from 'react-test-renderer';
 import { mount, shallow } from 'enzyme';
 import NumberInput from './NumberInput';
 
-it('contains only an input element', () => {
-	const wrapper = shallow(<NumberInput />);
-	expect(wrapper.find('input').equals(wrapper.get(0))).toEqual(true);
+it('renders correctly without props', () => {
+	const rendered = renderer.create(<NumberInput />).toJSON();
+	expect(rendered).toMatchSnapshot()
 });
 
-it('renders correctly', () => {
-	const rendered = renderer.create(<NumberInput />).toJSON();
+it('renders correctly with label', () => {
+	const rendered = renderer.create(<NumberInput label="label" />).toJSON();
 	expect(rendered).toMatchSnapshot()
 });
 

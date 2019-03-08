@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import TextField from '@material-ui/core/TextField';
 
 class NumberInput extends Component {
 
@@ -8,9 +9,10 @@ class NumberInput extends Component {
 	 */
 	render() {
 		return (
-			<input
+			<TextField
+				label={this.props.label}
 				type="number"
-				min="0"
+				inputProps={{min: 0}}
 				defaultValue={this.props.defaultValue}
 				onChange={e => this.props.onChange(parseInt(e.target.value))}
 			/>
@@ -20,6 +22,7 @@ class NumberInput extends Component {
 
 NumberInput.propTypes = {
 	defaultValue: PropTypes.number,
+	label: PropTypes.string,
 	onChange: PropTypes.func,
 };
 

@@ -35,13 +35,11 @@ class Form extends Component {
 					defaultValue={this.props.mode}
 					onChange={value => this.props.onChange({mode: value})}
 				/>
-				<label>
-					Language
-					<LanguageSelect
-						initialLanguage={this.props.language}
-						onChange={value => this.props.onChange({language: value})}
-					/>
-				</label>
+				<LanguageSelect
+					id="language"
+					defaultValue={this.props.language}
+					onChange={value => this.props.onChange({language: value})}
+				/>
 				<div className="Form__number-inputs">
 					<NumberInput
 						label="Iterations"

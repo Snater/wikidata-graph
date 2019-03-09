@@ -1,8 +1,244 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import AsyncSelect from 'react-select/lib/Async';
+import { withStyles } from '@material-ui/core/styles';
+import FormControl from '@material-ui/core/FormControl';
+import ListItemText from '@material-ui/core/ListItemText';
+import MenuItem from '@material-ui/core/MenuItem';
+import NoSsr from '@material-ui/core/NoSsr';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import WikidataInterface from './WikidataInterface';
-import './EntitySelect.css';
+
+/**
+ * @param {Object} theme
+ */
+const styles = theme => ({
+	input: {
+		display: 'flex',
+		padding: 0,
+	},
+	valueContainer: {
+		display: 'flex',
+		flexWrap: 'wrap',
+		flex: 1,
+		alignItems: 'center',
+		overflow: 'hidden',
+	},
+	noOptionsMessage: {
+		padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+	},
+	singleValue: {
+		fontSize: 16,
+	},
+	placeholder: {
+		position: 'absolute',
+		left: 2,
+		fontSize: 16,
+	},
+	paper: {
+		position: 'absolute',
+		zIndex: 1,
+		marginTop: theme.spacing.unit,
+		left: 0,
+		right: 0,
+	},
+	option: {
+		height: 'auto',
+		whiteSpace: 'normal',
+	},
+});
+
+/**
+ * @param {Object} props
+ * @return {JSX}
+ */
+function NoOptionsMessage(props) {
+	return (
+		<Typography
+			color="textSecondary"
+			className={props.selectProps.classes.noOptionsMessage}
+			{...props.innerProps}
+		>
+			{props.children}
+		</Typography>
+	);
+}
+
+/**
+ * @param {Object} inputRef
+ * @param {Object} props
+ * @return {JSX}
+ */
+function inputComponent({inputRef, ...props}) {
+	return (<div ref={inputRef} {...props} />);
+}
+
+/**
+ * @param {Object} props
+ * @return {JSX}
+ */
+function Control(props) {
+	return (
+		<TextField
+			fullWidth
+			InputProps={{
+				inputComponent,
+				inputProps: {
+					className: props.selectProps.classes.input,
+					inputRef: props.innerRef,
+					children: props.children,
+					...props.innerProps,
+				}
+			}}
+			{...props.selectProps.textFieldProps}
+		/>
+	);
+}
+
+/**
+ * @param {Object} props
+ * @return {JSX}
+ */
+function Option(props) {
+	return (
+		<MenuItem
+			buttonRef={props.innerRef}
+			selected={props.isFocused}
+			component="div"
+			className={props.selectProps.classes.option}
+			style={{
+				fontWeight: props.isSelected ? 500 : 400,
+			}}
+			{...props.innerProps}
+		>
+			<ListItemText
+				primary={props.children}
+				secondary={props.data.description}
+				secondaryTypographyProps={{
+					component: 'span',
+					inline: true,
+					noWrap: false
+				}}
+			/>
+		</MenuItem>
+	);
+}
+
+/**
+ * @param {Object} props
+ * @return {JSX}
+ */
+function Placeholder(props) {
+	return (
+		<Typography
+			color="textSecondary"
+			className={props.selectProps.classes.placeholder}
+			{...props.innerProps}
+		>
+			{props.children}
+		</Typography>
+	);
+}
+
+/**
+ * @param {Object} props
+ * @return {JSX}
+ */
+function SingleValue(props) {
+	return (
+		<Typography
+			className={props.selectProps.classes.singleValue}
+			component="div"
+			{...props.innerProps}
+		>
+			{props.children}
+		</Typography>
+	);
+}
+
+/**
+ * @param {Object} props
+ * @return {JSX}
+ */
+function ValueContainer(props) {
+	return (
+		<div className={props.selectProps.classes.valueContainer}>
+			{props.children}
+		</div>
+	);
+}
+
+/**
+ * @param {Object} props
+ * @return {JSX}
+ */
+function Menu(props) {
+	return (
+		<Paper
+			square
+			className={props.selectProps.classes.paper}
+			{...props.innerProps}
+		>
+			{props.children}
+		</Paper>
+	);
+}
+
+/**
+ * @return {JSX}
+ */
+function DropdownIndicator() {
+	return <div/>;
+}
+
+/**
+ * @return {JSX}
+ */
+function IndicatorSeparator() {
+	return <div/>;
+}
+
+/**
+ * @type {Object}
+ */
+const components = {
+	Control,
+	DropdownIndicator,
+	IndicatorSeparator,
+	Menu,
+	NoOptionsMessage,
+	Option,
+	Placeholder,
+	SingleValue,
+	ValueContainer
+};
+
+/**
+ * @param {string|null} inputValue
+ * @return {string}
+ */
+function noOptionsMessage({inputValue}) {
+	return inputValue === '' || inputValue === null
+		? 'Start typing to search for entities' : 'No options';
+}
+
+/**
+ * @param {string} input
+ * @param {string} entityType
+ * @return {Promise}
+ */
+function loadOptions(input, entityType) {
+	return WikidataInterface.search(input, entityType)
+		.then(response => response.search.map(
+			result => Object.create({
+				value: result.id,
+				label: result.label,
+				description: result.description,
+			})
+		));
+}
 
 class EntitySelect extends Component {
 
@@ -12,7 +248,12 @@ class EntitySelect extends Component {
 	constructor(props) {
 		super(props);
 
-		this._select = React.createRef();
+		this._currentValue = null;
+
+		this.state = {
+			value: null,
+			placeholder: 'Start typing to search for an entity',
+		}
 	}
 
 	/**
@@ -20,72 +261,77 @@ class EntitySelect extends Component {
 	 */
 	componentDidMount() {
 		WikidataInterface.search(this.props.entityId, this.props.entityType)
-			.then(response => {
-				this._select.current.select.setState({
+			.then(response => this.setState({
 					value: {
-						value: response.search[0].value,
-						label: response.search[0].label
-					},
-				});
-			});
+					value: response.search[0].value,
+					label: response.search[0].label
+				},
+				placeholder: response.search[0].label,
+			}));
 	}
 
 	/**
-	 * @param {string} input
-	 * @return {Promise}
+	 * @inheritdoc
 	 */
-	loadOptions = input => {
-		return WikidataInterface.search(input, this.props.entityType)
-			.then(response => response.search.map(
-				result => Object.create({
-					value: result.id,
-					label: result.label,
-					description: result.description,
-				})
-			));
-	};
+	componentDidUpdate(prevProps, prevState) {
+		if (this.state.value !== null) {
+			this._currentValue = this.state.value;
+		}
+	}
 
 	/**
 	 * @param {Object} selectedOption
 	 */
-	handleChange = selectedOption => this.props.onChange(selectedOption.value);
-
-	resetSelect = () => this._select.current.setState({defaultOptions: []});
-
-	/**
-	 * @param {Object} option
-	 * @return {*}
-	 */
-	formatOptionLabel(option) {
-		return (
-			<div className="EntitySelect__option">
-				<div className="EntitySelect__option__label">{option.label}</div>
-				<div className="EntitySelect__option__description">{option.description}</div>
-			</div>
-		);
-	}
+	handleChange = selectedOption => {
+		this.setState({
+			value: {
+				value: selectedOption.value,
+				label: selectedOption.label,
+			},
+			placeholder: selectedOption.label,
+		});
+		this.props.onChange(selectedOption.value);
+	};
 
 	/**
-	 * @param {string|null} inputValue
-	 * @return {string}
+	 * @inheritdoc
 	 */
-	noOptionsMessage({inputValue}) {
-		return inputValue === '' || inputValue === null
-			? 'Start typing to search for entities' : 'No options';
-	}
-
 	render() {
+		const {classes, theme} = this.props;
+
+		const selectStyles = {
+			input: base => ({
+				...base,
+				color: theme.palette.text.primary,
+				'& input': {
+					font: 'inherit',
+				}
+			})
+		};
+
 		return(
-			<AsyncSelect
-				ref={this._select}
-				loadOptions={this.loadOptions}
-				onChange={selectedOption => this.handleChange(selectedOption)}
-				onKeyDown={e => this.resetSelect()}
-				className="EntitySelect"
-				classNamePrefix="EntitySelect"
-				formatOptionLabel={this.formatOptionLabel}
-				noOptionsMessage={this.noOptionsMessage}
-			/>
+			<FormControl margin="dense">
+				<NoSsr>
+					<AsyncSelect
+						classes={classes}
+						styles={selectStyles}
+						components={components}
+						loadOptions={value => loadOptions(value, this.props.entityType)}
+						onChange={selectedOption => this.handleChange(selectedOption)}
+						onFocus={e => this.setState({value: null})}
+						onBlur={e => this.setState({value: this._currentValue})}
+						noOptionsMessage={noOptionsMessage}
+						placeholder={this.state.placeholder}
+						value={this.state.value}
+						textFieldProps={{
+							label: this.props.label,
+							InputLabelProps: {
+								shrink: true,
+							},
+						}}
+					/>
+				</NoSsr>
+			</FormControl>
 		);
 	}
 }
@@ -94,6 +340,8 @@ EntitySelect.propTypes = {
 	entityType: PropTypes.string,
 	entityId: PropTypes.string,
 	onChange: PropTypes.func,
+	classes: PropTypes.object.isRequired,
+	theme: PropTypes.object.isRequired,
 };
 
-export default EntitySelect;
+export default withStyles(styles, {withTheme: true})(EntitySelect);

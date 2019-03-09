@@ -14,22 +14,18 @@ class Form extends Component {
 	render() {
 		return (
 			<form className="Form">
-				<label>
-					Root Item
-					<EntitySelect
-						entityType="item"
-						entityId={this.props.item}
-						onChange={value => this.props.onChange({item: value})}
-					/>
-				</label>
-				<label>
-					Traversal Property
-					<EntitySelect
-						entityType="property"
-						entityId={this.props.property}
-						onChange={value => this.props.onChange({property: value})}
-					/>
-				</label>
+				<EntitySelect
+					entityType="item"
+					entityId={this.props.item}
+					onChange={value => this.props.onChange({item: value})}
+					label="Root Item"
+				/>
+				<EntitySelect
+					entityType="property"
+					entityId={this.props.property}
+					onChange={value => this.props.onChange({property: value})}
+					label="Traversal Property"
+				/>
 				<ModeSelect
 					id="mode"
 					defaultValue={this.props.mode}

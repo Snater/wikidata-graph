@@ -1,29 +1,8 @@
 .Form {
-	--border: 1px solid #ccc;
-	--border-radius: 4px;
-
 	display: flex;
 	flex-direction: column;
 	margin: 30px;
 	width: 300px;
-}
-
-.Form > * {
-	margin-top: 10px;
-}
-
-.Form > *:first-child {
-	margin-top: 0;
-}
-
-.Form label {
-	color: #fff;
-	display: flex;
-	flex-direction: column;
-}
-
-.Form label > * {
-	color: #000;
 }
 
 .Form .Form__number-inputs {
@@ -32,20 +11,12 @@
 	grid-template-columns: 48% 48%;
 }
 
-.Form input[type='number'] {
-	border-radius: var(--border-radius);
-	border: var(--border);
-	padding: 10px;
-}
-
 Form .Form__sparql {
 	font-style: italic;
 	margin-top: 40px;
 }
 
 .Form textarea {
-	border-radius: var(--border-radius);
-	border: var(--border);
 	height: 300px;
 	width: 100%;
 }

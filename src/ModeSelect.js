@@ -1,6 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Select from 'react-select';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 
 class ModeSelect extends Component {
 
@@ -16,20 +19,51 @@ class ModeSelect extends Component {
 	/**
 	 * @inheritdoc
 	 */
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			value: props.defaultValue,
+		};
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	componentDidUpdate(prevProps, prevState) {
+		if (this.state.value !== prevState.value) {
+			this.props.onChange(this.state.value);
+		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	render() {
 		return (
-			<Select
-				options={ModeSelect.options}
-				defaultValue={ModeSelect.options.find(
-					option => option.value === this.props.defaultValue
-				)}
-				onChange={selectedOption => this.props.onChange(selectedOption.value)}
-				/>
+			<FormControl margin="dense">
+				<InputLabel htmlFor={this.props.id}>Direction</InputLabel>
+				<Select
+					inputProps={{
+						id: this.props.id
+					}}
+					value={this.state.value}
+					onChange={e => this.setState({value: e.target.value})}
+				>
+					{ModeSelect.options.map(option =>
+						<MenuItem
+							key={option.value}
+							value={option.value}
+						>{option.label}</MenuItem>
+					)}
+				</Select>
+			</FormControl>
 		);
 	}
 }
 
 ModeSelect.propTypes = {
+	id: PropTypes.string.isRequired,
 	defaultValue: PropTypes.string,
 	onChange: PropTypes.func,
 };

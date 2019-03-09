@@ -30,13 +30,11 @@ class Form extends Component {
 						onChange={value => this.props.onChange({property: value})}
 					/>
 				</label>
-				<label>
-					Direction
-					<ModeSelect
-						defaultValue={this.props.mode}
-						onChange={value => this.props.onChange({mode: value})}
-					/>
-				</label>
+				<ModeSelect
+					id="mode"
+					defaultValue={this.props.mode}
+					onChange={value => this.props.onChange({mode: value})}
+				/>
 				<label>
 					Language
 					<LanguageSelect
@@ -45,20 +43,16 @@ class Form extends Component {
 					/>
 				</label>
 				<div className="Form__number-inputs">
-					<label>
-						Depth
-						<NumberInput
-							defaultValue={this.props.iterations}
-							onChange={value => this.props.onChange({iterations: value})}
-						/>
-					</label>
-					<label>
-						Limit
-						<NumberInput
-							defaultValue={this.props.limit}
-							onChange={value => this.props.onChange({limit: value})}
-						/>
-					</label>
+					<NumberInput
+						label="Iterations"
+						defaultValue={this.props.iterations}
+						onChange={value => this.props.onChange({iterations: value})}
+					/>
+					<NumberInput
+						label="Limit"
+						defaultValue={this.props.limit}
+						onChange={value => this.props.onChange({limit: value})}
+					/>
 				</div>
 				<label className="Form__sparql">
 					Generated SPARQL Query

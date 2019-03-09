@@ -126,7 +126,7 @@ class WikidataInterface {
 					if (entity.claims.P18) {
 						const mainsnak = entity.claims.P18[0].mainsnak;
 
-						if (mainsnak.datatype = 'commonsMedia') {
+						if (mainsnak.datatype === 'commonsMedia') {
 							const filename = mainsnak.datavalue.value.replace(/ /g, '_');
 							imgUrl = WikidataInterface.createCommonsUrl(filename);
 						}

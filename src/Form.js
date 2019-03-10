@@ -26,17 +26,19 @@ class Form extends Component {
 					onChange={value => this.props.onChange({property: value})}
 					label="Traversal Property"
 				/>
-				<ModeSelect
-					id="mode"
-					defaultValue={this.props.mode}
-					onChange={value => this.props.onChange({mode: value})}
-				/>
-				<LanguageSelect
-					id="language"
-					defaultValue={this.props.language}
-					onChange={value => this.props.onChange({language: value})}
-				/>
-				<div className="Form__number-inputs">
+				<div className="Form__2-col">
+					<ModeSelect
+						id="mode"
+						defaultValue={this.props.mode}
+						onChange={value => this.props.onChange({mode: value})}
+					/>
+					<LanguageSelect
+						id="language"
+						defaultValue={this.props.language}
+						onChange={value => this.props.onChange({language: value})}
+					/>
+				</div>
+				<div className="Form__2-col">
 					<NumberInput
 						label="Iterations"
 						defaultValue={this.props.iterations}

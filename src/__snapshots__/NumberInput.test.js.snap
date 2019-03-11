@@ -2,76 +2,87 @@
 
 exports[`renders correctly with label 1`] = `
 <div
-  className="MuiFormControl-root-1"
+  className="MuiFormControl-root-1 MuiFormControl-marginDense-3"
 >
-  <label
-    className="MuiFormLabel-root-46 MuiInputLabel-root-35 MuiInputLabel-formControl-40 MuiInputLabel-animated-43"
-    data-shrink={false}
-  >
-    label
-  </label>
   <div
-    className="MuiInputBase-root-18 MuiInput-root-5 MuiInput-underline-9 MuiInputBase-formControl-19 MuiInput-formControl-6"
-    onClick={[Function]}
+    className="MuiFormControl-root-1"
   >
-    <input
-      aria-invalid={false}
-      className="MuiInputBase-input-28 MuiInput-input-13 MuiInputBase-inputType-31 MuiInput-inputType-16"
-      disabled={false}
-      min={0}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onFocus={[Function]}
-      required={false}
-      type="number"
-    />
+    <label
+      className="MuiFormLabel-root-46 MuiInputLabel-root-35 MuiInputLabel-formControl-40 MuiInputLabel-animated-43"
+      data-shrink={false}
+    >
+      label
+    </label>
+    <div
+      className="MuiInputBase-root-18 MuiInput-root-5 MuiInput-underline-9 MuiInputBase-formControl-19 MuiInput-formControl-6"
+      onClick={[Function]}
+    >
+      <input
+        aria-invalid={false}
+        className="MuiInputBase-input-28 MuiInput-input-13 MuiInputBase-inputType-31 MuiInput-inputType-16"
+        disabled={false}
+        min={0}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        required={false}
+        type="number"
+      />
+    </div>
   </div>
 </div>
 `;
 
 exports[`renders correctly without props 1`] = `
 <div
-  className="MuiFormControl-root-1"
+  className="MuiFormControl-root-1 MuiFormControl-marginDense-3"
 >
   <div
-    className="MuiInputBase-root-18 MuiInput-root-5 MuiInput-underline-9 MuiInputBase-formControl-19 MuiInput-formControl-6"
-    onClick={[Function]}
+    className="MuiFormControl-root-1"
   >
-    <input
-      aria-invalid={false}
-      className="MuiInputBase-input-28 MuiInput-input-13 MuiInputBase-inputType-31 MuiInput-inputType-16"
-      disabled={false}
-      min={0}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onFocus={[Function]}
-      required={false}
-      type="number"
-    />
+    <div
+      className="MuiInputBase-root-18 MuiInput-root-5 MuiInput-underline-9 MuiInputBase-formControl-19 MuiInput-formControl-6"
+      onClick={[Function]}
+    >
+      <input
+        aria-invalid={false}
+        className="MuiInputBase-input-28 MuiInput-input-13 MuiInputBase-inputType-31 MuiInput-inputType-16"
+        disabled={false}
+        min={0}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        required={false}
+        type="number"
+      />
+    </div>
   </div>
 </div>
 `;
 
 exports[`renders default value 1`] = `
 <div
-  className="MuiFormControl-root-1"
+  className="MuiFormControl-root-1 MuiFormControl-marginDense-3"
 >
   <div
-    className="MuiInputBase-root-18 MuiInput-root-5 MuiInput-underline-9 MuiInputBase-formControl-19 MuiInput-formControl-6"
-    onClick={[Function]}
+    className="MuiFormControl-root-1"
   >
-    <input
-      aria-invalid={false}
-      className="MuiInputBase-input-28 MuiInput-input-13 MuiInputBase-inputType-31 MuiInput-inputType-16"
-      defaultValue={99}
-      disabled={false}
-      min={0}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onFocus={[Function]}
-      required={false}
-      type="number"
-    />
+    <div
+      className="MuiInputBase-root-18 MuiInput-root-5 MuiInput-underline-9 MuiInputBase-formControl-19 MuiInput-formControl-6"
+      onClick={[Function]}
+    >
+      <input
+        aria-invalid={false}
+        className="MuiInputBase-input-28 MuiInput-input-13 MuiInputBase-inputType-31 MuiInput-inputType-16"
+        disabled={false}
+        min={0}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        required={false}
+        type="number"
+      />
+    </div>
   </div>
 </div>
 `;

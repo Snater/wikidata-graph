@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import tip from 'd3-tip';
+import Vector from './Vector';
 import './D3Chart.css';
 
 class D3Chart {
@@ -65,19 +66,53 @@ class D3Chart {
 
 		this._createSimulation(state.data);
 
-		this._drawDefs();
+		const nodes = this._calculateRadii(state.data.nodes);
+
+		this._drawDefs(!!nodes[0].radius);
+
 		const links = this._drawLinks(state.data.links);
-		const circles = this._drawNodes(state.data.nodes, state.root);
-		this._labels = this._drawLabels(state.data.nodes, circles);
+		const circles = this._drawNodes(nodes, state.root);
+		this._labels = this._drawLabels(nodes, circles);
 
 		this.simulation.on('tick', () => this._onTick(circles, links, this._labels));
 	}
 
-	_drawDefs() {
+	/**
+	 * @param {Object[]} nodes
+	 * @return {Object[]}
+	 */
+	_calculateRadii(nodes) {
+		const sizes = nodes.map(node => node.size);
+		const uniqueSizes = sizes.filter(
+			(size, index, self) => self.indexOf(size) === index
+		);
+
+		if (uniqueSizes.length < 1) {
+			return nodes;
+		}
+
+		const maxSize = nodes.reduce(
+			(maxSize, node) =>
+				node.size > maxSize || typeof maxSize !== 'number' ? node.size : maxSize
+		);
+		const minSize = nodes.reduce(
+			(minSize, node) =>
+				node.size < minSize || typeof minSize !== 'number' ? node.size : minSize
+		);
+		const scaleRange = [3, 20];
+		const scale = d3.scaleLinear().domain([minSize, maxSize]).range(scaleRange);
+
+		return nodes.map(node => Object.assign(node, {radius: scale(node.size)}));
+	}
+
+	/**
+	 * @param {boolean} hasRadius
+	 */
+	_drawDefs(hasRadius) {
 		this.svg.append('defs').append('marker')
 			.attr('id', 'triangle')
 			.attr('viewBox', '0 -5 10 10')
-			.attr('refX', '15')
+			.attr('refX', hasRadius ? '9' : '15')
 			.attr('markerUnits', 'strokeWidth')
 			.attr('markerWidth', '6')
 			.attr('markerHeight', '6')
@@ -108,7 +143,7 @@ class D3Chart {
 			.selectAll('circle')
 			.data(nodes)
 			.join('circle')
-			.attr('r', 5)
+			.attr('r', d => d.radius || 5)
 			.attr('class', d => d.id === root ? 'root' : '')
 			.call(this._attachDragHandlers())
 			.on(
@@ -223,11 +258,7 @@ class D3Chart {
 			.attr('cx', d => d.x)
 			.attr('cy', d => d.y);
 
-		links
-			.attr('x1', d => d.source.x)
-			.attr('y1', d => d.source.y)
-			.attr('x2', d => d.target.x)
-			.attr('y2', d => d.target.y);
+		this._calculateLine(links, nodes.filter(':first-child').datum().radius);
 
 		labels.attr('transform', d => `translate(${d.x},${d.y})`);
 
@@ -235,6 +266,47 @@ class D3Chart {
 			// Reset tooltip position:
 			this._tooltip.hide().show();
 		}
+	}
+
+	/**
+	 * @param {d3.selection} links
+	 * @param {boolean} hasSize
+	 */
+	_calculateLine(links, hasSize = false) {
+		if (!hasSize) {
+			links
+				.attr('x1', d => d.source.x)
+				.attr('y1', d => d.source.y)
+				.attr('x2', d => d.target.x)
+				.attr('y2', d => d.target.y);
+
+			return;
+		}
+
+		links
+			.each(d => {
+				if (d.source.x === d.target.x && d.source.y === d.target.y) {
+					d.scaledSource = d.source;
+					d.scaledTarget  = d.target;
+					return;
+				}
+
+				const diff = Vector.diff(d.target, d.source);
+
+				d.scaledSource = Vector.sum(
+					d.source,
+					Vector.scale(diff, d.source.radius)
+				);
+
+				d.scaledTarget = Vector.diff(
+					d.target,
+					Vector.scale(diff, d.target.radius)
+				);
+			})
+			.attr('x1', ({scaledSource}) => scaledSource.x)
+			.attr('y1', ({scaledSource}) => scaledSource.y)
+			.attr('x2', ({scaledTarget}) => scaledTarget.x)
+			.attr('y2', ({scaledTarget}) => scaledTarget.y);
 	}
 }
 

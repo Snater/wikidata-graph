@@ -22,6 +22,7 @@ class App extends Component {
 				language: this.props.defaultQueryProps.language,
 				iterations: this.props.defaultQueryProps.iterations,
 				limit: this.props.defaultQueryProps.limit,
+				sizeProperty: this.props.defaultQueryProps.sizeProperty || null,
 			},
 			sparqlQuery: '',
 			data: null,
@@ -91,7 +92,15 @@ class App extends Component {
 }
 
 App.propTypes = {
-	defaultQueryProps: PropTypes.object,
+	defaultQueryProps: PropTypes.shape({
+		item: PropTypes.string,
+		property: PropTypes.string,
+		mode: PropTypes.string,
+		language: PropTypes.string,
+		iterations: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+		limit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+		sizeProperty: PropTypes.string,
+	}),
 };
 
 export default App;

@@ -50,6 +50,12 @@ class Form extends Component {
 						onChange={value => this.props.onChange({limit: value})}
 					/>
 				</div>
+				<EntitySelect
+					entityType="property"
+					entityId={this.props.sizeProperty}
+					onChange={value => this.props.onChange({sizeProperty: value})}
+					label="Circle Size Property"
+				/>
 				<label className="Form__sparql">
 					Generated SPARQL Query
 					<textarea value={this.props.sparqlQuery} readOnly={true} />
@@ -66,6 +72,7 @@ Form.propTypes = {
 	language: PropTypes.string,
 	iterations: PropTypes.number,
 	limit: PropTypes.number,
+	sizeProperty: PropTypes.string,
 	sparqlQuery: PropTypes.string,
 };
 

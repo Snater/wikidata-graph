@@ -20,11 +20,20 @@ class SparqlGenerator {
 		const prefix = this._useGAS(data.limit, data.iterations)
 			? 'PREFIX gas: <http://www.bigdata.com/rdf/gas#>\n\n' : '';
 
-			return `${prefix}SELECT ?item ?itemLabel ?linkTo {
-  ${this._generateClause(data)}
+			return data.sizeProperty
+? `SELECT ?item ?itemLabel ?linkTo ?size {
+  { SELECT ?item (count(distinct ?element) as ?size) {
+    ${this._generateClause(data)}
+    OPTIONAL { ?element wdt:${data.sizeProperty} ?item }
+  } GROUP BY ?item }
   OPTIONAL { ?item wdt:${data.property} ?linkTo }
   SERVICE wikibase:label {bd:serviceParam wikibase:language "${data.language}" }
 }`
+: `${prefix}SELECT ?item ?itemLabel ?linkTo {
+  ${this._generateClause(data)}
+  OPTIONAL { ?item wdt:${data.property} ?linkTo }
+  SERVICE wikibase:label {bd:serviceParam wikibase:language "${data.language}" }
+}`;
 	}
 
 	/**

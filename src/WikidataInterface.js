@@ -97,6 +97,7 @@ class WikidataInterface {
 				id: el.item.value,
 				label: el.item.label,
 				uri: `https://www.wikidata.org/entity/${el.item.value}`,
+				size: el.size,
 			}))
 			.filter(
 				(el, index, self) => self.findIndex(t => t.id === el.id) === index

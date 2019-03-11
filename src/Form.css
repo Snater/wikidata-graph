@@ -1,8 +1,8 @@
 .Form {
 	display: flex;
 	flex-direction: column;
-	margin: 30px;
-	width: 300px;
+	margin: 7px 15px 15px 15px;
+	width: 280px;
 }
 
 .Form .Form__2-col {
@@ -13,7 +13,7 @@
 
 Form .Form__sparql {
 	font-style: italic;
-	margin-top: 40px;
+	margin-top: 30px;
 }
 
 .Form textarea {

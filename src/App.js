@@ -86,7 +86,6 @@ class App extends Component {
 						onChange={value => this.setState(
 							{queryProps: Object.assign({}, this.state.queryProps, value)}
 						)}
-						sparqlQuery={this.state.sparqlQuery}
 					/>
 				</div>
 				{

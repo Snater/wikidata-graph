@@ -11,12 +11,6 @@
 	grid-template-columns: 48% 48%;
 }
 
-Form .Form__sparql {
-	font-style: italic;
+.Form button {
 	margin-top: 30px;
-}
-
-.Form textarea {
-	height: 300px;
-	width: 100%;
 }

@@ -4,6 +4,7 @@ import EntitySelect from './EntitySelect';
 import LanguageSelect from './LanguageSelect';
 import ModeSelect from './ModeSelect';
 import NumberInput from './NumberInput';
+import WdqsButton from './WdqsButton';
 import './Form.css';
 
 class Form extends Component {
@@ -56,10 +57,9 @@ class Form extends Component {
 					onChange={value => this.props.onChange({sizeProperty: value})}
 					label="Circle Size Property"
 				/>
-				<label className="Form__sparql">
-					Generated SPARQL Query
-					<textarea value={this.props.sparqlQuery} readOnly={true} />
-				</label>
+				<WdqsButton
+					queryProps={this.props.queryProps}
+				>Run on Wikidata Query Service</WdqsButton>
 			</form>
 		);
 	}
@@ -75,7 +75,6 @@ Form.propTypes = {
 		limit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 		sizeProperty: PropTypes.string,
 	}),
-	sparqlQuery: PropTypes.string,
 };
 
 export default Form;

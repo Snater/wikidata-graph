@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Chart from './Chart';
 import Form from './Form';
+import QueryStringManager from './QueryStringManager';
 import SparqlGenerator from './SparqlGenerator';
 import Wikidata from './WikidataInterface';
 import './App.css';
@@ -26,7 +27,14 @@ class App extends Component {
 			},
 			sparqlQuery: '',
 			data: null,
-		}
+		};
+
+		this.queryStringManager = new QueryStringManager(
+			this.state.queryProps,
+			queryProps => this.setState({
+				queryProps: Object.assign(queryProps),
+			})
+		);
 	}
 
 	/**
@@ -40,14 +48,15 @@ class App extends Component {
 
 	/**
 	 * @param {string} sparqlQuery
+	 * @return {Promise<Object[]>}
 	 */
 	query(sparqlQuery) {
-		Wikidata.sparqlQuery(sparqlQuery).then(data => {
+		return Wikidata.sparqlQuery(sparqlQuery).then(data => {
 			if (data) {
 				this.setState({data: data});
 			}
 		});
-	};
+	}
 
 	/**
 	 * @inheritdoc
@@ -58,7 +67,10 @@ class App extends Component {
 		if (sparqlQuery !== this.state.sparqlQuery) {
 			this.setState({sparqlQuery: sparqlQuery});
 		} else if (prevState.sparqlQuery !== this.state.sparqlQuery) {
-			this.query(this.state.sparqlQuery);
+			this.query(this.state.sparqlQuery)
+				.then(
+					() => this.queryStringManager.updateQueryString(this.state.queryProps)
+				);
 		}
 	}
 
@@ -70,9 +82,9 @@ class App extends Component {
 			<div className="App">
 				<div className="App__form-container">
 					<Form
-						{...this.props.defaultQueryProps}
+						queryProps={this.state.queryProps}
 						onChange={value => this.setState(
-							{queryProps: Object.assign(this.state.queryProps, value)}
+							{queryProps: Object.assign({}, this.state.queryProps, value)}
 						)}
 						sparqlQuery={this.state.sparqlQuery}
 					/>

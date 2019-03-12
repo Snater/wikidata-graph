@@ -9,6 +9,7 @@
     "d3-tip": "^0.9.1",
     "md5": "^2.2.1",
     "prop-types": "^15.7.2",
+    "query-string": "^6.3.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-scripts": "2.1.5",

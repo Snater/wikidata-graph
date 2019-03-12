@@ -15,7 +15,7 @@ class NumberInput extends Component {
 					label={this.props.label}
 					type="number"
 					inputProps={{min: 0}}
-					defaultValue={this.props.defaultValue}
+					value={this.props.value}
 					onChange={e => this.props.onChange(parseInt(e.target.value))}
 				/>
 			</FormControl>
@@ -24,7 +24,7 @@ class NumberInput extends Component {
 }
 
 NumberInput.propTypes = {
-	defaultValue: PropTypes.number,
+	value: PropTypes.number,
 	label: PropTypes.string,
 	onChange: PropTypes.func,
 };

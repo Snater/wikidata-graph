@@ -260,14 +260,9 @@ class EntitySelect extends Component {
 	 * @inheritdoc
 	 */
 	componentDidMount() {
-		WikidataInterface.search(this.props.entityId, this.props.entityType)
-			.then(response => this.setState({
-					value: {
-					value: response.search[0].value,
-					label: response.search[0].label
-				},
-				placeholder: response.search[0].label,
-			}));
+		if (this.props.entityId) {
+			this.initValueByEntityId();
+		}
 	}
 
 	/**
@@ -277,6 +272,38 @@ class EntitySelect extends Component {
 		if (this.state.value !== null) {
 			this._currentValue = this.state.value;
 		}
+
+		const value = this.state.value;
+
+		if (
+			this.props.entityId !== prevProps.entityId
+			&& (value === null || value.value !== this.props.entityId)
+		) {
+			// When the entity prop is updated, the component needs to re-init its
+			// value for retrieving the entity label.
+			this.initValueByEntityId()
+				.then(() => {
+					if (value === null) {
+						// Reset the internal value to NULL, if the value set before
+						// re-initialising was NULL (the input element is focused).
+						this.setState({value: null})
+					}
+				});
+		}
+	}
+
+	/**
+	 * @return {Promise<Object>}
+	 */
+	initValueByEntityId() {
+		return WikidataInterface.search(this.props.entityId, this.props.entityType)
+			.then(response => this.setState({
+				value: {
+					value: response.search[0].value,
+					label: response.search[0].label
+				},
+				placeholder: response.search[0].label,
+			}));
 	}
 
 	/**

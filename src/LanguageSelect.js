@@ -17,7 +17,6 @@ class LanguageSelect extends Component {
 
 		this.state = {
 			languages: [],
-			value: props.defaultValue,
 		}
 	}
 
@@ -40,21 +39,11 @@ class LanguageSelect extends Component {
 	 * @inheritdoc
 	 */
 	componentDidUpdate(prevProps, prevState) {
-		if (this.state.value !== prevState.value) {
-			this.props.onChange(this.state.value);
-		}
-
 		// Languages are filled just once, so simply comparing length is sufficient:
 		if (this.state.languages.length !== prevState.languages.length) {
 			if (!this.state.languages.length) {
 				throw new Error('Trying to update state with empty languages')
 			}
-
-			this.setState({
-				value: this.state.languages.filter(
-					language => language.value === this.props.defaultValue
-				)[0]['value']
-			});
 		}
 	}
 
@@ -70,8 +59,8 @@ class LanguageSelect extends Component {
 						inputProps={{
 							id: this.props.id
 						}}
-						value={this.state.value}
-						onChange={e => this.setState({value: e.target.value})}
+						value={this.props.value}
+						onChange={e => this.props.onChange(e.target.value)}
 					>
 						{this.state.languages.map(
 							option => <MenuItem
@@ -88,7 +77,7 @@ class LanguageSelect extends Component {
 
 LanguageSelect.propTypes = {
 	id: PropTypes.string.isRequired,
-	defaultValue: PropTypes.string,
+	value: PropTypes.string,
 	onChange: PropTypes.func,
 };
 

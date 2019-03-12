@@ -16,43 +16,43 @@ class Form extends Component {
 			<form className="Form">
 				<EntitySelect
 					entityType="item"
-					entityId={this.props.item}
+					entityId={this.props.queryProps.item}
 					onChange={value => this.props.onChange({item: value})}
 					label="Root Item"
 				/>
 				<EntitySelect
 					entityType="property"
-					entityId={this.props.property}
+					entityId={this.props.queryProps.property}
 					onChange={value => this.props.onChange({property: value})}
 					label="Traversal Property"
 				/>
 				<div className="Form__2-col">
 					<ModeSelect
 						id="mode"
-						defaultValue={this.props.mode}
+						value={this.props.queryProps.mode}
 						onChange={value => this.props.onChange({mode: value})}
 					/>
 					<LanguageSelect
 						id="language"
-						defaultValue={this.props.language}
+						value={this.props.queryProps.language}
 						onChange={value => this.props.onChange({language: value})}
 					/>
 				</div>
 				<div className="Form__2-col">
 					<NumberInput
 						label="Iterations"
-						defaultValue={this.props.iterations}
+						value={parseInt(this.props.queryProps.iterations)}
 						onChange={value => this.props.onChange({iterations: value})}
 					/>
 					<NumberInput
 						label="Limit"
-						defaultValue={this.props.limit}
+						value={parseInt(this.props.queryProps.limit)}
 						onChange={value => this.props.onChange({limit: value})}
 					/>
 				</div>
 				<EntitySelect
 					entityType="property"
-					entityId={this.props.sizeProperty}
+					entityId={this.props.queryProps.sizeProperty}
 					onChange={value => this.props.onChange({sizeProperty: value})}
 					label="Circle Size Property"
 				/>
@@ -66,13 +66,15 @@ class Form extends Component {
 }
 
 Form.propTypes = {
-	item: PropTypes.string,
-	property: PropTypes.string,
-	mode: PropTypes.string,
-	language: PropTypes.string,
-	iterations: PropTypes.number,
-	limit: PropTypes.number,
-	sizeProperty: PropTypes.string,
+	queryProps: PropTypes.shape({
+		item: PropTypes.string,
+		property: PropTypes.string,
+		mode: PropTypes.string,
+		language: PropTypes.string,
+		iterations: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+		limit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+		sizeProperty: PropTypes.string,
+	}),
 	sparqlQuery: PropTypes.string,
 };
 

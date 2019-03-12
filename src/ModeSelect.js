@@ -19,26 +19,6 @@ class ModeSelect extends Component {
 	/**
 	 * @inheritdoc
 	 */
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			value: props.defaultValue,
-		};
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	componentDidUpdate(prevProps, prevState) {
-		if (this.state.value !== prevState.value) {
-			this.props.onChange(this.state.value);
-		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
 	render() {
 		return (
 			<FormControl margin="dense">
@@ -47,8 +27,8 @@ class ModeSelect extends Component {
 					inputProps={{
 						id: this.props.id
 					}}
-					value={this.state.value}
-					onChange={e => this.setState({value: e.target.value})}
+					value={this.props.value}
+					onChange={e => this.props.onChange(e.target.value)}
 				>
 					{ModeSelect.options.map(option =>
 						<MenuItem
@@ -64,7 +44,7 @@ class ModeSelect extends Component {
 
 ModeSelect.propTypes = {
 	id: PropTypes.string.isRequired,
-	defaultValue: PropTypes.string,
+	value: PropTypes.string,
 	onChange: PropTypes.func,
 };
 

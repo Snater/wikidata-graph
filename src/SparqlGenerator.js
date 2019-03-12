@@ -77,6 +77,10 @@ class SparqlGenerator {
 		if (!data.item || !data.property) {
 			throw new Error('Item and property are required to generate a SPARQL query.')
 		}
+
+		data.iterations = parseInt(data.iterations);
+		data.limit = parseInt(data.limit);
+
 		return Object.assign({}, this._defaultProps, data);
 	}
 

@@ -4,6 +4,11 @@ import MD5 from 'md5';
 class WikidataInterface {
 
 	/**
+	 * @type {string}
+	 */
+	static imageFallback = 'No_image_available_500_x_500.svg';
+
+	/**
 	 * @param {string} url
 	 * @return {Promise<*>}
 	 */
@@ -83,7 +88,10 @@ class WikidataInterface {
 	static sparqlQuery(sparql) {
 		return WikidataInterface.request(wdk.sparqlQuery(sparql))
 			.then(response => wdk.simplify.sparqlResults(response))
-			.then(results => WikidataInterface.convertToNodesAndLinks(results))
+			.then(results => Object.assign({}, {
+					nodes: WikidataInterface.parseNodes(results),
+					links: WikidataInterface.parseLinks(results),
+				}))
 			.catch(error => console.error(error));
 	}
 
@@ -91,9 +99,9 @@ class WikidataInterface {
 	 * @param {Object[]} simplifiedResults
 	 * @return {Object}
 	 */
-	static convertToNodesAndLinks(simplifiedResults) {
-		const nodes = simplifiedResults
-			.map(el => Object.create({
+	static parseNodes(simplifiedResults) {
+		return simplifiedResults
+			.map(el => Object.assign({}, {
 				id: el.item.value,
 				label: el.item.label,
 				uri: `https://www.wikidata.org/entity/${el.item.value}`,
@@ -102,15 +110,16 @@ class WikidataInterface {
 			.filter(
 				(el, index, self) => self.findIndex(t => t.id === el.id) === index
 			);
+	}
 
-		const links = simplifiedResults
-			.filter(el => nodes.find(node => el.linkTo === node.id))
-			.map(el => Object.create({source: el.item.value, target: el.linkTo}));
-
-		return {
-			nodes: nodes,
-			links: links,
-		}
+	/**
+	 * @param {Object[]} simplifiedResults
+	 * @return {Object}
+	 */
+	static parseLinks(simplifiedResults) {
+		return simplifiedResults
+			.filter(el => simplifiedResults.find(result => el.linkTo === result.item.value))
+			.map(el => Object.assign({}, {source: el.item.value, target: el.linkTo}));
 	}
 
 	/**
@@ -118,29 +127,41 @@ class WikidataInterface {
 	 * @return {Promise<string>}
 	 */
 	static getEntityImage(id) {
-		return new Promise((resolve, reject) => {
+		return new Promise(() => {
 			WikidataInterface.getEntity(id)
-				.then(entity => {
-					const img = new Image();
-					let imgUrl = null;
-
-					if (entity.claims.P18) {
-						const mainsnak = entity.claims.P18[0].mainsnak;
-
-						if (mainsnak.datatype === 'commonsMedia') {
-							const filename = mainsnak.datavalue.value.replace(/ /g, '_');
-							imgUrl = WikidataInterface.createCommonsUrl(filename);
-						}
-					} else {
-						imgUrl =  WikidataInterface.createCommonsUrl(
-							'No_image_available_500_x_500.svg'
-						);
-					}
-
-					img.src = imgUrl;
-					img.onload = () => resolve(imgUrl);
-				});
+				.then(entity => WikidataInterface.createImage(entity.claims));
 		});
+	}
+
+	/**
+	 * @param {Object} [claims]
+	 * @return {Promise<string>}
+	 */
+	static createImage(claims) {
+		const img = new Image();
+		let imgUrl = WikidataInterface.getImageUrl(claims.P18);
+
+		return new Promise((resolve) => {
+			img.onload = () => resolve(imgUrl);
+			img.src = imgUrl;
+		});
+	}
+
+	/**
+	 * @param {Object[]} [propertyClaims]
+	 * @return {string}
+	 */
+	static getImageUrl(propertyClaims) {
+		if (propertyClaims) {
+			const mainsnak = propertyClaims[0].mainsnak;
+
+			if (mainsnak.datatype === 'commonsMedia') {
+				const filename = mainsnak.datavalue.value.replace(/ /g, '_');
+				return WikidataInterface.createCommonsUrl(filename);
+			}
+		}
+
+		return WikidataInterface.createCommonsUrl(WikidataInterface.imageFallback);
 	}
 
 	/**

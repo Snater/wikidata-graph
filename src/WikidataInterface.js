@@ -127,9 +127,9 @@ class WikidataInterface {
 	 * @return {Promise<string>}
 	 */
 	static getEntityImage(id) {
-		return new Promise(() => {
+		return new Promise(resolve => {
 			WikidataInterface.getEntity(id)
-				.then(entity => WikidataInterface.createImage(entity.claims));
+				.then(entity => resolve(WikidataInterface.createImage(entity.claims)));
 		});
 	}
 
@@ -141,7 +141,7 @@ class WikidataInterface {
 		const img = new Image();
 		let imgUrl = WikidataInterface.getImageUrl(claims.P18);
 
-		return new Promise((resolve) => {
+		return new Promise(resolve => {
 			img.onload = () => resolve(imgUrl);
 			img.src = imgUrl;
 		});

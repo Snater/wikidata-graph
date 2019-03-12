@@ -5,16 +5,6 @@ import queryString from 'query-string'
  * @param {Object} object2
  * @return {boolean}
  */
-function haveSameValues(object1, object2) {
-	return objectValuesMatch(object1, object2)
-		|| objectValuesMatch(object2, object1);
-}
-
-/**
- * @param {Object} object1
- * @param {Object} object2
- * @return {boolean}
- */
 function objectValuesMatch(object1, object2) {
 	let matches = true;
 
@@ -30,6 +20,16 @@ function objectValuesMatch(object1, object2) {
 class QueryStringManager {
 
 	/**
+	 * @param {Object} object1
+	 * @param {Object} object2
+	 * @return {boolean}
+	 */
+	static haveSameValues(object1, object2) {
+		return objectValuesMatch(object1, object2)
+			|| objectValuesMatch(object2, object1);
+	}
+
+	/**
 	 * @param {Object} defaultState
 	 *   A default state featuring all fully complete state object, including all
 	 *   all keys that may be set on a state object.
@@ -43,7 +43,7 @@ class QueryStringManager {
 			Object.keys(defaultState)
 		);
 
-		if (!haveSameValues(this._defaultState, currentState)) {
+		if (!QueryStringManager.haveSameValues(this._defaultState, currentState)) {
 			onPopState(currentState);
 		}
 
@@ -76,12 +76,12 @@ class QueryStringManager {
 	updateQueryString(state) {
 		if (queryString.stringify(state) !== window.location.search.slice(1)) {
 			if (
-				haveSameValues(state, this._defaultState)
+				QueryStringManager.haveSameValues(state, this._defaultState)
 				&& window.location.search !== ''
 			) {
 				// Do not append query parameters on default query.
 				window.history.pushState(state, '', '/');
-			} else if (!haveSameValues(state, this._defaultState)) {
+			} else if (!QueryStringManager.haveSameValues(state, this._defaultState)) {
 				window.history.pushState(
 					state,
 					'',

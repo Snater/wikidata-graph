@@ -25,7 +25,6 @@ class App extends Component {
 				limit: this.props.defaultQueryProps.limit,
 				sizeProperty: this.props.defaultQueryProps.sizeProperty || null,
 			},
-			sparqlQuery: '',
 			data: null,
 		};
 
@@ -41,9 +40,7 @@ class App extends Component {
 	 * @inheritdoc
 	 */
 	componentDidMount() {
-		this.setState({
-			sparqlQuery: SparqlGenerator.generate(this.state.queryProps)
-		});
+		this.query(SparqlGenerator.generate(this.state.queryProps));
 	}
 
 	/**
@@ -62,12 +59,13 @@ class App extends Component {
 	 * @inheritdoc
 	 */
 	componentDidUpdate(prevProps, prevState) {
-		const sparqlQuery = SparqlGenerator.generate(this.state.queryProps);
+		const queryPropsChanged = !QueryStringManager.haveSameValues(
+			this.state.queryProps,
+			prevState.queryProps
+		);
 
-		if (sparqlQuery !== this.state.sparqlQuery) {
-			this.setState({sparqlQuery: sparqlQuery});
-		} else if (prevState.sparqlQuery !== this.state.sparqlQuery) {
-			this.query(this.state.sparqlQuery)
+		if (queryPropsChanged) {
+			this.query(SparqlGenerator.generate(this.state.queryProps))
 				.then(
 					() => this.queryStringManager.updateQueryString(this.state.queryProps)
 				);

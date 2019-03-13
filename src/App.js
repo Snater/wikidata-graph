@@ -23,10 +23,16 @@ class App extends Component {
 				language: this.props.defaultQueryProps.language,
 				iterations: this.props.defaultQueryProps.iterations,
 				limit: this.props.defaultQueryProps.limit,
-				sizeProperty: this.props.defaultQueryProps.sizeProperty || null,
+				sizeProperty: this.props.defaultQueryProps.sizeProperty,
 			},
 			data: null,
 		};
+
+		Object.keys(this.state.queryProps).forEach(key => {
+			if (typeof this.state.queryProps[key] === 'undefined') {
+				this.state.queryProps[key] = null;
+			}
+		});
 
 		this.queryStringManager = new QueryStringManager(
 			this.state.queryProps,

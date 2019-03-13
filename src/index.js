@@ -11,6 +11,7 @@ const defaultQueryProps = {
 	language: 'en',
 	iterations: 5,
 	limit: 0,
+	sizeProperty: 'P3373',
 };
 
 ReactDOM.render(<App defaultQueryProps={defaultQueryProps} />, document.getElementById('root'));

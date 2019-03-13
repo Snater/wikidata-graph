@@ -276,7 +276,8 @@ class EntitySelect extends Component {
 		const value = this.state.value;
 
 		if (
-			this.props.entityId !== prevProps.entityId
+			this.props.entityId !== null
+			&& this.props.entityId !== prevProps.entityId
 			&& (value === null || value.value !== this.props.entityId)
 		) {
 			// When the entity prop is updated, the component needs to re-init its

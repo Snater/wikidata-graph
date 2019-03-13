@@ -1,11 +1,11 @@
 import { connect } from 'react-redux'
 import { setData, updateQueryProps } from './store/actions';
-import App from './App';
+import QueryManager from './QueryManager';
 import Chart from './Chart';
 import Form from './Form';
 import Wikidata from './WikidataInterface';
 
-export const AppContainer = connect(
+export const QueryManagerContainer = connect(
 	state => ({
 		queryProps: {...state.query},
 	}),
@@ -17,7 +17,7 @@ export const AppContainer = connect(
 			dispatch(setData(data));
 		}
 	})
-)(App);
+)(QueryManager);
 
 export const ChartContainer = connect(
 	state => ({

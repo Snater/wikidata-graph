@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { FormContainer } from './containers';
-import Chart from './Chart';
+import { ChartContainer, FormContainer } from './containers';
 import QueryStringManager from './QueryStringManager';
 import SparqlGenerator from './SparqlGenerator';
 import Wikidata from './WikidataInterface';
@@ -59,15 +58,7 @@ class App extends Component {
 				<div className="App__form-container">
 					<FormContainer />
 				</div>
-				{
-					this.props.data === null
-						? 'loading'
-						: <Chart
-								data={this.props.data}
-								root={this.props.queryProps.item}
-								getEntityImage={Wikidata.getEntityImage}
-							/>
-				}
+				<ChartContainer />
 			</div>
 		);
 	}
@@ -83,7 +74,6 @@ App.propTypes = {
 		limit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 		sizeProperty: PropTypes.string,
 	}),
-	data: PropTypes.object,
 	onDataRetrieved: PropTypes.func,
 	onUpdateQueryProps: PropTypes.func,
 };

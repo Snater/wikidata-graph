@@ -26,7 +26,10 @@ class Chart extends Component {
 			ReactDom.findDOMNode(this),
 			this.props.getEntityImage
 		);
-		this.d3Chart.create(this.getChartState());
+
+		if (this.props.data !== null) {
+			this.d3Chart.update(this.getChartState());
+		}
 
 		window.addEventListener('resize', this.updateDimensions);
 	}
@@ -78,7 +81,7 @@ class Chart extends Component {
 	 */
 	render() {
 		return (
-			<div className="Chart"></div>
+			<div className={this.props.data === null ? 'Chart loading' : 'Chart'} />
 		);
 	}
 }
@@ -86,6 +89,7 @@ class Chart extends Component {
 Chart.propTypes = {
 	data: PropTypes.object,
 	root: PropTypes.string,
+	getEntityImage: PropTypes.func,
 };
 
 export default Chart;

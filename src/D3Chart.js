@@ -10,7 +10,8 @@ class D3Chart {
 	 * @param {Function} getEntityImage
 	 */
 	constructor(element, getEntityImage) {
-		this.element = element;
+		this.svg = d3.select(element).append('svg')
+			.attr('class', 'D3Chart');
 		this._getEntityImage = getEntityImage;
 		this._tooltip = this._createTooltip();
 	}
@@ -22,16 +23,6 @@ class D3Chart {
 		return tip()
 			.attr('class', 'd3-tip')
 			.offset([-10, 0]);
-	}
-
-	/**
-	 * @param {Object} state
-	 */
-	create(state) {
-		this.svg = d3.select(this.element).append('svg')
-			.attr('class', 'D3Chart');
-
-		this.update(state);
 	}
 
 	/**

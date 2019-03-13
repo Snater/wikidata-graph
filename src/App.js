@@ -33,19 +33,19 @@ class App extends Component {
 				this.state.queryProps[key] = null;
 			}
 		});
-
-		this.queryStringManager = new QueryStringManager(
-			this.state.queryProps,
-			queryProps => this.setState({
-				queryProps: Object.assign(queryProps),
-			})
-		);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
 	componentDidMount() {
+		this.queryStringManager = new QueryStringManager(
+			this.state.queryProps,
+			queryProps => this.setState({
+				queryProps: Object.assign(queryProps),
+			})
+		);
+
 		this.query(SparqlGenerator.generate(this.state.queryProps));
 	}
 

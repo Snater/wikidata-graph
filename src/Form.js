@@ -75,6 +75,7 @@ Form.propTypes = {
 		limit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 		sizeProperty: PropTypes.string,
 	}),
+	onChange: PropTypes.func,
 };
 
 export default Form;

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { FormContainer } from './containers';
 import Chart from './Chart';
-import Form from './Form';
 import QueryStringManager from './QueryStringManager';
 import SparqlGenerator from './SparqlGenerator';
 import Wikidata from './WikidataInterface';
@@ -12,41 +12,13 @@ class App extends Component {
 	/**
 	 * @inheritdoc
 	 */
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			queryProps: {
-				item: this.props.defaultQueryProps.item,
-				property: this.props.defaultQueryProps.property,
-				mode: this.props.defaultQueryProps.mode,
-				language: this.props.defaultQueryProps.language,
-				iterations: this.props.defaultQueryProps.iterations,
-				limit: this.props.defaultQueryProps.limit,
-				sizeProperty: this.props.defaultQueryProps.sizeProperty,
-			},
-			data: null,
-		};
-
-		Object.keys(this.state.queryProps).forEach(key => {
-			if (typeof this.state.queryProps[key] === 'undefined') {
-				this.state.queryProps[key] = null;
-			}
-		});
-	}
-
-	/**
-	 * @inheritdoc
-	 */
 	componentDidMount() {
 		this.queryStringManager = new QueryStringManager(
-			this.state.queryProps,
-			queryProps => this.setState({
-				queryProps: Object.assign(queryProps),
-			})
+			this.props.queryProps,
+			this.props.onUpdateQueryProps
 		);
 
-		this.query(SparqlGenerator.generate(this.state.queryProps));
+		this.query(SparqlGenerator.generate(this.props.queryProps));
 	}
 
 	/**
@@ -56,7 +28,7 @@ class App extends Component {
 	query(sparqlQuery) {
 		return Wikidata.sparqlQuery(sparqlQuery).then(data => {
 			if (data) {
-				this.setState({data: data});
+				this.props.onDataRetrieved(data);
 			}
 		});
 	}
@@ -64,16 +36,16 @@ class App extends Component {
 	/**
 	 * @inheritdoc
 	 */
-	componentDidUpdate(prevProps, prevState) {
+	componentDidUpdate(prevProps) {
 		const queryPropsChanged = !QueryStringManager.haveSameValues(
-			this.state.queryProps,
-			prevState.queryProps
+			this.props.queryProps,
+			prevProps.queryProps
 		);
 
 		if (queryPropsChanged) {
-			this.query(SparqlGenerator.generate(this.state.queryProps))
+			this.query(SparqlGenerator.generate(this.props.queryProps))
 				.then(
-					() => this.queryStringManager.updateQueryString(this.state.queryProps)
+					() => this.queryStringManager.updateQueryString(this.props.queryProps)
 				);
 		}
 	}
@@ -85,19 +57,14 @@ class App extends Component {
 		return (
 			<div className="App">
 				<div className="App__form-container">
-					<Form
-						queryProps={this.state.queryProps}
-						onChange={value => this.setState(
-							{queryProps: Object.assign({}, this.state.queryProps, value)}
-						)}
-					/>
+					<FormContainer />
 				</div>
 				{
-					this.state.data === null
+					this.props.data === null
 						? 'loading'
 						: <Chart
-								data={this.state.data}
-								root={this.state.queryProps.item}
+								data={this.props.data}
+								root={this.props.queryProps.item}
 								getEntityImage={Wikidata.getEntityImage}
 							/>
 				}
@@ -107,7 +74,7 @@ class App extends Component {
 }
 
 App.propTypes = {
-	defaultQueryProps: PropTypes.shape({
+	queryProps: PropTypes.shape({
 		item: PropTypes.string,
 		property: PropTypes.string,
 		mode: PropTypes.string,
@@ -116,6 +83,9 @@ App.propTypes = {
 		limit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 		sizeProperty: PropTypes.string,
 	}),
+	data: PropTypes.object,
+	onDataRetrieved: PropTypes.func,
+	onUpdateQueryProps: PropTypes.func,
 };
 
 export default App;

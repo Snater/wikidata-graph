@@ -9,12 +9,20 @@ function objectValuesMatch(object1, object2) {
 	let matches = true;
 
 	Object.keys(object1).forEach(key => {
-		if (object1[key] !== object2[key]) {
+		if (toStringIfNumber(object1[key]) !== toStringIfNumber(object2[key])) {
 			matches = false;
 		}
 	});
 
 	return matches;
+}
+
+/**
+ * @param {*} value
+ * @return {*}
+ */
+function toStringIfNumber(value) {
+	return typeof value === 'number' ? value.toString() : value;
 }
 
 class QueryStringManager {

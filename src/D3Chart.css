@@ -1,6 +1,6 @@
 .D3Chart {
-	--dark-color: #064;
-	--light-color: #00e699;
+	--dark-color: #303f9f;
+	--light-color: #8E9AEB;
 
 	cursor: grab;
 	height: 100%;
@@ -18,8 +18,8 @@
 }
 
 .D3Chart circle.root {
-	fill: #e62a00;
-	stroke: #b22300;
+	fill: #EBC752;
+	stroke: #9F8530;
 }
 
 .D3Chart line {
@@ -30,11 +30,13 @@
 
 .D3Chart text {
 	cursor: pointer;
+	font-size: 9px;
 	text-shadow:
 		-0.5px -0.5px 0 #fff,
 		0.5px -0.5px 0 #fff,
 		-0.5px 0.5px 0 #fff,
 		0.5px 0.5px 0 #fff;
+	transition: opacity 0.2s ease;
 }
 
 .d3-tip {

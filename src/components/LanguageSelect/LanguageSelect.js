@@ -5,7 +5,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import NoSsr from '@material-ui/core/NoSsr';
 import Select from '@material-ui/core/Select';
-import WikidataInterface from './WikidataInterface';
+import WikidataInterface from '../../lib/WikidataInterface';
 
 class LanguageSelect extends Component {
 

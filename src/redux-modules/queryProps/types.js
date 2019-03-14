@@ -1,0 +1,1 @@
+export const ACTION_TYPE_UPDATE_QUERY_PROPS = '@@queryProps/UPDATE_QUERY_PROPS';

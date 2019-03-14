@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import tip from 'd3-tip';
-import Vector from './Vector';
+import Vector from '../Vector';
 import './D3Chart.css';
 
 class D3Chart {

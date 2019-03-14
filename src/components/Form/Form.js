@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import EntitySelect from './EntitySelect';
-import LanguageSelect from './LanguageSelect';
-import ModeSelect from './ModeSelect';
-import NumberInput from './NumberInput';
-import WdqsButton from './WdqsButton';
+import EntitySelect from '../EntitySelect';
+import LanguageSelect from '../LanguageSelect';
+import ModeSelect from '../ModeSelect';
+import NumberInput from '../NumberInput';
+import WdqsButton from '../WdqsButton';
 import styles from './Form.module.css';
 
 class Form extends Component {

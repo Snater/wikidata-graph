@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import classNames from 'classnames';
-import D3Chart from './D3Chart';
+import D3Chart from '../../lib/D3Chart';
 import styles from './Chart.module.css';
 
 class Chart extends Component {

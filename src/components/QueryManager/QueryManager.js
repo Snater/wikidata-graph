@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import QueryStringManager from './QueryStringManager';
-import SparqlGenerator from './SparqlGenerator';
-import Wikidata from './WikidataInterface';
+import { Component } from 'react';
+import QueryStringManager from '../../lib/QueryStringManager';
+import SparqlGenerator from '../../lib/SparqlGenerator';
+import Wikidata from '../../lib/WikidataInterface';
 
 class QueryManager extends Component {
 

@@ -1,19 +1,4 @@
-import { combineReducers } from 'redux';
-import { ACTIONS } from './actions';
-
-/**
- * @param {Object|null} state
- * @param {string} action
- * @return {Object|null}
- */
-function data(state = null, action) {
-	switch(action.type) {
-		case ACTIONS.SET_DATA:
-			return {...action.data};
-		default:
-			return state;
-	}
-}
+import * as types from './types';
 
 /**
  * @type {Object}
@@ -35,11 +20,11 @@ const defaultState = {
  */
 function query(state = defaultState, action) {
 	switch (action.type) {
-		case ACTIONS.UPDATE_QUERY_PROPS:
+		case types.ACTION_TYPE_UPDATE_QUERY_PROPS:
 			return Object.assign({}, state, action.queryProps);
 		default:
 			return state;
 	}
 }
 
-export default combineReducers({query, data});
+export default query;

@@ -39,5 +39,11 @@
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.10.0",
     "react-test-renderer": "^16.8.4"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "<rootDir>/src/**/*.js",
+      "!<rootDir>/src/**/index.js"
+    ]
   }
 }

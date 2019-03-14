@@ -1,5 +1,7 @@
 import React from 'react';
-import { QueryManagerContainer, ChartContainer, FormContainer } from './containers';
+import ChartContainer from '../../containers/ChartContainer'
+import FormContainer from '../../containers/FormContainer'
+import QueryManagerContainer from '../../containers/QueryManagerContainer'
 import styles from './App.module.css';
 
 export default () => (

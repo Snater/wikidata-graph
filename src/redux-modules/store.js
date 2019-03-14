@@ -1,5 +1,7 @@
 import { createStore } from 'redux'
-import reducers from './reducers';
+import { combineReducers } from 'redux';
+import query from './queryProps';
+import data from './data';
 
 /**
  * @type {Object}
@@ -14,4 +16,7 @@ const defaultQuery = {
 	sizeProperty: 'P3373',
 };
 
-export default createStore(reducers, {query: defaultQuery, data: null});
+export default createStore(
+	combineReducers({query, data}),
+	{query: defaultQuery, data: null}
+);

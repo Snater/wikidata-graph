@@ -5,7 +5,7 @@ import LanguageSelect from './LanguageSelect';
 import ModeSelect from './ModeSelect';
 import NumberInput from './NumberInput';
 import WdqsButton from './WdqsButton';
-import './Form.css';
+import styles from './Form.module.css';
 
 class Form extends Component {
 
@@ -14,7 +14,7 @@ class Form extends Component {
 	 */
 	render() {
 		return (
-			<form className="Form">
+			<form className={styles.Form}>
 				<EntitySelect
 					entityType="item"
 					entityId={this.props.queryProps.item}
@@ -27,7 +27,7 @@ class Form extends Component {
 					onChange={value => this.props.onChange({property: value})}
 					label="Traversal Property"
 				/>
-				<div className="Form__2-col">
+				<div className={styles.col2}>
 					<ModeSelect
 						id="mode"
 						value={this.props.queryProps.mode}
@@ -39,7 +39,7 @@ class Form extends Component {
 						onChange={value => this.props.onChange({language: value})}
 					/>
 				</div>
-				<div className="Form__2-col">
+				<div className={styles.col2}>
 					<NumberInput
 						label="Iterations"
 						value={parseInt(this.props.queryProps.iterations)}
@@ -58,6 +58,7 @@ class Form extends Component {
 					label="Circle Size Property"
 				/>
 				<WdqsButton
+					className={styles.button}
 					queryProps={this.props.queryProps}
 				>Run on Wikidata Query Service</WdqsButton>
 			</form>

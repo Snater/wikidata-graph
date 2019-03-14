@@ -13,9 +13,13 @@ class WdqsButton extends Component {
 		)}`);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	render() {
 		return (
 			<Button
+				className={this.props.className}
 				variant="contained"
 				color="primary"
 				onClick={() => this.goToWdqs()}
@@ -27,5 +31,6 @@ class WdqsButton extends Component {
 export default WdqsButton;
 
 WdqsButton.propTypes = {
+	className: PropTypes.string,
 	queryProps: PropTypes.object,
 };

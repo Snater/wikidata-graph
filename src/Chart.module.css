@@ -2,13 +2,13 @@
 	width: 100%;
 }
 
-.Chart.loading:after {
+.loading:after {
 	content: 'loading…';
 	display: block;
 	margin-top: 100px;
 	text-align: center;
 }
 
-.Chart.loading svg {
+.loading svg {
 	display: none;
 }

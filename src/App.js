@@ -1,11 +1,11 @@
 import React from 'react';
 import { QueryManagerContainer, ChartContainer, FormContainer } from './containers';
-import './App.css';
+import styles from './App.module.css';
 
 export default () => (
-	<div className="App">
+	<div className={styles.App}>
 		<QueryManagerContainer />
-		<div className="App__form-container">
+		<div className={styles.formContainer}>
 			<FormContainer />
 		</div>
 		<ChartContainer />

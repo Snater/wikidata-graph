@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
+import classNames from 'classnames';
 import D3Chart from './D3Chart';
-import './Chart.css';
+import styles from './Chart.module.css';
 
 class Chart extends Component {
 
@@ -80,8 +81,11 @@ class Chart extends Component {
 	 * @inheritdoc
 	 */
 	render() {
+		const chartClass = this.props.data === null
+			? classNames({}, styles.Chart, styles.loading) : styles.Chart;
+
 		return (
-			<div className={this.props.data === null ? 'Chart loading' : 'Chart'} />
+			<div className={chartClass} />
 		);
 	}
 }

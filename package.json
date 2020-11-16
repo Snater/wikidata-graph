@@ -13,10 +13,8 @@
     "query-string": "^6.9.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-redux": "^6.0.1",
     "react-scripts": "^3.3.0",
     "react-select": "^2.4.4",
-    "redux": "^4.0.4",
     "roboto-fontface": "^0.10.0",
     "wikidata-sdk": "^5.16.2"
   },

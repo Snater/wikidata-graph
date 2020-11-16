@@ -82,14 +82,8 @@ class D3Chart {
 			return nodes;
 		}
 
-		const maxSize = nodes.reduce(
-			(maxSize, node) =>
-				node.size > maxSize || typeof maxSize !== 'number' ? node.size : maxSize
-		);
-		const minSize = nodes.reduce(
-			(minSize, node) =>
-				node.size < minSize || typeof minSize !== 'number' ? node.size : minSize
-		);
+		const maxSize = nodes.reduce((max, node) => !max || node.size > max.size ? node : max).size;
+		const minSize = nodes.reduce((min, node) => !min || node.size < min.size ? node : min).size;
 		const scaleRange = [3, 20];
 		const scale = d3.scaleLinear().domain([minSize, maxSize]).range(scaleRange);
 
@@ -137,10 +131,7 @@ class D3Chart {
 			.attr('r', d => d.radius || 5)
 			.attr('class', d => d.id === root ? 'root' : '')
 			.call(this._attachDragHandlers())
-			.on(
-				'mouseover',
-				(d, index, circles) => this._enterTooltip(d, circles[index], index)
-			)
+			.on('mouseover', (d, index, circles) => this._enterTooltip(d, circles[index], index))
 			.on('mouseout', () => this._exitTooltip());
 	}
 
@@ -172,7 +163,7 @@ class D3Chart {
 			.on('click', d => window.open(d.uri))
 			.on(
 				'mouseover',
-				(d, index, labels) => this._enterTooltip(
+				(d, index) => this._enterTooltip(
 					d,
 					circles.filter(`:nth-child(${d.index + 1})`).node(),
 					index
@@ -192,7 +183,7 @@ class D3Chart {
 
 		this._getEntityImage(d.id)
 			.then(imgUrl => {
-				this._tooltip.html(`<img src="${imgUrl}">`);
+				this._tooltip.html(`<img alt="" src="${imgUrl}">`);
 				this._tooltip.show(d, target);
 			})
 			.catch(() => {

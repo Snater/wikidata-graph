@@ -1,99 +1,50 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import ReactDom from 'react-dom';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import classNames from 'classnames';
 import D3Chart from '../../lib/D3Chart';
 import styles from './Chart.module.css';
+import useQueryContext from "../App/QueryContext";
 
-class Chart extends Component {
+export default function Chart({getEntityImage}) {
 
-	/**
-	 * @inheritdoc
-	 */
-	constructor(props) {
-		super(props);
+	const [width, setWidth] = useState(window.innerWidth);
+	const [height, setHeight] = useState(window.innerHeight);
+	const [d3Chart, setD3Chart] = useState(null);
+	const {result, query} = useQueryContext();
+	const canvas = useRef(null);
 
-		this.state = {
-			width: window.innerWidth,
-			height: window.innerHeight,
+	const updateDimensions = useCallback(() => {
+		setWidth(window.innerWidth);
+		setHeight(window.innerHeight);
+	}, [setHeight, setWidth]);
+
+	useEffect(() => {
+		setD3Chart(new D3Chart(canvas.current, getEntityImage));
+
+		window.addEventListener('resize', updateDimensions);
+
+		return () => {
+			window.removeEventListener('resize', updateDimensions);
 		}
-	}
+	}, [getEntityImage, updateDimensions]);
 
-	/**
-	 * @inheritdoc
-	 */
-	componentDidMount() {
-		this.d3Chart = new D3Chart(
-			ReactDom.findDOMNode(this),
-			this.props.getEntityImage
-		);
-
-		if (this.props.data !== null) {
-			this.d3Chart.update(this.getChartState());
+	useEffect(() => {
+		if (d3Chart && query && result && width && height) {
+			d3Chart.update({
+				data: result,
+				root: query.getItem(),
+				height,
+				width,
+			});
 		}
+	}, [d3Chart, result, height, query, width]);
 
-		window.addEventListener('resize', this.updateDimensions);
-	}
+	const chartClass = result	? styles.Chart : classNames({}, styles.Chart, styles.loading);
 
-	/**
-	 * @inheritdoc
-	 */
-	componentDidUpdate() {
-		this.d3Chart.update(this.getChartState());
-	}
-
-	/**
-	 * @return {Object}
-	 */
-	getChartState() {
-		return {
-			data: this.props.data,
-			root: this.props.root,
-			width: this.state.width,
-			height: this.state.height,
-		};
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	componentWillUnmount() {
-		window.removeEventListener('resize', this.updateDimensions);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	shouldComponentUpdate(nextProps, nextState) {
-		return nextProps.data !== this.props.data
-			|| nextState.width !== this.state.width
-			|| nextState.height !== this.state.height;
-	}
-
-	updateDimensions = () => {
-		this.setState({
-			width: window.innerWidth,
-			height: window.innerHeight,
-		});
-	};
-
-	/**
-	 * @inheritdoc
-	 */
-	render() {
-		const chartClass = this.props.data === null
-			? classNames({}, styles.Chart, styles.loading) : styles.Chart;
-
-		return (
-			<div className={chartClass} />
-		);
-	}
+	return <div className={chartClass} ref={canvas} />;
 }
 
 Chart.propTypes = {
-	data: PropTypes.object,
-	root: PropTypes.string,
 	getEntityImage: PropTypes.func,
 };
 
-export default Chart;

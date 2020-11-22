@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import AsyncSelect from 'react-select/lib/Async';
 import FormControl from '@material-ui/core/FormControl';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -14,6 +14,7 @@ import {
 	StyledSingleValue,
 	StyledValueContainer
 } from './EntitySelect.styles';
+import { useTheme } from "styled-components";
 
 /**
  * @param {Object} props
@@ -183,129 +184,87 @@ function loadOptions(input, entityType) {
 		));
 }
 
-class EntitySelect extends Component {
+function EntitySelect({entityId, entityType, label, onChange}) {
+	const [value, setValue] = useState(null);
+	const [cachedValue, setCachedValue] = useState(null);
+	const [placeholder, setPlaceholder] = useState('Start typing to search for an entity');
+	const theme = useTheme();
 
-	/**
-	 * @inheritdoc
-	 */
-	constructor(props) {
-		super(props);
-
-		this._currentValue = null;
-
-		this.state = {
-			value: null,
-			placeholder: 'Start typing to search for an entity',
-		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	componentDidMount() {
-		if (this.props.entityId) {
-			this.initValueByEntityId();
-		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	componentDidUpdate(prevProps, prevState) {
-		if (this.state.value !== null) {
-			this._currentValue = this.state.value;
+	useEffect(() => {
+		if (!entityId || !entityType) {
+			return;
 		}
 
-		const value = this.state.value;
-
-		if (
-			this.props.entityId !== null
-			&& this.props.entityId !== prevProps.entityId
-			&& (value === null || value.value !== this.props.entityId)
-		) {
-			// When the entity prop is updated, the component needs to re-init its
-			// value for retrieving the entity label.
-			this.initValueByEntityId()
-				.then(() => {
-					if (value === null) {
-						// Reset the internal value to NULL, if the value set before
-						// re-initialising was NULL (the input element is focused).
-						this.setState({value: null})
-					}
-				});
-		}
-	}
-
-	/**
-	 * @return {Promise<Object>}
-	 */
-	initValueByEntityId() {
-		return WikidataInterface.search(this.props.entityId, this.props.entityType)
-			.then(response => this.setState({
-				value: {
+		WikidataInterface.search(entityId, entityType)
+			.then(response => {
+				setValue({
 					value: response.search[0].value,
 					label: response.search[0].label
-				},
-				placeholder: response.search[0].label,
-			}));
-	}
+				});
 
-	/**
-	 * @param {Object} selectedOption
-	 */
-	handleChange = selectedOption => {
-		this.setState({
-			value: {
-				value: selectedOption.value,
-				label: selectedOption.label,
-			},
-			placeholder: selectedOption.label,
+				setPlaceholder(response.search[0].label);
+			});
+	}, [entityId, entityType]);
+
+	useEffect(() => {
+		if (value) {
+			setCachedValue(value);
+		}
+	}, [value]);
+
+	const handleChange = selectedOption => {
+		setValue({
+			value: selectedOption.value,
+			label: selectedOption.label,
 		});
-		this.props.onChange(selectedOption.value);
+
+		setPlaceholder(selectedOption.label);
+
+		onChange(selectedOption.value);
 	};
 
-	/**
-	 * @inheritdoc
-	 */
-	render() {
-		const selectStyles = {
-			input: base => ({
-				...base,
-				// color: theme.palette.text.primary,
-				'& input': {
-					font: 'inherit',
-				}
-			})
-		};
+	const selectStyles = {
+		input: base => ({
+			...base,
+			color: theme.palette.text.primary,
+			'& input': {
+				font: 'inherit',
+			}
+		})
+	};
 
-		return(
-			<FormControl margin="dense">
-				<AsyncSelect
-					styles={selectStyles}
-					components={components}
-					loadOptions={value => loadOptions(value, this.props.entityType)}
-					onChange={selectedOption => this.handleChange(selectedOption)}
-					onFocus={() => this.setState({value: null})}
-					onBlur={() => this.setState({value: this._currentValue})}
-					noOptionsMessage={noOptionsMessage}
-					placeholder={this.state.placeholder}
-					value={this.state.value}
-					textFieldProps={{
-						label: this.props.label,
-						InputLabelProps: {
-							shrink: true,
-						},
-					}}
-				/>
-			</FormControl>
-		);
-	}
+	return(
+		<FormControl margin="dense">
+			<AsyncSelect
+				styles={selectStyles}
+				components={components}
+				loadOptions={value => loadOptions(value, entityType)}
+				onChange={handleChange}
+				onFocus={() => setValue(null)}
+				onBlur={() => setValue(cachedValue)}
+				noOptionsMessage={noOptionsMessage}
+				placeholder={placeholder}
+				value={value}
+				textFieldProps={{
+					label,
+					InputLabelProps: {
+						shrink: true,
+					},
+				}}
+			/>
+		</FormControl>
+	);
 }
 
 EntitySelect.propTypes = {
-	entityType: PropTypes.string,
 	entityId: PropTypes.string,
-	onChange: PropTypes.func,
-};
+	entityType: PropTypes.string,
+	label: PropTypes.string,
+	onChange: PropTypes.func.isRequired,
+}
+
+EntitySelect.defaultProps = {
+	label: '',
+}
 
 export default EntitySelect;

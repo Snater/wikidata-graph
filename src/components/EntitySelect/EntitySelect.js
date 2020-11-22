@@ -1,83 +1,44 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import AsyncSelect from 'react-select/lib/Async';
-import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import ListItemText from '@material-ui/core/ListItemText';
-import MenuItem from '@material-ui/core/MenuItem';
-import NoSsr from '@material-ui/core/NoSsr';
-import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 import WikidataInterface from '../../lib/WikidataInterface';
-
-/**
- * @param {Object} theme
- */
-const styles = theme => ({
-	input: {
-		display: 'flex',
-		padding: 0,
-	},
-	valueContainer: {
-		display: 'flex',
-		flexWrap: 'wrap',
-		flex: 1,
-		alignItems: 'center',
-		overflow: 'hidden',
-	},
-	noOptionsMessage: {
-		padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-	},
-	singleValue: {
-		fontSize: 16,
-	},
-	placeholder: {
-		position: 'absolute',
-		left: 2,
-		fontSize: 16,
-	},
-	paper: {
-		position: 'absolute',
-		zIndex: 1,
-		marginTop: theme.spacing.unit,
-		left: 0,
-		right: 0,
-	},
-	option: {
-		height: 'auto',
-		whiteSpace: 'normal',
-	},
-});
+import {
+	StyledInput,
+	StyledNoOptionsMessage,
+	StyledOption,
+	StyledPaper,
+	StyledPlaceholder,
+	StyledSingleValue,
+	StyledValueContainer
+} from './EntitySelect.styles';
 
 /**
  * @param {Object} props
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function NoOptionsMessage(props) {
 	return (
-		<Typography
-			color="textSecondary"
-			className={props.selectProps.classes.noOptionsMessage}
-			{...props.innerProps}
-		>
+		<StyledNoOptionsMessage color="textSecondary" {...props.innerProps}>
 			{props.children}
-		</Typography>
+		</StyledNoOptionsMessage>
 	);
 }
 
 /**
  * @param {Object} inputRef
  * @param {Object} props
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function inputComponent({inputRef, ...props}) {
-	return (<div ref={inputRef} {...props} />);
+	return <StyledInput ref={inputRef} {...props} />;
 }
 
 /**
  * @param {Object} props
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function Control(props) {
 	return (
@@ -86,7 +47,6 @@ function Control(props) {
 			InputProps={{
 				inputComponent,
 				inputProps: {
-					className: props.selectProps.classes.input,
 					inputRef: props.innerRef,
 					children: props.children,
 					...props.innerProps,
@@ -99,15 +59,14 @@ function Control(props) {
 
 /**
  * @param {Object} props
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function Option(props) {
 	return (
-		<MenuItem
+		<StyledOption
 			buttonRef={props.innerRef}
 			selected={props.isFocused}
 			component="div"
-			className={props.selectProps.classes.option}
 			style={{
 				fontWeight: props.isSelected ? 500 : 400,
 			}}
@@ -122,79 +81,63 @@ function Option(props) {
 					noWrap: false
 				}}
 			/>
-		</MenuItem>
+		</StyledOption>
 	);
 }
 
 /**
  * @param {Object} props
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function Placeholder(props) {
 	return (
-		<Typography
-			color="textSecondary"
-			className={props.selectProps.classes.placeholder}
-			{...props.innerProps}
-		>
+		<StyledPlaceholder color="textSecondary" {...props.innerProps}>
 			{props.children}
-		</Typography>
+		</StyledPlaceholder>
 	);
 }
 
 /**
  * @param {Object} props
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function SingleValue(props) {
 	return (
-		<Typography
-			className={props.selectProps.classes.singleValue}
-			component="div"
-			{...props.innerProps}
-		>
+		<StyledSingleValue component="div" {...props.innerProps}>
 			{props.children}
-		</Typography>
+		</StyledSingleValue>
 	);
 }
 
 /**
  * @param {Object} props
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function ValueContainer(props) {
-	return (
-		<div className={props.selectProps.classes.valueContainer}>
-			{props.children}
-		</div>
-	);
+	return <StyledValueContainer>{props.children}</StyledValueContainer>;
 }
 
 /**
  * @param {Object} props
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function Menu(props) {
 	return (
-		<Paper
-			square
-			className={props.selectProps.classes.paper}
-			{...props.innerProps}
-		>
+		<StyledPaper square {...props.innerProps}>
 			{props.children}
-		</Paper>
+		</StyledPaper>
 	);
 }
 
 /**
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function DropdownIndicator() {
 	return <div/>;
 }
 
 /**
- * @return {JSX}
+ * @return {JSX.Element}
  */
 function IndicatorSeparator() {
 	return <div/>;
@@ -325,12 +268,10 @@ class EntitySelect extends Component {
 	 * @inheritdoc
 	 */
 	render() {
-		const {classes, theme} = this.props;
-
 		const selectStyles = {
 			input: base => ({
 				...base,
-				color: theme.palette.text.primary,
+				// color: theme.palette.text.primary,
 				'& input': {
 					font: 'inherit',
 				}
@@ -339,26 +280,23 @@ class EntitySelect extends Component {
 
 		return(
 			<FormControl margin="dense">
-				<NoSsr>
-					<AsyncSelect
-						classes={classes}
-						styles={selectStyles}
-						components={components}
-						loadOptions={value => loadOptions(value, this.props.entityType)}
-						onChange={selectedOption => this.handleChange(selectedOption)}
-						onFocus={e => this.setState({value: null})}
-						onBlur={e => this.setState({value: this._currentValue})}
-						noOptionsMessage={noOptionsMessage}
-						placeholder={this.state.placeholder}
-						value={this.state.value}
-						textFieldProps={{
-							label: this.props.label,
-							InputLabelProps: {
-								shrink: true,
-							},
-						}}
-					/>
-				</NoSsr>
+				<AsyncSelect
+					styles={selectStyles}
+					components={components}
+					loadOptions={value => loadOptions(value, this.props.entityType)}
+					onChange={selectedOption => this.handleChange(selectedOption)}
+					onFocus={() => this.setState({value: null})}
+					onBlur={() => this.setState({value: this._currentValue})}
+					noOptionsMessage={noOptionsMessage}
+					placeholder={this.state.placeholder}
+					value={this.state.value}
+					textFieldProps={{
+						label: this.props.label,
+						InputLabelProps: {
+							shrink: true,
+						},
+					}}
+				/>
 			</FormControl>
 		);
 	}
@@ -368,8 +306,6 @@ EntitySelect.propTypes = {
 	entityType: PropTypes.string,
 	entityId: PropTypes.string,
 	onChange: PropTypes.func,
-	classes: PropTypes.object.isRequired,
-	theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, {withTheme: true})(EntitySelect);
+export default EntitySelect;

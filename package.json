@@ -16,6 +16,7 @@
     "react-scripts": "^3.3.0",
     "react-select": "^2.4.4",
     "roboto-fontface": "^0.10.0",
+    "styled-components": "^5.2.1",
     "wikidata-sdk": "^5.16.2"
   },
   "scripts": {

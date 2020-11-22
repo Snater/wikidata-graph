@@ -3,10 +3,9 @@ import EntitySelect from '../EntitySelect';
 import LanguageSelect from '../LanguageSelect';
 import ModeSelect from '../ModeSelect';
 import NumberInput from '../NumberInput';
-import WdqsButton from '../WdqsButton';
-import styles from './Form.module.css';
 import useQueryContext from '../App/QueryContext';
 import Query from '../../lib/Query';
+import {StyledCol2, StyledForm, StyledWdqsButton} from './Form.styles';
 
 export default function Form() {
 
@@ -23,7 +22,7 @@ export default function Form() {
 	}
 
 	return (
-		<form className={styles.Form}>
+		<StyledForm>
 			<EntitySelect
 				entityType="item"
 				entityId={query.getItem()}
@@ -36,7 +35,7 @@ export default function Form() {
 				onChange={value => handleChange('setProperty', value)}
 				label="Traversal Property"
 			/>
-			<div className={styles.col2}>
+			<StyledCol2>
 				<ModeSelect
 					id="mode"
 					value={query.getMode()}
@@ -47,8 +46,8 @@ export default function Form() {
 					value={query.getLanguage()}
 					onChange={value => handleChange('setLanguage', value)}
 				/>
-			</div>
-			<div className={styles.col2}>
+			</StyledCol2>
+			<StyledCol2>
 				<NumberInput
 					label="Iterations"
 					value={query.getIterations()}
@@ -59,17 +58,14 @@ export default function Form() {
 					value={query.getLimit()}
 					onChange={value => handleChange('setLimit', parseInt(value))}
 				/>
-			</div>
+			</StyledCol2>
 			<EntitySelect
 				entityType="property"
 				entityId={query.getSizeProperty()}
 				onChange={value => handleChange('setSizeProperty', value)}
 				label="Circle Size Property"
 			/>
-			<WdqsButton
-				className={styles.button}
-				queryProps={query.toJSON()}
-			>Run on Wikidata Query Service</WdqsButton>
-		</form>
+			<StyledWdqsButton queryProps={query.toJSON()}>Run on Wikidata Query Service</StyledWdqsButton>
+		</StyledForm>
 	);
 }

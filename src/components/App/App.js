@@ -1,19 +1,19 @@
 import React from 'react';
 import Chart from '../Chart';
 import QueryManager from '../QueryManager';
-import styles from './App.module.css';
 import {QueryContextProvider} from './QueryContext';
-import Form from '../Form';
 import WikidataInterface from '../../lib/WikidataInterface';
+import {StyledApp, StyledFormContainer} from './App.styles';
+import Form from '../Form';
 
 export default () => (
-	<div className={styles.App}>
+	<StyledApp>
 		<QueryContextProvider>
 			<QueryManager/>
-			<div className={styles.formContainer}>
+			<StyledFormContainer>
 				<Form/>
-			</div>
+			</StyledFormContainer>
 			<Chart getEntityImage={WikidataInterface.getEntityImage}/>
 		</QueryContextProvider>
-	</div>
+	</StyledApp>
 );

@@ -1,9 +1,8 @@
 import PropTypes from 'prop-types';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import classNames from 'classnames';
 import D3Chart from '../../lib/D3Chart';
-import styles from './Chart.module.css';
-import useQueryContext from "../App/QueryContext";
+import {StyledChart} from './Chart.styles';
+import useQueryContext from '../App/QueryContext';
 
 export default function Chart({getEntityImage}) {
 
@@ -39,9 +38,7 @@ export default function Chart({getEntityImage}) {
 		}
 	}, [d3Chart, result, height, query, width]);
 
-	const chartClass = result	? styles.Chart : classNames({}, styles.Chart, styles.loading);
-
-	return <div className={chartClass} ref={canvas} />;
+	return <StyledChart className={result ? '' : 'loading'} ref={canvas}/>;
 }
 
 Chart.propTypes = {

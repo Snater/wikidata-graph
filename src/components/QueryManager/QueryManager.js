@@ -16,6 +16,10 @@ function isNew(query) {
 	return !window.history.state || !query.equals(Query.newFromJSON(window.history.state));
 }
 
+function isInitial(query) {
+	return !window.history.state && query.equals(DEFAULT_QUERY);
+}
+
 export default function QueryManager() {
 
 	const {query, setQuery, setResult} = useQueryContext();
@@ -40,14 +44,14 @@ export default function QueryManager() {
 	useEffect(() => {
 		window.addEventListener('popstate', popStateListener);
 
-		if (query && !matchesQueryString(query) && isNew(query)) {
+		if (query && !matchesQueryString(query) && isNew(query) && !isInitial(query)) {
 			window.history.pushState(query.toJSON(), '', `/?${queryString.stringify(query.toJSON())}`);
 		}
 
 		return () => {
 			window.removeEventListener('popstate', popStateListener);
 		}
-	}, [popStateListener, setQuery, query]);
+	}, [popStateListener, query]);
 
 	useEffect(() => {
 		if (query === null) {

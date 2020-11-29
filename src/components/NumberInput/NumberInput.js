@@ -1,32 +1,21 @@
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
 import FormControl from '@material-ui/core/FormControl';
+import PropTypes from 'prop-types';
+import React from 'react';
 import TextField from '@material-ui/core/TextField';
 
-class NumberInput extends Component {
-
-	/**
-	 * @inheritdoc
-	 */
-	render() {
-		return (
-			<FormControl margin="dense">
-				<TextField
-					label={this.props.label}
-					type="number"
-					inputProps={{min: 0}}
-					value={this.props.value}
-					onChange={e => this.props.onChange(parseInt(e.target.value))}
-				/>
-			</FormControl>
-		)
-	}
+export default function NumberInput({onChange, ...rest}) {
+	return (
+		<FormControl margin="dense">
+			<TextField
+				inputProps={{min: 0}}
+				onChange={e => onChange(parseInt(e.target.value))}
+				type="number"
+				{...rest}
+			/>
+		</FormControl>
+	)
 }
 
 NumberInput.propTypes = {
-	value: PropTypes.number,
-	label: PropTypes.string,
 	onChange: PropTypes.func,
 };
-
-export default NumberInput;

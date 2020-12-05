@@ -2,171 +2,9 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import AsyncSelect from 'react-select/lib/Async';
 import FormControl from '@material-ui/core/FormControl';
-import ListItemText from '@material-ui/core/ListItemText';
-import TextField from '@material-ui/core/TextField';
 import WikidataInterface from '../../lib/WikidataInterface';
-import {
-	StyledInput,
-	StyledNoOptionsMessage,
-	StyledOption,
-	StyledPaper,
-	StyledPlaceholder,
-	StyledSingleValue,
-	StyledValueContainer
-} from './EntitySelect.styles';
+import components from './components';
 import { useTheme } from "styled-components";
-
-/**
- * @param {Object} props
- * @return {JSX.Element}
- */
-function NoOptionsMessage(props) {
-	return (
-		<StyledNoOptionsMessage color="textSecondary" {...props.innerProps}>
-			{props.children}
-		</StyledNoOptionsMessage>
-	);
-}
-
-/**
- * @param {Object} inputRef
- * @param {Object} props
- * @return {JSX.Element}
- */
-function inputComponent({inputRef, ...props}) {
-	return <StyledInput ref={inputRef} {...props} />;
-}
-
-/**
- * @param {Object} props
- * @return {JSX.Element}
- */
-function Control(props) {
-	return (
-		<TextField
-			fullWidth
-			InputProps={{
-				inputComponent,
-				inputProps: {
-					inputRef: props.innerRef,
-					children: props.children,
-					...props.innerProps,
-				}
-			}}
-			{...props.selectProps.textFieldProps}
-		/>
-	);
-}
-
-/**
- * @param {Object} props
- * @return {JSX.Element}
- */
-function Option(props) {
-	return (
-		<StyledOption
-			buttonRef={props.innerRef}
-			selected={props.isFocused}
-			component="div"
-			style={{
-				fontWeight: props.isSelected ? 500 : 400,
-			}}
-			{...props.innerProps}
-		>
-			<ListItemText
-				primary={props.children}
-				secondary={props.data.description}
-				secondaryTypographyProps={{
-					component: 'span',
-					inline: true,
-					noWrap: false
-				}}
-			/>
-		</StyledOption>
-	);
-}
-
-/**
- * @param {Object} props
- * @return {JSX.Element}
- */
-function Placeholder(props) {
-	return (
-		<StyledPlaceholder color="textSecondary" {...props.innerProps}>
-			{props.children}
-		</StyledPlaceholder>
-	);
-}
-
-/**
- * @param {Object} props
- * @return {JSX.Element}
- */
-function SingleValue(props) {
-	return (
-		<StyledSingleValue component="div" {...props.innerProps}>
-			{props.children}
-		</StyledSingleValue>
-	);
-}
-
-/**
- * @param {Object} props
- * @return {JSX.Element}
- */
-function ValueContainer(props) {
-	return <StyledValueContainer>{props.children}</StyledValueContainer>;
-}
-
-/**
- * @param {Object} props
- * @return {JSX.Element}
- */
-function Menu(props) {
-	return (
-		<StyledPaper square {...props.innerProps}>
-			{props.children}
-		</StyledPaper>
-	);
-}
-
-/**
- * @return {JSX.Element}
- */
-function DropdownIndicator() {
-	return <div/>;
-}
-
-/**
- * @return {JSX.Element}
- */
-function IndicatorSeparator() {
-	return <div/>;
-}
-
-/**
- * @type {Object}
- */
-const components = {
-	Control,
-	DropdownIndicator,
-	IndicatorSeparator,
-	Menu,
-	NoOptionsMessage,
-	Option,
-	Placeholder,
-	SingleValue,
-	ValueContainer
-};
-
-/**
- * @param {string|null} inputValue
- * @return {string}
- */
-function noOptionsMessage({inputValue}) {
-	return inputValue === '' || inputValue === null
-		? 'Start typing to search for entities' : 'No options';
-}
 
 /**
  * @param {string} input
@@ -220,7 +58,7 @@ function EntitySelect({entityId, entityType, label, onChange}) {
 
 		setPlaceholder(selectedOption.label);
 
-		onChange(selectedOption.value);
+		onChange && onChange(selectedOption.value);
 	};
 
 	const selectStyles = {
@@ -242,7 +80,10 @@ function EntitySelect({entityId, entityType, label, onChange}) {
 				onChange={handleChange}
 				onFocus={() => setValue(null)}
 				onBlur={() => setValue(cachedValue)}
-				noOptionsMessage={noOptionsMessage}
+				noOptionsMessage={({inputValue}) => inputValue
+					? 'No options'
+					: 'Start typing to search for entities'
+				}
 				placeholder={placeholder}
 				value={value}
 				textFieldProps={{
@@ -260,7 +101,7 @@ EntitySelect.propTypes = {
 	entityId: PropTypes.string,
 	entityType: PropTypes.string,
 	label: PropTypes.string,
-	onChange: PropTypes.func.isRequired,
+	onChange: PropTypes.func,
 }
 
 EntitySelect.defaultProps = {

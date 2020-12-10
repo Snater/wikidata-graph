@@ -62,13 +62,21 @@ class WikidataInterface {
 	 */
 	static getLanguages() {
 		return WikidataInterface.request(wdk.sparqlQuery(`
-			SELECT ?item ?itemLabel ?language_code ?native_label WHERE {
+			SELECT ?item ?itemLabel ?language_code (SAMPLE(?native_label) AS ?native_label) WHERE {
 				?item wdt:P424 ?language_code.
-				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q14827288. }
-				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q17442446. }
+				?item wdt:P31 wd:Q34770.
+				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q152559. } # macrolanguage
+				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q14827288. } # Wikimedia project
+				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q17442446. } # Wikimedia internal item
+				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q20671729. } # Wikinews language edition
+				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q21450877. } # Wikimedia multilingual project main page
+				MINUS { ?item wdt:P4913 ?main_language. } # is a dialect
 				OPTIONAL { ?item wdt:P1705 ?native_label. }
 				SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
-			}`))
+			}
+			GROUP BY ?item ?itemLabel ?language_code
+			ORDER BY ?itemLabel ?item`
+		))
 			.then(response => wdk.simplify.sparqlResults(response))
 			.then(results => results.filter((el, index, self) => self.findIndex(
 					t => t.item.label === el.item.label

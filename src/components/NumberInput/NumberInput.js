@@ -7,8 +7,9 @@ export default function NumberInput({onChange, ...rest}) {
 	return (
 		<FormControl margin="dense">
 			<TextField
+				id={rest.label ? rest.label.toLowerCase().replace(' ', '-') : null}
 				inputProps={{min: 0}}
-				onChange={e => onChange(parseInt(e.target.value))}
+				onChange={event => onChange && onChange(parseInt(event.target.value))}
 				type="number"
 				{...rest}
 			/>

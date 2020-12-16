@@ -3,13 +3,6 @@ import Paper from '@material-ui/core/Paper';
 import {Typography} from "@material-ui/core";
 import styled from 'styled-components';
 
-export const StyledInput = styled.div`
-	&& {
-		display: flex;
-		padding: 0;
-	}
-`;
-
 export const StyledValueContainer = styled.div`
 	&& {
 		align-items: center;
@@ -22,13 +15,14 @@ export const StyledValueContainer = styled.div`
 
 export const StyledNoOptionsMessage = styled(Typography)`
 	&& {
-		padding: ${p => p.theme.spacing.unit}px ${p => p.theme.spacing.unit * 2}px;
+		padding: ${p => p.theme.spacing(1)}px ${p => p.theme.spacing(2)}px;
 	}
 `;
 
 export const StyledSingleValue = styled(Typography)`
 	&& {
 		font-size: 16px;
+		margin-left: 2px;
 	}
 `;
 
@@ -43,7 +37,7 @@ export const StyledPlaceholder = styled(Typography)`
 export const StyledPaper = styled(Paper)`
 	&& {
 		left: 0;
-		margin-top: ${p => p.theme.spacing.unit};
+		margin-top: ${p => p.theme.spacing(1)};
 		position: absolute;
 		right: 0;
 		z-index: 1;

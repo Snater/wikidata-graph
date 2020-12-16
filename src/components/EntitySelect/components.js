@@ -1,5 +1,4 @@
 import {
-	StyledInput,
 	StyledNoOptionsMessage,
 	StyledOption,
 	StyledPaper,
@@ -11,18 +10,15 @@ import ListItemText from '@material-ui/core/ListItemText';
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 
-function Input(props) {
-	return <StyledInput {...props}/>;
-}
-
 function Control({children, innerProps, innerRef, selectProps}) {
 	return (
 		<TextField
-			fullWidth
 			InputProps={{
-				inputComponent: Input,
-				inputProps: {children, ref: innerRef, ...innerProps}
+				inputComponent: 'div',
+				inputProps: {children, ...innerProps}
 			}}
+			fullWidth
+			inputRef={innerRef}
 			{...selectProps.textFieldProps}
 		/>
 	);
@@ -54,7 +50,7 @@ function Option({children, data, innerProps, innerRef, isFocused, isSelected}) {
 			<ListItemText
 				primary={children}
 				secondary={data.description}
-				secondaryTypographyProps={{component: 'span', inline: true, noWrap: false}}
+				secondaryTypographyProps={{component: 'span', display: 'inline', noWrap: false}}
 			/>
 		</StyledOption>
 	);

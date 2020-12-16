@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import {ThemeProvider as MuiThemeProvider} from '@material-ui/core/styles';
 import React from 'react';
 import {ThemeProvider} from 'styled-components';
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme';

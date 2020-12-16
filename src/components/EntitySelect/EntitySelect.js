@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import AsyncSelect from 'react-select/lib/Async';
+import AsyncSelect from 'react-select/async';
 import FormControl from '@material-ui/core/FormControl';
 import WikidataInterface from '../../lib/WikidataInterface';
 import components from './components';

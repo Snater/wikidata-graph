@@ -1,3 +1,7 @@
+import * as clause from './templates/clause'
+import ejs from 'ejs';
+import select from './templates/select';
+
 class SparqlGenerator {
 
 	/**
@@ -17,23 +21,13 @@ class SparqlGenerator {
 	static generate(data = this._defaultProps) {
 		this._sanitizeData(data);
 
-		const prefix = this._useGAS(data.limit, data.iterations)
-			? 'PREFIX gas: <http://www.bigdata.com/rdf/gas#>\n\n' : '';
-
-			return data.sizeProperty
-? `SELECT ?item ?itemLabel ?linkTo ?size {
-  { SELECT ?item (count(distinct ?element) as ?size) {
-    ${this._generateClause(data)}
-    OPTIONAL { ?element wdt:${data.sizeProperty} ?item }
-  } GROUP BY ?item }
-  OPTIONAL { ?item wdt:${data.property} ?linkTo }
-  SERVICE wikibase:label {bd:serviceParam wikibase:language "${data.language}" }
-}`
-: `${prefix}SELECT ?item ?itemLabel ?linkTo {
-  ${this._generateClause(data)}
-  OPTIONAL { ?item wdt:${data.property} ?linkTo }
-  SERVICE wikibase:label {bd:serviceParam wikibase:language "${data.language}" }
-}`;
+		return ejs.render(select, {
+			useGAS: this._useGAS(data.limit, data.iterations),
+			sizeProperty: data.sizeProperty,
+			clause: this._generateClause(data),
+			property: data.property,
+			language: data.language,
+		});
 	}
 
 	/**
@@ -42,30 +36,32 @@ class SparqlGenerator {
 	 */
 	static _generateClause(data) {
 		if (data.mode === 'both') {
-			return `{ ${this._generateClause({...data, mode: 'forward' })} }`
-				+ ` UNION { ${this._generateClause({...data, mode: 'reverse' })} }`;
-		} else if (!this._useGAS(data.limit, data.iterations)) {
-			if (data.mode === 'forward') {
-				return `wd:${data.item} wdt:${data.property}* ?item`;
-			} else if (data.mode === 'reverse') {
-				return `?item wdt:${data.property}* wd:${data.item}`;
-			} else {
-				throw new Error('GAS can be used on forward and reverse traversing only.')
-			}
-		} else {
-			return `SERVICE gas:service {
-  gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.SSSP";
-  gas:in wd:${data.item};
-  gas:traversalDirection "${this._capitalize(data.mode)}";
-  gas:out ?item;
-  gas:out1 ?depth;${typeof data.iterations !== 'number' || data.iterations === 0 ? '' : `
-  gas:maxIterations ${data.iterations};`
-  }${typeof data.limit !== 'number' || data.limit === 0 ? '' : `
-  gas:maxVisited ${data.limit};`
-  }
-  gas:linkType wdt:${data.property}.
-}`;
+			return ejs.render(clause.both, {
+				clauses: {
+					forward: this._generateClause({...data, mode: 'forward'}),
+					reverse: this._generateClause({...data, mode: 'reverse'}),
+				}
+			});
 		}
+
+		if (this._useGAS(data.limit, data.iterations)) {
+			return ejs.render(clause.gas, {
+				item: data.item,
+				mode: this._capitalize(data.mode),
+				iterations: data.iterations,
+				limit: data.limit,
+				property: data.property,
+			});
+		}
+
+		if (data.mode !== 'forward' && data.mode !== 'reverse') {
+			throw new Error('GAS can be used on forward and reverse traversing only.');
+		}
+
+		return ejs.render(data.mode === 'forward' ? clause.forward : clause.reverse, {
+			item: data.item,
+			property: data.property,
+		});
 	}
 
 	/**

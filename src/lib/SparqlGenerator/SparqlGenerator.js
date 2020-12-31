@@ -1,6 +1,7 @@
 import * as clause from './templates/clause'
 import ejs from 'ejs';
 import select from './templates/select';
+import Query from '../Query';
 
 class SparqlGenerator {
 
@@ -8,7 +9,6 @@ class SparqlGenerator {
 	 * @type {Object}
 	 */
 	static _defaultProps = {
-		mode: 'both',
 		language: 'en',
 		iterations: 5,
 		limit: 0,
@@ -35,11 +35,11 @@ class SparqlGenerator {
 	 * @return {string}
 	 */
 	static _generateClause(data) {
-		if (data.mode === 'both') {
+		if (data.mode === Query.MODE.BOTH) {
 			return ejs.render(clause.both, {
 				clauses: {
-					forward: this._generateClause({...data, mode: 'forward'}),
-					reverse: this._generateClause({...data, mode: 'reverse'}),
+					forward: this._generateClause({...data, mode: Query.MODE.FORWARD}),
+					reverse: this._generateClause({...data, mode: Query.MODE.REVERSE}),
 				}
 			});
 		}
@@ -47,18 +47,18 @@ class SparqlGenerator {
 		if (this._useGAS(data.limit, data.iterations)) {
 			return ejs.render(clause.gas, {
 				item: data.item,
-				mode: this._capitalize(data.mode),
+				mode: data.mode,
 				iterations: data.iterations,
 				limit: data.limit,
 				property: data.property,
 			});
 		}
 
-		if (data.mode !== 'forward' && data.mode !== 'reverse') {
+		if (data.mode !== Query.MODE.FORWARD && data.mode !== Query.MODE.REVERSE) {
 			throw new Error('GAS can be used on forward and reverse traversing only.');
 		}
 
-		return ejs.render(data.mode === 'forward' ? clause.forward : clause.reverse, {
+		return ejs.render(data.mode === Query.MODE.FORWARD ? clause.forward : clause.reverse, {
 			item: data.item,
 			property: data.property,
 		});
@@ -90,14 +90,6 @@ class SparqlGenerator {
 	 */
 	static _useGAS(limit, iterations) {
 		return limit > 0 || iterations > 0;
-	}
-
-	/**
-	 * @param {string} string
-	 * @return {string}
-	 */
-	static _capitalize(string) {
-		return string.charAt(0).toUpperCase() + string.slice(1);
 	}
 }
 

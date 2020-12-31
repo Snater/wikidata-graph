@@ -6,7 +6,7 @@ import useQueryContext from '../App/QueryContext';
 import queryString from 'query-string';
 import Query from '../../lib/Query';
 
-export const DEFAULT_QUERY = new Query('Q9682', 'P40', 'both', 'en', 5, 0, 'P3373');
+export const DEFAULT_QUERY = new Query('Q9682', 'P40', Query.MODE.BOTH, 'en', 5, 0, 'P3373');
 
 function matchesQueryString(query) {
 	return queryString.stringify(query.toJSON()) === window.location.search.slice(1);

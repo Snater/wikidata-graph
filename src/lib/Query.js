@@ -1,5 +1,11 @@
 export default class Query {
 
+	static MODE = {
+		FORWARD: 'Forward',
+		REVERSE: 'Reverse',
+		BOTH: 'Both',
+	};
+
 	/**
 	 * @param {Object} json
 	 * @returns {Query}

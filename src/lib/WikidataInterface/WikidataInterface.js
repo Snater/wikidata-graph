@@ -150,7 +150,8 @@ class WikidataInterface {
 		let imgUrl = WikidataInterface.getImageUrl(claims.P18);
 
 		return new Promise(resolve => {
-			img.onload = () => resolve(imgUrl);
+			img.onload = () => resolve(img);
+			img.alt = '';
 			img.src = imgUrl;
 		});
 	}

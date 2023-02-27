@@ -182,14 +182,31 @@ class D3Chart {
 		this._labels.filter(`:not(:nth-child(${index + 1}))`).style('opacity', 0.3);
 
 		this._getEntityImage(d.id)
-			.then(imgUrl => {
-				this._tooltip.html(`<img alt="" src="${imgUrl}">`);
+			.then(img => {
+				const dimensions = this._determineImageDimensions(img);
+				this._tooltip.html(`<img alt="" src="${img.src}" height="${dimensions.height}" width="${dimensions.width}">`);
 				this._tooltip.show(d, target);
 			})
 			.catch(() => {
 				this._tooltip.html('no image');
 				this._tooltip.show(d, target);
 			});
+	}
+
+	/**
+	 * @param {HTMLImageElement} img
+	 * @return {{width: number, height: number}}
+	 */
+	_determineImageDimensions(img) {
+		const tempCanvas = document.createElement('div');
+		tempCanvas.style.position = 'absolute';
+		tempCanvas.style.left = '-999px';
+		tempCanvas.style.top = '-999px';
+		document.getElementsByTagName('body')[0].appendChild(tempCanvas);
+		tempCanvas.appendChild(img);
+		const dimensions = {height: tempCanvas.clientHeight, width: tempCanvas.clientWidth};
+		tempCanvas.remove();
+		return dimensions;
 	}
 
 	_exitTooltip() {

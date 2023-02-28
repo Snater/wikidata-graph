@@ -6,78 +6,59 @@ import Query from '../Query';
 class SparqlGenerator {
 
 	/**
-	 * @type {Object}
-	 */
-	static _defaultProps = {
-		language: 'en',
-		iterations: 5,
-		limit: 0,
-	};
-
-	/**
-	 * @param {Object} data
+	 * @param {Query} query
 	 * @return {string}
 	 */
-	static generate(data = this._defaultProps) {
-		this._sanitizeData(data);
-
+	static generate(query) {
 		return ejs.render(select, {
-			useGAS: this._useGAS(data.limit, data.iterations),
-			sizeProperty: data.sizeProperty,
-			clause: this._generateClause(data),
-			property: data.property,
-			language: data.language,
+			useGAS: this._useGAS(query.getLimit(), query.getIterations()),
+			sizeProperty: query.getSizeProperty(),
+			clause: this._generateClause(query),
+			property: query.getProperty(),
+			language: query.getLanguage(),
 		});
 	}
 
 	/**
-	 * @param {Object} data
+	 * @param {Query} query
 	 * @return {string}
 	 */
-	static _generateClause(data) {
-		if (data.mode === Query.MODE.BOTH) {
+	static _generateClause(query) {
+		if (query.getMode() === Query.MODE.BOTH) {
+			const forwardQuery = Query.newFromJSON(query.toJSON());
+			forwardQuery.setMode(Query.MODE.FORWARD);
+			const reverseQuery = Query.newFromJSON(query.toJSON());
+			reverseQuery.setMode(Query.MODE.REVERSE);
+
 			return ejs.render(clause.both, {
 				clauses: {
-					forward: this._generateClause({...data, mode: Query.MODE.FORWARD}),
-					reverse: this._generateClause({...data, mode: Query.MODE.REVERSE}),
+					forward: this._generateClause(forwardQuery),
+					reverse: this._generateClause(reverseQuery),
 				}
 			});
 		}
 
-		if (this._useGAS(data.limit, data.iterations)) {
+		if (this._useGAS(query.getLimit(), query.getIterations())) {
 			return ejs.render(clause.gas, {
-				item: data.item,
-				mode: data.mode,
-				iterations: data.iterations,
-				limit: data.limit,
-				property: data.property,
+				item: query.getItem(),
+				mode: query.getMode(),
+				iterations: query.getIterations(),
+				limit: query.getLimit(),
+				property: query.getProperty(),
 			});
 		}
 
-		if (data.mode !== Query.MODE.FORWARD && data.mode !== Query.MODE.REVERSE) {
+		if (query.getMode() !== Query.MODE.FORWARD && query.getMode() !== Query.MODE.REVERSE) {
 			throw new Error('GAS can be used on forward and reverse traversing only.');
 		}
 
-		return ejs.render(data.mode === Query.MODE.FORWARD ? clause.forward : clause.reverse, {
-			item: data.item,
-			property: data.property,
-		});
-	}
-
-	/**
-	 *
-	 * @param {Object} data
-	 * @return {Object}
-	 */
-	static _sanitizeData(data) {
-		if (!data.item || !data.property) {
-			throw new Error('Item and property are required to generate a SPARQL query.')
-		}
-
-		data.iterations = parseInt(data.iterations);
-		data.limit = parseInt(data.limit);
-
-		return Object.assign({}, this._defaultProps, data);
+		return ejs.render(
+			query.getMode() === Query.MODE.FORWARD ? clause.forward : clause.reverse,
+			{
+				item: query.getItem(),
+				property: query.getProperty(),
+			}
+		);
 	}
 
 	/**

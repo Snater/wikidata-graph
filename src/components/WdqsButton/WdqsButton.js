@@ -2,15 +2,14 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import SparqlGenerator from '../../lib/SparqlGenerator';
+import Query from '../../lib/Query';
 
 class WdqsButton extends Component {
 
 	goToWdqs() {
 		const baseUrl = 'https://query.wikidata.org';
 
-		window.open(`${baseUrl}/#${encodeURIComponent(
-			SparqlGenerator.generate(this.props.queryProps)
-		)}`);
+		window.open(`${baseUrl}/#${encodeURIComponent(SparqlGenerator.generate(this.props.query))}`);
 	}
 
 	/**
@@ -32,5 +31,5 @@ export default WdqsButton;
 
 WdqsButton.propTypes = {
 	className: PropTypes.string,
-	queryProps: PropTypes.object,
+	query: PropTypes.instanceOf(Query),
 };

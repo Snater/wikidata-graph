@@ -58,7 +58,7 @@ export default function QueryManager() {
 			return;
 		}
 
-		Wikidata.sparqlQuery(SparqlGenerator.generate(query.toJSON())).then(data => {
+		Wikidata.sparqlQuery(SparqlGenerator.generate(query)).then(data => {
 			if (data) {
 				setResult(data);
 			}

@@ -26,12 +26,24 @@ export default class Query {
 	 * @param {string} item
 	 * @param {string} property
 	 * @param {string} mode
-	 * @param {string} language
-	 * @param {number} iterations
-	 * @param {number} limit
-	 * @param {string} sizeProperty
+	 * @param {string} [language]
+	 * @param {number} [iterations]
+	 * @param {number} [limit]
+	 * @param {string|null} [sizeProperty]
 	 */
-	constructor(item, property, mode, language, iterations, limit, sizeProperty) {
+	constructor(
+		item,
+		property,
+		mode = Query.MODE.BOTH,
+		language = 'en',
+		iterations = 5,
+		limit = 0,
+		sizeProperty = null,
+	) {
+		if (!item || !property) {
+			throw new Error('Item and property are required');
+		}
+
 		this._item = item;
 		this._property = property;
 		this._mode = mode;
@@ -108,13 +120,13 @@ export default class Query {
 	setLimit = limit => this._limit = limit;
 
 	/**
-	 * @returns {string}
+	 * @returns {string|null}
 	 */
 	getSizeProperty = () => this._sizeProperty;
 
 	/**
-	 * @param {string} sizeProperty
-	 * @returns {string}
+	 * @param {string|null} sizeProperty
+	 * @returns {string|null}
 	 */
 	setSizeProperty = sizeProperty => this._sizeProperty = sizeProperty;
 
@@ -143,7 +155,7 @@ export default class Query {
 			language: this._language,
 			iterations: this._iterations,
 			limit: this._limit,
-			sizeProperty: this._sizeProperty,
+			sizeProperty: this._sizeProperty || '',
 		};
 	}
 }

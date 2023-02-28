@@ -65,7 +65,7 @@ export default function Form() {
 				onChange={value => handleChange('setSizeProperty', value)}
 				label="Circle Size Property"
 			/>
-			<StyledWdqsButton queryProps={query.toJSON()}>Run on Wikidata Query Service</StyledWdqsButton>
+			<StyledWdqsButton query={query}>Run on Wikidata Query Service</StyledWdqsButton>
 		</StyledForm>
 	);
 }

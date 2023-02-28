@@ -1,9 +1,10 @@
 import SparqlGenerator from './SparqlGenerator';
+import Query from '../Query';
 
 const data = {
 	item: 'Q9682',
 	property: 'P40',
-	mode: 'both',
+	mode: Query.MODE.BOTH,
 	language: 'en',
 	iterations: 5,
 	limit: 0,
@@ -39,26 +40,26 @@ describe('generate()', () => {
 
 	it('generates a string for mode "both"', () => {
 		expect(typeof SparqlGenerator.generate(
-			Object.assign({}, data, {mode: 'both'})
+			Object.assign({}, data, {mode: Query.MODE.BOTH})
 		)).toStrictEqual('string');
 	});
 
 	it('generates a string for mode "forward"', () => {
 		expect(typeof SparqlGenerator.generate(
-			Object.assign({}, data, {mode: 'forward'})
+			Object.assign({}, data, {mode: Query.MODE.FORWARD})
 		)).toStrictEqual('string');
 	});
 
 	it('generates a string for mode "reverse"', () => {
 		expect(typeof SparqlGenerator.generate(
-			Object.assign({}, data, {mode: 'reverse'})
+			Object.assign({}, data, {mode: Query.MODE.REVERSE})
 		)).toStrictEqual('string');
 	});
 
 	it('generates a string for mode "forward" not using GAS', () => {
 		expect(
 			typeof SparqlGenerator.generate(Object.assign({}, data, {
-				mode: 'forward',
+				mode: Query.MODE.FORWARD,
 				iterations: 0,
 				limit: 0,
 			}))
@@ -68,7 +69,7 @@ describe('generate()', () => {
 	it('generates a string for mode "reverse" not using GAS', () => {
 		expect(
 			typeof SparqlGenerator.generate(Object.assign({}, data, {
-				mode: 'reverse',
+				mode: Query.MODE.REVERSE,
 				iterations: 0,
 				limit: 0,
 			}))

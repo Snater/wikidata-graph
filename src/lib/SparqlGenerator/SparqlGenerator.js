@@ -11,11 +11,11 @@ class SparqlGenerator {
 	 */
 	static generate(query) {
 		return ejs.render(select, {
-			useGAS: this._useGAS(query.getLimit(), query.getIterations()),
-			sizeProperty: query.getSizeProperty(),
+			useGAS: this._useGAS(query.limit, query.iterations),
+			sizeProperty: query.sizeProperty,
 			clause: this._generateClause(query),
-			property: query.getProperty(),
-			language: query.getLanguage(),
+			property: query.property,
+			language: query.language,
 		});
 	}
 
@@ -24,11 +24,11 @@ class SparqlGenerator {
 	 * @return {string}
 	 */
 	static _generateClause(query) {
-		if (query.getMode() === Query.MODE.BOTH) {
+		if (query.mode === Query.MODE.BOTH) {
 			const forwardQuery = Query.newFromJSON(query.toJSON());
-			forwardQuery.setMode(Query.MODE.FORWARD);
+			forwardQuery.mode = Query.MODE.FORWARD;
 			const reverseQuery = Query.newFromJSON(query.toJSON());
-			reverseQuery.setMode(Query.MODE.REVERSE);
+			reverseQuery.mode = Query.MODE.REVERSE;
 
 			return ejs.render(clause.both, {
 				clauses: {
@@ -38,25 +38,25 @@ class SparqlGenerator {
 			});
 		}
 
-		if (this._useGAS(query.getLimit(), query.getIterations())) {
+		if (this._useGAS(query.limit, query.iterations)) {
 			return ejs.render(clause.gas, {
-				item: query.getItem(),
-				mode: query.getMode(),
-				iterations: query.getIterations(),
-				limit: query.getLimit(),
-				property: query.getProperty(),
+				item: query.item,
+				mode: query.mode,
+				iterations: query.iterations,
+				limit: query.limit,
+				property: query.property,
 			});
 		}
 
-		if (query.getMode() !== Query.MODE.FORWARD && query.getMode() !== Query.MODE.REVERSE) {
+		if (query.mode !== Query.MODE.FORWARD && query.mode !== Query.MODE.REVERSE) {
 			throw new Error('GAS can be used on forward and reverse traversing only.');
 		}
 
 		return ejs.render(
-			query.getMode() === Query.MODE.FORWARD ? clause.forward : clause.reverse,
+			query.mode === Query.MODE.FORWARD ? clause.forward : clause.reverse,
 			{
-				item: query.getItem(),
-				property: query.getProperty(),
+				item: query.item,
+				property: query.property,
 			}
 		);
 	}

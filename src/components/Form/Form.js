@@ -25,43 +25,43 @@ export default function Form() {
 		<StyledForm>
 			<EntitySelect
 				entityType="item"
-				entityId={query.getItem()}
+				entityId={query.item}
 				onChange={value => handleChange('setItem', value)}
 				label="Root Item"
 			/>
 			<EntitySelect
 				entityType="property"
-				entityId={query.getProperty()}
+				entityId={query.property}
 				onChange={value => handleChange('setProperty', value)}
 				label="Traversal Property"
 			/>
 			<StyledCol2>
 				<ModeSelect
 					id="mode"
-					value={query.getMode()}
+					value={query.mode}
 					onChange={value => handleChange('setMode', value)}
 				/>
 				<LanguageSelect
 					id="language"
-					value={query.getLanguage()}
+					value={query.language}
 					onChange={value => handleChange('setLanguage', value)}
 				/>
 			</StyledCol2>
 			<StyledCol2>
 				<NumberInput
 					label="Iterations"
-					value={query.getIterations()}
+					value={query.iterations}
 					onChange={value => handleChange('setIterations', parseInt(value))}
 				/>
 				<NumberInput
 					label="Limit"
-					value={query.getLimit()}
+					value={query.limit}
 					onChange={value => handleChange('setLimit', parseInt(value))}
 				/>
 			</StyledCol2>
 			<EntitySelect
 				entityType="property"
-				entityId={query.getSizeProperty()}
+				entityId={query.sizeProperty}
 				onChange={value => handleChange('setSizeProperty', value)}
 				label="Circle Size Property"
 			/>

@@ -31,7 +31,7 @@ export default function Chart({getEntityImage}) {
 		if (d3Chart && query && result && width && height) {
 			d3Chart.update({
 				data: result,
-				root: query.getItem(),
+				root: query.item,
 				height,
 				width,
 			});
@@ -44,4 +44,3 @@ export default function Chart({getEntityImage}) {
 Chart.propTypes = {
 	getEntityImage: PropTypes.func,
 };
-

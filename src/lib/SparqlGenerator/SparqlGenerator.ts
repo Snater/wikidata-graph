@@ -5,25 +5,17 @@ import Query from '../Query';
 
 class SparqlGenerator {
 
-	/**
-	 * @param {Query} query
-	 * @return {string}
-	 */
-	static generate(query) {
+	static generate(query: Query) {
 		return ejs.render(select, {
-			useGAS: this._useGAS(query.limit, query.iterations),
+			useGAS: this.useGAS(query.limit, query.iterations),
 			sizeProperty: query.sizeProperty,
-			clause: this._generateClause(query),
+			clause: this.generateClause(query),
 			property: query.property,
 			language: query.language,
 		});
 	}
 
-	/**
-	 * @param {Query} query
-	 * @return {string}
-	 */
-	static _generateClause(query) {
+	protected static generateClause(query: Query): string {
 		if (query.mode === Query.MODE.BOTH) {
 			const forwardQuery = Query.newFromJSON(query.toJSON());
 			forwardQuery.mode = Query.MODE.FORWARD;
@@ -32,13 +24,13 @@ class SparqlGenerator {
 
 			return ejs.render(clause.both, {
 				clauses: {
-					forward: this._generateClause(forwardQuery),
-					reverse: this._generateClause(reverseQuery),
+					forward: this.generateClause(forwardQuery),
+					reverse: this.generateClause(reverseQuery),
 				}
 			});
 		}
 
-		if (this._useGAS(query.limit, query.iterations)) {
+		if (this.useGAS(query.limit, query.iterations)) {
 			return ejs.render(clause.gas, {
 				item: query.item,
 				mode: query.mode,
@@ -64,13 +56,9 @@ class SparqlGenerator {
 	/**
 	 * Whether to use the Gather Apply Scatter model.
 	 * (https://wiki.blazegraph.com/wiki/index.php/RDF_GAS_API)
-	 *
-	 * @param {number} limit
-	 * @param {number} iterations
-	 * @return {boolean}
 	 */
-	static _useGAS(limit, iterations) {
-		return limit > 0 || iterations > 0;
+	protected static useGAS(limit?: number, iterations?: number) {
+		return (limit && limit > 0) || (iterations && iterations > 0);
 	}
 }
 

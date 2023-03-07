@@ -2,10 +2,10 @@ import '@testing-library/jest-dom';
 import {ThemeProvider as MuiThemeProvider} from '@material-ui/core/styles';
 import React from 'react';
 import {ThemeProvider} from 'styled-components';
-import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
+import createTheme from '@material-ui/core/styles/createTheme';
 import {render} from '@testing-library/react';
 
-const theme = createMuiTheme();
+const theme = createTheme();
 
 const CustomWrapper = function({children}) {
 	return (

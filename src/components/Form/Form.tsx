@@ -12,12 +12,15 @@ export default function Form() {
 	const {query, setQuery} = useQueryContext();
 
 	const handleChange = useCallback((method, value) => {
-		const clonedQuery = Query.newFromJSON(query.toJSON());
+		if (!query) {
+			return;
+		}
+		const clonedQuery = Query.newFromJSON(query.toJSON()) as {[index: string]: any};
 		clonedQuery[method](value);
-		setQuery(clonedQuery);
+		setQuery(clonedQuery as Query);
 	}, [query, setQuery]);
 
-	if (query === null) {
+	if (!query) {
 		return null;
 	}
 
@@ -51,12 +54,12 @@ export default function Form() {
 				<NumberInput
 					label="Iterations"
 					value={query.iterations}
-					onChange={value => handleChange('setIterations', parseInt(value))}
+					onChange={value => handleChange('setIterations', value)}
 				/>
 				<NumberInput
 					label="Limit"
 					value={query.limit}
-					onChange={value => handleChange('setLimit', parseInt(value))}
+					onChange={value => handleChange('setLimit', value)}
 				/>
 			</StyledCol2>
 			<EntitySelect

@@ -1,22 +1,23 @@
-import PropTypes from 'prop-types';
+import Query, {QueryJSON} from '../../lib/Query';
 import {useCallback, useEffect} from 'react';
+import {ParsedQuery} from 'query-string';
+import PropTypes from 'prop-types';
 import SparqlGenerator from '../../lib/SparqlGenerator';
 import Wikidata from '../../lib/WikidataInterface';
-import useQueryContext from '../App/QueryContext';
 import queryString from 'query-string';
-import Query from '../../lib/Query';
+import useQueryContext from '../App/QueryContext';
 
 export const DEFAULT_QUERY = new Query('Q9682', 'P40', Query.MODE.BOTH, 'en', 5, 0, 'P3373');
 
-function matchesQueryString(query) {
+function matchesQueryString(query: Query) {
 	return queryString.stringify(query.toJSON()) === window.location.search.slice(1);
 }
 
-function isNew(query) {
+function isNew(query: Query) {
 	return !window.history.state || !query.equals(Query.newFromJSON(window.history.state));
 }
 
-function isInitial(query) {
+function isInitial(query: Query) {
 	return !window.history.state && query.equals(DEFAULT_QUERY);
 }
 
@@ -34,7 +35,9 @@ export default function QueryManager() {
 		if (window.location.search === '') {
 			setQuery(DEFAULT_QUERY);
 		} else {
-			const queryStringQuery = Query.newFromJSON(queryString.parse(window.location.search));
+			type ParsedQueryAsQuery = ParsedQuery & QueryJSON;
+			const parsedQueryString = queryString.parse(window.location.search);
+			const queryStringQuery = Query.newFromJSON(parsedQueryString as ParsedQueryAsQuery);
 			window.history.replaceState(queryStringQuery.toJSON(), '', `/${window.location.search}`);
 			setQuery(queryStringQuery);
 		}
@@ -54,7 +57,7 @@ export default function QueryManager() {
 	}, [popStateListener, query]);
 
 	useEffect(() => {
-		if (query === null) {
+		if (!query) {
 			return;
 		}
 

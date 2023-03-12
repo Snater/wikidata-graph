@@ -1,9 +1,8 @@
-import React from 'react';
 import WikidataInterface from './WikidataInterface';
 
 it('returns a Promise when submitting a SPARQL query', () => {
-	WikidataInterface.request = function(url) {
-		return new Promise((resolve, reject) => {
+	WikidataInterface.request = function<T>(): Promise<T> {
+		return new Promise(resolve => {
 			resolve({
 				'head': {
 					'vars': ['item', 'itemLabel', 'linkTo']
@@ -39,7 +38,7 @@ it('returns a Promise when submitting a SPARQL query', () => {
 						}
 					}]
 				}
-			});
+			} as unknown as T);
 		});
 	};
 
@@ -50,8 +49,8 @@ it('returns a Promise when submitting a SPARQL query', () => {
 });
 
 it('triggers a request when searching for entities', () => {
-	WikidataInterface.request = function(url) {
-		return new Promise((resolve, reject) => resolve('search() result'));
+	WikidataInterface.request = function<T>(): Promise<T> {
+		return new Promise(resolve => resolve('search() result' as unknown as T));
 	};
 
 	return WikidataInterface.search('imagine some search request here')
@@ -61,12 +60,14 @@ it('triggers a request when searching for entities', () => {
 });
 
 it('appends "property" parameter to the query string when searching for a property', () => {
-	WikidataInterface.request = function(url) {
-		return url;
+	WikidataInterface.request = function <T>(url): Promise<T> {
+		return new Promise(resolve => resolve(url as T));
 	};
 
-	expect(WikidataInterface.search('search string', 'property'))
-		.toEqual(expect.stringContaining('&type=property'));
+	return WikidataInterface.search('search string', 'property')
+		.then(url => {
+			expect(url).toEqual(expect.stringContaining('&type=property'));
+		});
 });
 
 it('creates a Commons URL', () => {
@@ -75,8 +76,8 @@ it('creates a Commons URL', () => {
 });
 
 it('gets an entity', () => {
-	WikidataInterface.request = function(url) {
-		return new Promise((resolve, reject) => resolve({entities: {Q1: 'getEntity() result'}}));
+	WikidataInterface.request = function<T>(): Promise<T> {
+		return new Promise(resolve => resolve({entities: {Q1: 'getEntity() result'}} as unknown as T));
 	};
 
 	return WikidataInterface.getEntity('Q1')
@@ -87,11 +88,21 @@ it('gets an entity', () => {
 
 it('gets an image URL', () => {
 	expect(WikidataInterface.getImageUrl([{
-		mainsnak: {datatype: 'commonsMedia', datavalue: {value: 'filename'}}
+		id: '',
+		mainsnak: {
+			datatype: 'commonsMedia',
+			datavalue: {type: 'string', value: 'filename'},
+			hash: '',
+			id: '',
+			property: '',
+			snaktype: 'value',
+		},
+		rank: 'normal',
+		type: 'string',
 	}])).toBe(WikidataInterface.createCommonsUrl(('filename')));
 });
 
 it('gets missing image fallback URL', () => {
-	expect(WikidataInterface.getImageUrl())
+	expect(WikidataInterface.getImageUrl([]))
 		.toBe(WikidataInterface.createCommonsUrl(WikidataInterface.imageFallback));
 });

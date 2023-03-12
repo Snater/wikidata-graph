@@ -18,7 +18,7 @@
     "react-select": "^3.1.1",
     "roboto-fontface": "^0.10.0",
     "styled-components": "^5.2.1",
-    "wikidata-sdk": "^5.16.2"
+    "wikibase-sdk": "^9.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
@@ -31,9 +31,11 @@
     "@testing-library/react": "^11.2.2",
     "@types/ejs": "^3.1.2",
     "@types/jest": "^29.4.0",
+    "@types/md5": "^2.3.2",
     "@types/node": "^18.14.2",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^18.0.11",
+    "ts-jest": "^26.5.6",
     "typescript": "^4.9.5"
   },
   "scripts": {
@@ -56,6 +58,10 @@
       "<rootDir>/src/**/*.{js,ts,tsx}",
       "!<rootDir>/src/**/index.{js,ts,tsx}",
       "!<rootDir>/src/utils/*.{js,ts,tsx}"
+    ],
+    "preset": "ts-jest/presets/js-with-ts",
+    "transformIgnorePatterns": [
+      "/node_modules/(?!wikibase-sdk/.*)"
     ]
   }
 }

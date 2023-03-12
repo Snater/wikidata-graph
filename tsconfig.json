@@ -17,8 +17,13 @@
 		"noFallthroughCasesInSwitch": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"strict": true,
-		"target": "es5"
+		// Fixme: Required until https://github.com/maxlath/wikibase-sdk/pull/106/files is merged
+		"strict": false,
+		"target": "es5",
+		"typeRoots": [
+			"./node_modules/@types",
+			"./types"
+		]
 	},
 	"include": [
 		"src"

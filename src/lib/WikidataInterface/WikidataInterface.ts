@@ -1,18 +1,37 @@
-import * as wdk from 'wikidata-sdk';
+import {Claims, PropertyClaims} from 'wikibase-sdk/src/types/claim';
+import {Entities, Entity, EntityId, EntityType, Item} from 'wikibase-sdk/dist/types/entity';
+import {Language} from '../../types';
 import MD5 from 'md5';
+import {SparqlResults, WBK} from 'wikibase-sdk'
+import {SparqlValueType} from 'wikibase-sdk/src/types/sparql';
+
+const wdk = WBK({
+	instance: 'https://www.wikidata.org',
+	sparqlEndpoint: 'https://query.wikidata.org/sparql'
+})
+
+type LanguageResult = {
+	item: {
+		label: string
+	}
+	language_code: string
+	native_label: string
+}
+
+type Result = {
+	item: {
+		label: string
+		value: string
+	}
+	linkTo: string
+	size: number
+}
 
 class WikidataInterface {
 
-	/**
-	 * @type {string}
-	 */
 	static imageFallback = 'No_image_available_500_x_500.svg';
 
-	/**
-	 * @param {string} url
-	 * @return {Promise<*>}
-	 */
-	static request(url) {
+	static request<T>(url: string): Promise<T> {
 		return new Promise((resolve, reject) => {
 			const request = new XMLHttpRequest();
 			request.open('GET', url);
@@ -25,12 +44,8 @@ class WikidataInterface {
 		});
 	}
 
-	/**
-	 * @param {string} id
-	 * @return {Promise<Object>}
-	 */
-	static getEntity(id) {
-		return WikidataInterface.request(wdk.getEntities({
+	static getEntity(id: EntityId): Promise<Entity> {
+		return WikidataInterface.request<{entities: Entities}>(wdk.getEntities({
 			ids: [id],
 			languages: ['en'],
 			props: ['claims'],
@@ -38,13 +53,8 @@ class WikidataInterface {
 			.then(response => response.entities[id]);
 	}
 
-	/**
-	 * @param {string} searchString
-	 * @param {string} [type]
-	 * @return {Promise<Object[]>}
-	 */
-	static search(searchString, type) {
-		let url = wdk.searchEntities(searchString);
+	static search(search: string, type?: EntityType) {
+		let url = wdk.searchEntities({search});
 
 		if (type === 'property') {
 			url += '&type=property';
@@ -58,7 +68,6 @@ class WikidataInterface {
 	 * and "label" with "label" being the native language label or, if none is
 	 * provided, the English label. Languages featuring the same English label are
 	 * filtered out.
-	 * @return {Promise<Object[]>}
 	 */
 	static getLanguages() {
 		return WikidataInterface.request(wdk.sparqlQuery(`
@@ -77,75 +86,56 @@ class WikidataInterface {
 			GROUP BY ?item ?itemLabel ?language_code
 			ORDER BY ?itemLabel ?item`
 		))
-			.then(response => wdk.simplify.sparqlResults(response))
-			.then(results => results.filter((el, index, self) => self.findIndex(
-					t => t.item.label === el.item.label
-				) === index)
+			.then((response: SparqlResults) => wdk.simplify.sparqlResults(response))
+			.then((results: Record<string, SparqlValueType>[]) => results.filter(
+				(el: LanguageResult, index: number, self: LanguageResult[]) =>
+					self.findIndex(t => t.item.label === el.item.label) === index)
 			)
-			.then(results => results.map(el => Object.create(
+			.then(results => results.map((el: LanguageResult) => Object.create(
 					{code: el.language_code, label: el.native_label || el.item.label}
-				)))
-			.then(results => results.sort((a, b) => a.label < b.label ? -1 : 1))
+				) as Language))
+			.then(results => results.sort((a: Language, b: Language) => a.label < b.label ? -1 : 1))
 			.catch(error => console.error(error));
 	}
 
-	/**
-	 * @param {string} sparql
-	 * @return {Promise<Object[]>}
-	 */
-	static sparqlQuery(sparql) {
+	static sparqlQuery(sparql: string) {
 		return WikidataInterface.request(wdk.sparqlQuery(sparql))
-			.then(response => wdk.simplify.sparqlResults(response))
-			.then(results => Object.assign({}, {
+			.then((response: SparqlResults) => wdk.simplify.sparqlResults(response))
+			.then((results: Result[]) => Object.assign({}, {
 					nodes: WikidataInterface.parseNodes(results),
 					links: WikidataInterface.parseLinks(results),
 				}))
 			.catch(error => console.error(error));
 	}
 
-	/**
-	 * @param {Object[]} simplifiedResults
-	 * @return {Object}
-	 */
-	static parseNodes(simplifiedResults) {
-		return simplifiedResults
+	static parseNodes(results: Result[]) {
+		return results
 			.map(el => Object.assign({}, {
 				id: el.item.value,
 				label: el.item.label,
 				uri: `https://www.wikidata.org/entity/${el.item.value}`,
 				size: el.size,
 			}))
-			.filter(
-				(el, index, self) => self.findIndex(t => t.id === el.id) === index
-			);
+			.filter((el, index, self) => self.findIndex(t => t.id === el.id) === index);
 	}
 
-	/**
-	 * @param {Object[]} simplifiedResults
-	 * @return {Object}
-	 */
-	static parseLinks(simplifiedResults) {
-		return simplifiedResults
-			.filter(el => simplifiedResults.find(result => el.linkTo === result.item.value))
+	static parseLinks(results: Result[]) {
+		return results
+			.filter(el => results.find(result => el.linkTo === result.item.value))
 			.map(el => Object.assign({}, {source: el.item.value, target: el.linkTo}));
 	}
 
-	/**
-	 * @param {string} id
-	 * @return {Promise<string>}
-	 */
-	static getEntityImage(id) {
+	static getEntityImage(id: EntityId) {
 		return new Promise(resolve => {
 			WikidataInterface.getEntity(id)
-				.then(entity => resolve(WikidataInterface.createImage(entity.claims)));
+				.then(entity => {
+					const item = entity as Item;
+					return resolve(WikidataInterface.createImage(item.claims))
+				});
 		});
 	}
 
-	/**
-	 * @param {Object} [claims]
-	 * @return {Promise<string>}
-	 */
-	static createImage(claims) {
+	static createImage(claims: Claims) {
 		const img = new Image();
 		let imgUrl = WikidataInterface.getImageUrl(claims.P18);
 
@@ -156,28 +146,25 @@ class WikidataInterface {
 		});
 	}
 
-	/**
-	 * @param {Object[]} [propertyClaims]
-	 * @return {string}
-	 */
-	static getImageUrl(propertyClaims) {
-		if (propertyClaims) {
+	static getImageUrl(propertyClaims: PropertyClaims) {
+		if (propertyClaims.length > 0) {
 			const mainsnak = propertyClaims[0].mainsnak;
 
 			if (mainsnak.datatype === 'commonsMedia') {
-				const filename = mainsnak.datavalue.value.replace(/ /g, '_');
-				return WikidataInterface.createCommonsUrl(filename);
+				const value = mainsnak.datavalue?.value;
+
+				if (typeof value !== 'string') {
+					return '';
+				}
+
+				return WikidataInterface.createCommonsUrl(value.replace(/ /g, '_'))
 			}
 		}
 
 		return WikidataInterface.createCommonsUrl(WikidataInterface.imageFallback);
 	}
 
-	/**
-	 * @param {string} filename
-	 * @return {string}
-	 */
-	static createCommonsUrl(filename) {
+	static createCommonsUrl(filename: string) {
 		const md5 = MD5(filename);
 		const extension = filename.endsWith('.svg') ? '.png' : '';
 		return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}${extension}`;

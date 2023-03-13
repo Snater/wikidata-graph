@@ -1,6 +1,5 @@
 import {Claims, PropertyClaims} from 'wikibase-sdk/src/types/claim';
 import {Entities, Entity, EntityId, EntityType, Item} from 'wikibase-sdk/dist/types/entity';
-import {Language} from '../../types';
 import MD5 from 'md5';
 import {SparqlResults, WBK} from 'wikibase-sdk'
 import {SparqlValueType} from 'wikibase-sdk/src/types/sparql';
@@ -9,6 +8,11 @@ const wdk = WBK({
 	instance: 'https://www.wikidata.org',
 	sparqlEndpoint: 'https://query.wikidata.org/sparql'
 })
+
+type Language = {
+	code: string
+	label: string
+}
 
 type LanguageResult = {
 	item: {

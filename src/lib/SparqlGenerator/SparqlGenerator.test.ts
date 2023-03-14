@@ -14,13 +14,13 @@ describe('generate()', () => {
 
 	it('throws an error if item is omitted', () => {
 		expect(() => SparqlGenerator.generate(
-			Object.assign({}, data, {item: undefined})
+			Object.assign({}, data, {item: undefined}) as Query
 		)).toThrow();
 	});
 
 	it('throws an error if property is omitted', () => {
 		expect(() => SparqlGenerator.generate(
-			Object.assign({}, data, {property: undefined})
+			Object.assign({}, data, {property: undefined}) as Query
 		)).toThrow();
 	});
 

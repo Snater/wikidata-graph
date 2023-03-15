@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import Select, {SelectProps} from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
+import Select, {SelectProps} from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
 import WikidataInterface from '../../lib/WikidataInterface';
 
 export type LanguageSelectProps = {
@@ -25,7 +25,7 @@ export default function LanguageSelect({id, onChange, ...rest}: LanguageSelectPr
 	return (
 		<FormControl margin="dense">
 			<InputLabel htmlFor={id}>Language</InputLabel>
-			<Select inputProps={{id}} onChange={e => onChange(e.target.value as string)} {...rest}>
+			<Select inputProps={{id}} label="Language" onChange={e => onChange(e.target.value as string)} {...rest}>
 				{languages.map(language =>
 					<MenuItem key={language.code} value={language.code}>
 						{language.label}

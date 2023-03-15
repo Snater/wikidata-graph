@@ -6,9 +6,9 @@ import {
 	StyledSingleValue,
 	StyledValueContainer,
 } from './EntitySelect.styles';
-import ListItemText from '@material-ui/core/ListItemText';
+import ListItemText from '@mui/material/ListItemText';
 import React from 'react';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@mui/material/TextField';
 
 function Control({children, innerProps, innerRef, selectProps}) {
 	return (
@@ -36,10 +36,10 @@ function NoOptionsMessage({children, innerProps}) {
 	);
 }
 
-function Option({children, data, innerProps, innerRef, isFocused, isSelected}) {
+function Option({children, data, innerProps, isFocused, isSelected}) {
 	return (
 		<StyledOption
-			buttonRef={innerRef}
+			buttonRef={innerProps.innerRef}
 			selected={isFocused}
 			component="div"
 			style={{

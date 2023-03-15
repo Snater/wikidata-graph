@@ -150,8 +150,8 @@ class WikidataInterface {
 		});
 	}
 
-	static getImageUrl(propertyClaims: PropertyClaims) {
-		if (propertyClaims.length > 0) {
+	static getImageUrl(propertyClaims?: PropertyClaims) {
+		if (propertyClaims && propertyClaims.length > 0) {
 			const mainsnak = propertyClaims[0].mainsnak;
 
 			if (mainsnak.datatype === 'commonsMedia') {

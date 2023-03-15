@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import AsyncSelect from 'react-select/async';
-import FormControl from '@material-ui/core/FormControl';
+import FormControl from '@mui/material/FormControl';
 import WikidataInterface from '../../lib/WikidataInterface';
 import components from './components';
 import { useTheme } from "styled-components";

@@ -1,7 +1,7 @@
-import Select, {SelectProps} from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
+import Select, {SelectProps} from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
 import Query from '../../lib/Query';
 import React from 'react';
 
@@ -20,7 +20,7 @@ export default function ModeSelect({id, onChange, ...rest}: ModeSelectProps) {
 	return (
 		<FormControl margin="dense">
 			<InputLabel htmlFor={id}>Direction</InputLabel>
-			<Select inputProps={{id}} onChange={e => onChange(e.target.value as string)} {...rest}>
+			<Select inputProps={{id}} label="Direction" onChange={e => onChange(e.target.value as string)} {...rest}>
 				{OPTIONS.map(option =>
 					<MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
 				)}

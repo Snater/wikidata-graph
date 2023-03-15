@@ -1,6 +1,6 @@
-import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
-import {Typography} from "@material-ui/core";
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import Typography from "@mui/material/Typography";
 import styled from 'styled-components';
 
 export const StyledValueContainer = styled.div`
@@ -29,8 +29,6 @@ export const StyledSingleValue = styled(Typography)`
 export const StyledPlaceholder = styled(Typography)`
 	&& {
 		font-size: 16px;
-		left: 2px;
-		position: absolute;
 	}
 `;
 
@@ -40,7 +38,7 @@ export const StyledPaper = styled(Paper)`
 		margin-top: ${p => p.theme.spacing(1)};
 		position: absolute;
 		right: 0;
-		z-index: 1;
+		z-index: 2;
 	}
 `;
 

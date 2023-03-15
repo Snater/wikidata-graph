@@ -1,5 +1,5 @@
-import TextField, {TextFieldProps} from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
+import TextField, {TextFieldProps} from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
 import React from 'react';
 
 export type NumberInputProps = {

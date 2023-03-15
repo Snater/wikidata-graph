@@ -11,12 +11,12 @@ export default function Form() {
 
 	const {query, setQuery} = useQueryContext();
 
-	const handleChange = useCallback((method, value) => {
+	const handleChange = useCallback((property, value) => {
 		if (!query) {
 			return;
 		}
 		const clonedQuery = Query.newFromJSON(query.toJSON()) as {[index: string]: any};
-		clonedQuery[method](value);
+		clonedQuery[property] = value;
 		setQuery(clonedQuery as Query);
 	}, [query, setQuery]);
 
@@ -29,43 +29,43 @@ export default function Form() {
 			<EntitySelect
 				entityType="item"
 				entityId={query.item}
-				onChange={value => handleChange('setItem', value)}
+				onChange={value => handleChange('item', value)}
 				label="Root Item"
 			/>
 			<EntitySelect
 				entityType="property"
 				entityId={query.property}
-				onChange={value => handleChange('setProperty', value)}
+				onChange={value => handleChange('property', value)}
 				label="Traversal Property"
 			/>
 			<StyledCol2>
 				<ModeSelect
 					id="mode"
 					value={query.mode}
-					onChange={value => handleChange('setMode', value)}
+					onChange={value => handleChange('mode', value)}
 				/>
 				<LanguageSelect
 					id="language"
 					value={query.language}
-					onChange={value => handleChange('setLanguage', value)}
+					onChange={value => handleChange('language', value)}
 				/>
 			</StyledCol2>
 			<StyledCol2>
 				<NumberInput
 					label="Iterations"
 					value={query.iterations}
-					onChange={value => handleChange('setIterations', value)}
+					onChange={value => handleChange('iterations', value)}
 				/>
 				<NumberInput
 					label="Limit"
 					value={query.limit}
-					onChange={value => handleChange('setLimit', value)}
+					onChange={value => handleChange('limit', value)}
 				/>
 			</StyledCol2>
 			<EntitySelect
 				entityType="property"
 				entityId={query.sizeProperty}
-				onChange={value => handleChange('setSizeProperty', value)}
+				onChange={value => handleChange('sizeProperty', value)}
 				label="Circle Size Property"
 			/>
 			<StyledWdqsButton query={query}>Run on Wikidata Query Service</StyledWdqsButton>

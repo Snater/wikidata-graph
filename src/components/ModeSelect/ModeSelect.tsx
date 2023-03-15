@@ -1,10 +1,9 @@
+import Select, {SelectProps} from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import PropTypes from 'prop-types';
 import Query from '../../lib/Query';
 import React from 'react';
-import Select from '@material-ui/core/Select';
 
 const OPTIONS = [
 	{value: Query.MODE.FORWARD, label: 'Forward'},
@@ -12,11 +11,16 @@ const OPTIONS = [
 	{value: Query.MODE.BOTH, label: 'Bidirectional'},
 ];
 
-export default function ModeSelect({id, onChange, ...rest}) {
+export type ModeSelectProps = {
+	id: string
+	onChange: (mode: string) => void
+} & SelectProps
+
+export default function ModeSelect({id, onChange, ...rest}: ModeSelectProps) {
 	return (
 		<FormControl margin="dense">
 			<InputLabel htmlFor={id}>Direction</InputLabel>
-			<Select inputProps={{id}} onChange={e => onChange(e.target.value)} {...rest}>
+			<Select inputProps={{id}} onChange={e => onChange(e.target.value as string)} {...rest}>
 				{OPTIONS.map(option =>
 					<MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
 				)}
@@ -24,8 +28,3 @@ export default function ModeSelect({id, onChange, ...rest}) {
 		</FormControl>
 	);
 }
-
-ModeSelect.propTypes = {
-	id: PropTypes.string.isRequired,
-	onChange: PropTypes.func.isRequired,
-};

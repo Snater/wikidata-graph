@@ -129,7 +129,7 @@ class WikidataInterface {
 			.map(el => Object.assign({}, {source: el.item.value, target: el.linkTo}));
 	}
 
-	static getEntityImage(id: EntityId) {
+	static getEntityImage(id: EntityId): Promise<HTMLImageElement> {
 		return new Promise(resolve => {
 			WikidataInterface.getEntity(id)
 				.then(entity => {
@@ -139,7 +139,7 @@ class WikidataInterface {
 		});
 	}
 
-	static createImage(claims: Claims) {
+	static createImage(claims: Claims): Promise<HTMLImageElement> {
 		const img = new Image();
 		let imgUrl = WikidataInterface.getImageUrl(claims.P18);
 

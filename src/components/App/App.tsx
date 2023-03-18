@@ -6,22 +6,24 @@ import QueryManager from '../QueryManager';
 import React from 'react';
 import WikidataInterface from '../../lib/WikidataInterface';
 
-export default () => (
-	<Box display="flex" height={1} width={1}>
-		<QueryContextProvider>
-			<QueryManager/>
-			<Box
-				bgcolor="common.white"
-				boxShadow={8}
-				height={1}
-				maxHeight={1}
-				position="absolute"
-				sx={{
-					overflowY: 'auto',
-				}}>
-				<Form/>
-			</Box>
-			<Chart getEntityImage={WikidataInterface.getEntityImage}/>
-		</QueryContextProvider>
-	</Box>
-);
+export default function App() {
+	return (
+		<Box display="flex" height={1} width={1}>
+			<QueryContextProvider>
+				<QueryManager/>
+				<Box
+					bgcolor="common.white"
+					boxShadow={8}
+					height={1}
+					maxHeight={1}
+					position="absolute"
+					sx={{
+						overflowY: 'auto',
+					}}>
+					<Form/>
+				</Box>
+				<Chart getEntityImage={WikidataInterface.getEntityImage}/>
+			</QueryContextProvider>
+		</Box>
+	);
+};

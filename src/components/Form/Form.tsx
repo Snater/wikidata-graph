@@ -1,11 +1,19 @@
 import React, {useCallback} from 'react';
+import Box from '@mui/material/Box';
 import EntitySelect from '../EntitySelect';
 import LanguageSelect from '../LanguageSelect';
 import ModeSelect from '../ModeSelect';
 import NumberInput from '../NumberInput';
-import useQueryContext from '../App/QueryContext';
 import Query from '../../lib/Query';
-import {StyledCol2, StyledForm, StyledWdqsButton} from './Form.styles';
+import WdqsButton from '../WdqsButton';
+import {styled} from '@mui/styles';
+import useQueryContext from '../App/QueryContext';
+
+const Col2 = styled(Box)({
+	display: 'grid',
+	gap: '8px',
+	gridTemplateColumns: '1fr 1fr',
+})
 
 export default function Form() {
 
@@ -25,7 +33,7 @@ export default function Form() {
 	}
 
 	return (
-		<StyledForm>
+		<Box component="form" display="flex" flexDirection="column" m={2} width={280}>
 			<EntitySelect
 				entityType="item"
 				entityId={query.item}
@@ -38,7 +46,7 @@ export default function Form() {
 				onChange={value => handleChange('property', value)}
 				label="Traversal Property"
 			/>
-			<StyledCol2>
+			<Col2>
 				<ModeSelect
 					id="mode"
 					value={query.mode}
@@ -49,8 +57,8 @@ export default function Form() {
 					value={query.language}
 					onChange={value => handleChange('language', value)}
 				/>
-			</StyledCol2>
-			<StyledCol2>
+			</Col2>
+			<Col2>
 				<NumberInput
 					label="Iterations"
 					value={query.iterations}
@@ -61,14 +69,14 @@ export default function Form() {
 					value={query.limit}
 					onChange={value => handleChange('limit', value)}
 				/>
-			</StyledCol2>
+			</Col2>
 			<EntitySelect
 				entityType="property"
 				entityId={query.sizeProperty}
 				onChange={value => handleChange('sizeProperty', value)}
 				label="Circle Size Property"
 			/>
-			<StyledWdqsButton query={query}>Run on Wikidata Query Service</StyledWdqsButton>
-		</StyledForm>
+			<WdqsButton query={query} sx={{mt: 3}}>Run on Wikidata Query Service</WdqsButton>
+		</Box>
 	);
 }

@@ -1,3 +1,5 @@
+import {EntityId} from 'wikibase-sdk/dist/types/entity';
+
 export interface QueryJSON {
 	item: string
 	property: string
@@ -16,34 +18,34 @@ export default class Query {
 		BOTH: 'Both',
 	};
 
-	public item: string;
-	public property: string;
+	public item: EntityId;
+	public property: EntityId;
 	public mode: string;
 	public language?: string;
 	public iterations?: number;
 	public limit?: number;
-	public sizeProperty?: string;
+	public sizeProperty?: EntityId;
 
 	static newFromJSON = (json: QueryJSON) => {
 		return new Query(
-			json.item,
-			json.property,
+			json.item as EntityId,
+			json.property as EntityId,
 			json.mode,
 			json.language,
 			typeof json.iterations === 'string' ? parseInt(json.iterations) : json.iterations,
 			typeof json.limit === 'string' ? parseInt(json.limit) : json.limit,
-			json.sizeProperty,
+			json.sizeProperty as EntityId,
 		)
 	}
 
 	constructor(
-		item: string,
-		property: string,
+		item: EntityId,
+		property: EntityId,
 		mode = Query.MODE.BOTH,
 		language = 'en',
 		iterations = 5,
 		limit = 0,
-		sizeProperty : string | undefined,
+		sizeProperty : EntityId | undefined,
 	) {
 		if (!item || !property) {
 			throw new Error('Item and property are required');

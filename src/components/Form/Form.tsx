@@ -23,9 +23,13 @@ export default function Form() {
 		if (!query) {
 			return;
 		}
+
 		const clonedQuery = Query.newFromJSON(query.toJSON()) as {[index: string]: any};
 		clonedQuery[property] = value;
-		setQuery(clonedQuery as Query);
+
+		if (!clonedQuery.equals(query)) {
+			setQuery(clonedQuery as Query);
+		}
 	}, [query, setQuery]);
 
 	if (!query) {

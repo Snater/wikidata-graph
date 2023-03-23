@@ -1,5 +1,5 @@
 import {EntityId, EntityType} from 'wikibase-sdk/dist/types/entity';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControl from '@mui/material/FormControl';
@@ -8,22 +8,12 @@ import ListItemText from '@mui/material/ListItemText';
 import {SearchResponse} from 'wikibase-sdk';
 import TextField from '@mui/material/TextField';
 import WikidataInterface from '../../lib/WikidataInterface';
+import {debounce} from '@mui/material/utils';
 
 interface Entity {
 	id: EntityId
 	label: string
 	description?: string
-}
-
-function loadOptions(input: string, entityType: EntityType): Promise<Entity[]> {
-	return WikidataInterface.search(input, entityType)
-		.then((response: SearchResponse) => response.search.map(
-			result => Object.create({
-				id: result.id,
-				label: result.label,
-				description: result.description,
-			})
-		));
 }
 
 type EntitySelectProps = {
@@ -44,6 +34,22 @@ export default function EntitySelect({
 	const [options, setOptions] = useState<readonly Entity[]>([]);
 	const [loading, setLoading] = useState(false);
 
+	const fetch = useMemo(() => debounce(
+		(input: string, entityType: EntityType, callback: (results: readonly Entity[]) => void) => {
+			WikidataInterface.search(input, entityType)
+				.then((response: SearchResponse) => {
+					callback(response.search.map(
+						result => Object.create({
+							id: result.id,
+							label: result.label,
+							description: result.description,
+						})
+					));
+				});
+		},
+		400,
+	), []);
+
 	useEffect(() => {
 		if (inputValue === '') {
 			setOptions(value ? [value] : []);
@@ -52,29 +58,26 @@ export default function EntitySelect({
 
 		setLoading(true);
 
-		loadOptions(inputValue, entityType)
-			.then(options => {
-				setOptions(options);
-				setLoading(false);
-			});
-
-	}, [entityType, inputValue, value]);
+		fetch(inputValue, entityType, results => {
+			setOptions(results);
+			setLoading(false);
+		})
+	}, [entityType, fetch, inputValue, value]);
 
 	useEffect(() => {
 		if (!entityId || !entityType) {
 			return;
 		}
 
-		WikidataInterface.search(entityId, entityType)
-			.then((response: SearchResponse) => {
-				setValue({
-					// TODO: Remove redundant casting once https://github.com/maxlath/wikibase-sdk/pull/106/files is merged
-					id: response.search[0].id as EntityId,
-					label: response.search[0].label,
-					description: response.search[0].description
-				});
+		fetch(entityId, entityType, results => {
+			setValue({
+				// TODO: Remove redundant casting once https://github.com/maxlath/wikibase-sdk/pull/106/files is merged
+				id: results[0].id as EntityId,
+				label: results[0].label,
+				description: results[0].description
 			});
-	}, [entityId, entityType]);
+		});
+	}, [entityId, entityType, fetch]);
 
 	useEffect(() => {
 		value && onChange && onChange(value.id);
@@ -119,10 +122,7 @@ export default function EntitySelect({
 				renderOption={(props, option) => {
 					return (
 						<ListItem {...props} key={option.id}>
-							<ListItemText
-								primary={option.label}
-								secondary={option.description}
-							/>
+							<ListItemText primary={option.label} secondary={option.description}/>
 						</ListItem>
 					)
 				}}

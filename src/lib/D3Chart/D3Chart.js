@@ -1,7 +1,7 @@
-import * as d3 from 'd3';
-import tip from 'd3-tip';
-import Vector from '../Vector';
 import './D3Chart.css';
+import * as d3 from 'd3';
+import Vector from '../Vector';
+import {tip} from 'd3-v6-tip';
 
 class D3Chart {
 
@@ -52,7 +52,7 @@ class D3Chart {
 		this.svg
 			.attr('width', state.width)
 			.attr('height', state.height)
-			.call(this._zoom = d3.zoom().on('zoom', () => this._onZoom()))
+			.call(this._zoom = d3.zoom().on('zoom', event => this._onZoom(event)))
 			.call(this._tooltip);
 
 		this._createSimulation(state.data);
@@ -62,10 +62,10 @@ class D3Chart {
 		this._drawDefs(!!nodes[0].radius);
 
 		const links = this._drawLinks(state.data.links);
-		const circles = this._drawNodes(nodes, state.root);
-		this._labels = this._drawLabels(nodes, circles);
+		this._circles = this._drawNodes(nodes, state.root);
+		this._labels = this._drawLabels(nodes, this._circles);
 
-		this.simulation.on('tick', () => this._onTick(circles, links, this._labels));
+		this.simulation.on('tick', () => this._onTick(this._circles, links, this._labels));
 	}
 
 	/**
@@ -131,7 +131,7 @@ class D3Chart {
 			.attr('r', d => d.radius || 5)
 			.attr('class', d => d.id === root ? 'root' : '')
 			.call(this._attachDragHandlers())
-			.on('mouseover', (d, index, circles) => this._enterTooltip(d, circles[index], index))
+			.on('mouseover', (event, d) => this._enterTooltip(event, d, event.srcElement))
 			.on('mouseout', () => this._exitTooltip());
 	}
 
@@ -163,33 +163,32 @@ class D3Chart {
 			.on('click', d => window.open(d.uri))
 			.on(
 				'mouseover',
-				(d, index) => this._enterTooltip(
+				(event, d) => this._enterTooltip(
+					event,
 					d,
-					circles.filter(`:nth-child(${d.index + 1})`).node(),
-					index
+					this._circles.filter(`:nth-child(${d.index + 1})`).node(),
 				)
 			)
 			.on('mouseout', () => this._exitTooltip());
 	}
 
 	/**
-	 * @param {Object} d
-	 * @param {HTMLElement} target
-	 *   Node to attach the tooltip to.
-	 * @param {number} index
+	 * @param {MouseEvent} event
+	 * @param {object} d
+	 * @param {SVGCircleElement} circle
 	 */
-	_enterTooltip(d, target, index) {
-		this._labels.filter(`:not(:nth-child(${index + 1}))`).style('opacity', 0.3);
+	_enterTooltip(event, d, circle) {
+		this._labels.filter(`:not(:nth-child(${d.index + 1}))`).style('opacity', 0.3);
 
 		this._getEntityImage(d.id)
 			.then(img => {
 				const dimensions = this._determineImageDimensions(img);
 				this._tooltip.html(`<img alt="" src="${img.src}" height="${dimensions.height}" width="${dimensions.width}">`);
-				this._tooltip.show(d, target);
+				this._tooltip.show(d, circle);
 			})
 			.catch(() => {
 				this._tooltip.html('no image');
-				this._tooltip.show(d, target);
+				this._tooltip.show(d, circle);
 			});
 	}
 
@@ -219,19 +218,19 @@ class D3Chart {
 	 * @return Function
 	 */
 	_attachDragHandlers() {
-		const dragStarted = d => {
-			if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+		const dragStarted = (event, d) => {
+			if (!event.active) this.simulation.alphaTarget(0.3).restart();
 			d.fx = d.x;
 			d.fy = d.y;
 		};
 
-		const dragged = d => {
-			d.fx = d3.event.x;
-			d.fy = d3.event.y;
+		const dragged = (event, d) => {
+			d.fx = event.x;
+			d.fy = event.y;
 		};
 
-		const dragEnded = d => {
-			if (!d3.event.active) this.simulation.alphaTarget(0);
+		const dragEnded = (event, d) => {
+			if (!event.active) this.simulation.alphaTarget(0);
 			d.fx = null;
 			d.fy = null;
 		};
@@ -242,8 +241,8 @@ class D3Chart {
 			.on('end', dragEnded);
 	}
 
-	_onZoom() {
-		this.container.attr('transform', d3.event.transform);
+	_onZoom(event) {
+		this.container.attr('transform', event.transform);
 		this._exitTooltip();
 	}
 

@@ -1,17 +1,12 @@
 import '@testing-library/jest-dom';
-import {ThemeProvider as MuiThemeProvider, createTheme} from '@mui/material';
+import {ThemeProvider, createTheme} from '@mui/material';
 import React from 'react';
-import {ThemeProvider} from 'styled-components';
 import {render} from '@testing-library/react';
 
 const theme = createTheme();
 
 const CustomWrapper = function({children}) {
-	return (
-		<MuiThemeProvider theme={theme}>
-			<ThemeProvider theme={theme}>{children}</ThemeProvider>
-		</MuiThemeProvider>
-	);
+	return (<ThemeProvider theme={theme}>{children}</ThemeProvider>);
 }
 
 const customRender = (ui, options) => render(ui, {wrapper: CustomWrapper, ...options});

@@ -45,7 +45,7 @@ export default class Query {
 		language = 'en',
 		iterations = 5,
 		limit = 0,
-		sizeProperty : EntityId | undefined,
+		sizeProperty?: EntityId | undefined,
 	) {
 		if (!item || !property) {
 			throw new Error('Item and property are required');

@@ -7,7 +7,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {SearchResponse} from 'wikibase-sdk';
 import TextField from '@mui/material/TextField';
-import WikidataInterface from '../../lib/WikidataInterface';
+import Wikidata from '../../lib/WikidataInterface';
 import {debounce} from '@mui/material/utils';
 
 interface Entity {
@@ -36,7 +36,7 @@ export default function EntitySelect({
 
 	const fetch = useMemo(() => debounce(
 		(input: string, entityType: EntityType, callback: (results: readonly Entity[]) => void) => {
-			WikidataInterface.search(input, entityType)
+			Wikidata.search(input, entityType)
 				.then((response: SearchResponse) => {
 					callback(response.search.map(
 						result => Object.create({
@@ -61,14 +61,14 @@ export default function EntitySelect({
 		fetch(inputValue, entityType, results => {
 			setOptions(results);
 			setLoading(false);
-		})
+		});
+
+		return () => {
+			fetch.clear();
+		}
 	}, [entityType, fetch, inputValue, value]);
 
 	useEffect(() => {
-		if (!entityId || !entityType) {
-			return;
-		}
-
 		fetch(entityId, entityType, results => {
 			setValue({
 				// TODO: Remove redundant casting once https://github.com/maxlath/wikibase-sdk/pull/106/files is merged
@@ -77,6 +77,10 @@ export default function EntitySelect({
 				description: results[0].description
 			});
 		});
+
+		return () => {
+			fetch.clear();
+		}
 	}, [entityId, entityType, fetch]);
 
 	useEffect(() => {
@@ -95,7 +99,7 @@ export default function EntitySelect({
 				loading={loading}
 				noOptionsText="No options"
 				onChange={(event, newValue: Entity | null) => {
-					setOptions(newValue ? [newValue, ...options] : options);
+					setOptions([newValue, ...options]);
 					setValue(newValue);
 				}}
 				onInputChange={(event, newInputValue) => {

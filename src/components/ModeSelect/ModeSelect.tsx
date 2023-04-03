@@ -20,7 +20,12 @@ export default function ModeSelect({id, onChange, ...rest}: ModeSelectProps) {
 	return (
 		<FormControl margin="dense">
 			<InputLabel htmlFor={id}>Direction</InputLabel>
-			<Select inputProps={{id}} label="Direction" onChange={e => onChange(e.target.value as string)} {...rest}>
+			<Select
+				inputProps={{id}}
+				label="Direction"
+				onChange={event => onChange(event.target.value as string)}
+				{...rest}
+			>
 				{OPTIONS.map(option =>
 					<MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
 				)}

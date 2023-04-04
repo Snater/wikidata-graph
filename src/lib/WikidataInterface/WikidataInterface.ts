@@ -1,7 +1,7 @@
 import {Claims, PropertyClaims} from 'wikibase-sdk/src/types/claim';
 import {Entities, Entity, EntityId, EntityType, Item} from 'wikibase-sdk/dist/types/entity';
 import MD5 from 'md5';
-import {SparqlResults, WBK} from 'wikibase-sdk'
+import {SearchResponse, SparqlResults, WBK} from 'wikibase-sdk'
 import {SparqlValueType} from 'wikibase-sdk/src/types/sparql';
 
 const wdk = WBK({
@@ -22,6 +22,18 @@ type LanguageResult = {
 	native_label: string
 }
 
+export type Link = {
+	source: string
+	target: string
+}
+
+export type Node = {
+	id: string
+	label: string
+	uri: string
+	size: number
+}
+
 type Result = {
 	item: {
 		label: string
@@ -36,7 +48,7 @@ class WikidataInterface {
 	static imageFallback = 'No_image_available_500_x_500.svg';
 
 	static request<T>(url: string): Promise<T> {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve, reject): void => {
 			const request = new XMLHttpRequest();
 			request.open('GET', url);
 			request.onload = () =>
@@ -57,7 +69,7 @@ class WikidataInterface {
 			.then(response => response.entities[id]);
 	}
 
-	static search(search: string, type?: EntityType) {
+	static search(search: string, type?: EntityType): Promise<SearchResponse> {
 		let url = wdk.searchEntities({search});
 
 		if (type === 'property') {
@@ -73,7 +85,7 @@ class WikidataInterface {
 	 * provided, the English label. Languages featuring the same English label are
 	 * filtered out.
 	 */
-	static getLanguages() {
+	static getLanguages(): Promise<Language[] | void> {
 		return WikidataInterface.request(wdk.sparqlQuery(`
 			SELECT ?item ?itemLabel ?language_code (SAMPLE(?native_label) AS ?native_label) WHERE {
 				?item wdt:P424 ?language_code.
@@ -102,7 +114,7 @@ class WikidataInterface {
 			.catch(error => console.error(error));
 	}
 
-	static sparqlQuery(sparql: string) {
+	static sparqlQuery(sparql: string): Promise<{nodes: Node[], links: Link[]} | void> {
 		return WikidataInterface.request(wdk.sparqlQuery(sparql))
 			.then((response: SparqlResults) => wdk.simplify.sparqlResults(response))
 			.then((results: Result[]) => Object.assign({}, {
@@ -112,7 +124,7 @@ class WikidataInterface {
 			.catch(error => console.error(error));
 	}
 
-	static parseNodes(results: Result[]) {
+	static parseNodes(results: Result[]): Node[] {
 		return results
 			.map(el => Object.assign({}, {
 				id: el.item.value,
@@ -123,7 +135,7 @@ class WikidataInterface {
 			.filter((el, index, self) => self.findIndex(t => t.id === el.id) === index);
 	}
 
-	static parseLinks(results: Result[]) {
+	static parseLinks(results: Result[]): Link[] {
 		return results
 			.filter(el => results.find(result => el.linkTo === result.item.value))
 			.map(el => Object.assign({}, {source: el.item.value, target: el.linkTo}));
@@ -141,7 +153,7 @@ class WikidataInterface {
 
 	static createImage(claims: Claims): Promise<HTMLImageElement> {
 		const img = new Image();
-		let imgUrl = WikidataInterface.getImageUrl(claims.P18);
+		const imgUrl = WikidataInterface.getImageUrl(claims.P18);
 
 		return new Promise(resolve => {
 			img.onload = () => resolve(img);
@@ -150,7 +162,7 @@ class WikidataInterface {
 		});
 	}
 
-	static getImageUrl(propertyClaims?: PropertyClaims) {
+	static getImageUrl(propertyClaims?: PropertyClaims): string {
 		if (propertyClaims && propertyClaims.length > 0) {
 			const mainsnak = propertyClaims[0].mainsnak;
 
@@ -168,7 +180,7 @@ class WikidataInterface {
 		return WikidataInterface.createCommonsUrl(WikidataInterface.imageFallback);
 	}
 
-	static createCommonsUrl(filename: string) {
+	static createCommonsUrl(filename: string): string {
 		const md5 = MD5(filename);
 		const extension = filename.endsWith('.svg') ? '.png' : '';
 		return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}${extension}`;

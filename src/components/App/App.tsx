@@ -6,7 +6,7 @@ import QueryManager from '../QueryManager';
 import React from 'react';
 import WikidataInterface from '../../lib/WikidataInterface';
 
-export default function App() {
+export default function App(): JSX.Element {
 	return (
 		<Box display="flex" height={1} width={1}>
 			<QueryContextProvider>
@@ -26,4 +26,4 @@ export default function App() {
 			</QueryContextProvider>
 		</Box>
 	);
-};
+}

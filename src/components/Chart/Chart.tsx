@@ -7,7 +7,7 @@ type ChartProps = {
 	getEntityImage: (id: string) => Promise<HTMLImageElement>
 }
 
-export default function Chart({getEntityImage}: ChartProps) {
+export default function Chart({getEntityImage}: ChartProps): JSX.Element {
 	const [width, setWidth] = useState(window.innerWidth);
 	const [height, setHeight] = useState(window.innerHeight);
 	const [d3Chart, setD3Chart] = useState(null);

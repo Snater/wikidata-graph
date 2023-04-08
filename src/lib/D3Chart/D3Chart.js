@@ -63,7 +63,7 @@ class D3Chart {
 
 		const links = this._drawLinks(state.data.links);
 		this._circles = this._drawNodes(nodes, state.root);
-		this._labels = this._drawLabels(nodes, this._circles);
+		this._labels = this._drawLabels(nodes);
 
 		this.simulation.on('tick', () => this._onTick(this._circles, links, this._labels));
 	}
@@ -148,10 +148,9 @@ class D3Chart {
 
 	/**
 	 * @param {Object[]} nodes
-	 * @param {d3.selection} circles
 	 * @return {d3.selection}
 	 */
-	_drawLabels(nodes, circles) {
+	_drawLabels(nodes) {
 		return this.container.append('g')
 			.selectAll('text')
 			.data(nodes)

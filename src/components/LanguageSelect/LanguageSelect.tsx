@@ -10,7 +10,7 @@ export type LanguageSelectProps = {
 	onChange: (value: string) => void
 } & SelectProps
 
-export default function LanguageSelect({id, onChange, ...rest}: LanguageSelectProps) {
+export default function LanguageSelect({id, onChange, ...rest}: LanguageSelectProps): JSX.Element {
 	const [languages, setLanguages] = useState([]);
 
 	useEffect(() => {

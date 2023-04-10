@@ -16,7 +16,7 @@ export type ModeSelectProps = {
 	onChange: (mode: string) => void
 } & SelectProps
 
-export default function ModeSelect({id, onChange, ...rest}: ModeSelectProps) {
+export default function ModeSelect({id, onChange, ...rest}: ModeSelectProps): JSX.Element {
 	return (
 		<FormControl margin="dense">
 			<InputLabel htmlFor={id}>Direction</InputLabel>

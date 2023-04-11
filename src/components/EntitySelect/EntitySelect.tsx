@@ -28,7 +28,7 @@ export default function EntitySelect({
 	entityType,
 	label = '',
 	onChange
-}: EntitySelectProps) {
+}: EntitySelectProps): JSX.Element {
 	const [inputValue, setInputValue] = useState('');
 	const [value, setValue] = useState<Entity | null>(null);
 	const [options, setOptions] = useState<readonly Entity[]>([]);

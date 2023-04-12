@@ -15,7 +15,7 @@ const Col2 = styled(Box)({
 	gridTemplateColumns: '1fr 1fr',
 })
 
-export default function Form() {
+export default function Form(): JSX.Element {
 
 	const {query, setQuery} = useQueryContext();
 
@@ -24,7 +24,7 @@ export default function Form() {
 			return;
 		}
 
-		const clonedQuery = Query.newFromJSON(query.toJSON()) as {[index: string]: any};
+		const clonedQuery = Query.newFromJSON(query.toJSON());
 		clonedQuery[property] = value;
 
 		if (!clonedQuery.equals(query)) {

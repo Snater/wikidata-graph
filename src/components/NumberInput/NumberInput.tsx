@@ -6,7 +6,7 @@ export type NumberInputProps = {
 	onChange?: (number: number) => void
 } & TextFieldProps;
 
-export default function NumberInput({onChange, ...rest}: NumberInputProps) {
+export default function NumberInput({onChange, ...rest}: NumberInputProps): JSX.Element {
 	return (
 		<FormControl margin="dense">
 			<TextField

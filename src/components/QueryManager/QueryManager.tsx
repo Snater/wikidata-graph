@@ -21,7 +21,7 @@ function isInitial(query: Query) {
 	return !window.history.state && query.equals(DEFAULT_QUERY);
 }
 
-export default function QueryManager() {
+export default function QueryManager(): null {
 
 	const {query, setQuery, setResult} = useQueryContext();
 	const popStateListener = useCallback(event => {

@@ -26,7 +26,7 @@ export default class Query {
 	public limit?: number;
 	public sizeProperty?: EntityId;
 
-	static newFromJSON = (json: QueryJSON) => {
+	static newFromJSON = (json: QueryJSON): Query => {
 		return new Query(
 			json.item as EntityId,
 			json.property as EntityId,
@@ -60,7 +60,7 @@ export default class Query {
 		this.sizeProperty = sizeProperty;
 	}
 
-	equals = (query: Query) => {
+	equals = (query: Query): boolean => {
 		return query.item === this.item
 			&& query.property === this.property
 			&& query.mode === this.mode

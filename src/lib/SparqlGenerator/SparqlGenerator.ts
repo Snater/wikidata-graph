@@ -5,7 +5,7 @@ import Query from '../Query';
 
 class SparqlGenerator {
 
-	static generate(query: Query) {
+	static generate(query: Query): string {
 		return ejs.render(select, {
 			useGAS: this.useGAS(query.limit, query.iterations),
 			sizeProperty: query.sizeProperty,
@@ -57,7 +57,7 @@ class SparqlGenerator {
 	 * Whether to use the Gather Apply Scatter model.
 	 * (https://wiki.blazegraph.com/wiki/index.php/RDF_GAS_API)
 	 */
-	protected static useGAS(limit?: number, iterations?: number) {
+	protected static useGAS(limit?: number, iterations?: number): boolean {
 		return (limit && limit > 0) || (iterations && iterations > 0);
 	}
 }

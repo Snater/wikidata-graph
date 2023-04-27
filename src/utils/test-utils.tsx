@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
+import React, {ReactElement} from 'react';
 import {ThemeProvider, createTheme} from '@mui/material';
-import React from 'react';
-import {render} from '@testing-library/react';
+import {render, RenderOptions, RenderResult} from '@testing-library/react';
 
 const theme = createTheme();
 
@@ -9,15 +9,21 @@ const CustomWrapper = function({children}) {
 	return (<ThemeProvider theme={theme}>{children}</ThemeProvider>);
 }
 
-const customRender = (ui, options) => render(ui, {wrapper: CustomWrapper, ...options});
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'queries'>): RenderResult =>
+	render(ui, {wrapper: CustomWrapper, ...options});
+
+interface WrapperState {
+	_valueTracker? : {
+		getValue(): string,
+		setValue(value: string): void,
+		stopTracking(): void,
+	}
+}
 
 /**
  * See https://github.com/facebook/react/issues/10135#issuecomment-500929024
- *
- * @param {HTMLInputElement} input
- * @param {string} value
  */
-export function setReactInputValue(input, value) {
+export function setReactInputValue(input: HTMLInputElement & WrapperState, value: string): void {
 	const previousValue = input.value;
 
 	input.value = value;

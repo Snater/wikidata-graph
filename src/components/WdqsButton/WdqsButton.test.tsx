@@ -2,7 +2,7 @@ import Query from '../../lib/Query';
 import WdqsButton from './';
 import {render} from '../../utils/test-utils';
 
-let mockedOpen = jest.fn();
+const mockedOpen = jest.fn();
 let windowSpy;
 
 beforeEach(() => {

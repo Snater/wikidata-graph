@@ -165,7 +165,7 @@ class D3Chart {
 				(event, d) => this._enterTooltip(
 					event,
 					d,
-					this._circles.filter(`:nth-child(${d.index + 1})`).node(),
+					this._circles.filter(`:nth-child(${d.index + 1})`).node()
 				)
 			)
 			.on('mouseout', () => this._exitTooltip());

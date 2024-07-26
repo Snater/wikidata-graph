@@ -13,7 +13,7 @@
     "ejs": "^3.1.8",
     "md5": "^2.2.1",
     "prop-types": "^15.7.2",
-    "query-string": "^6.9.0",
+    "query-string": "^9.1.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-scripts": "^4.0.3",
@@ -65,7 +65,7 @@
     ],
     "preset": "ts-jest/presets/js-with-ts",
     "transformIgnorePatterns": [
-      "/node_modules/(?!wikibase-sdk/.*)"
+      "/node_modules/(?!(wikibase-sdk|query-string|decode-uri-component|filter-obj|split-on-first)/)"
     ]
   }
 }

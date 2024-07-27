@@ -88,17 +88,16 @@ it('gets an entity', () => {
 
 it('gets an image URL', () => {
 	expect(WikidataInterface.getImageUrl([{
-		id: '',
+		id: 'Q1$',
 		mainsnak: {
 			datatype: 'commonsMedia',
 			datavalue: {type: 'string', value: 'filename'},
 			hash: '',
-			id: '',
-			property: '',
+			property: 'P1',
 			snaktype: 'value',
 		},
 		rank: 'normal',
-		type: 'string',
+		type: 'statement',
 	}])).toBe(WikidataInterface.createCommonsUrl(('filename')));
 });
 

@@ -1,11 +1,10 @@
-import {EntityId, EntityType} from 'wikibase-sdk/dist/types/entity';
+import {EntityId, EntityType, SearchResponse} from 'wikibase-sdk';
 import React, {useEffect, useMemo, useState} from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControl from '@mui/material/FormControl';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import {SearchResponse} from 'wikibase-sdk';
 import TextField from '@mui/material/TextField';
 import Wikidata from '../../lib/WikidataInterface';
 import {debounce} from '@mui/material/utils';

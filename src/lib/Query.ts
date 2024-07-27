@@ -1,4 +1,4 @@
-import {EntityId} from 'wikibase-sdk/dist/types/entity';
+import {EntityId} from 'wikibase-sdk';
 
 export interface QueryJSON {
 	item: string

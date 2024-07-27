@@ -1,8 +1,16 @@
-import {Claims, PropertyClaims} from 'wikibase-sdk/src/types/claim';
-import {Entities, Entity, EntityId, EntityType, Item} from 'wikibase-sdk/dist/types/entity';
+import {
+	Claims,
+	Entities,
+	Entity,
+	EntityId,
+	EntityType,
+	Item,
+	PropertyClaims,
+	SearchResponse,
+	SparqlResults,
+	WBK,
+} from 'wikibase-sdk';
 import MD5 from 'md5';
-import {SearchResponse, SparqlResults, WBK} from 'wikibase-sdk'
-import {SparqlValueType} from 'wikibase-sdk/src/types/sparql';
 
 const wdk = WBK({
 	instance: 'https://www.wikidata.org',
@@ -103,13 +111,15 @@ class WikidataInterface {
 			ORDER BY ?itemLabel ?item`
 		))
 			.then((response: SparqlResults) => wdk.simplify.sparqlResults(response))
-			.then((results: Record<string, SparqlValueType>[]) => results.filter(
-				(el: LanguageResult, index: number, self: LanguageResult[]) =>
-					self.findIndex(t => t.item.label === el.item.label) === index)
-			)
-			.then(results => results.map((el: LanguageResult) => Object.create(
-					{code: el.language_code, label: el.native_label || el.item.label}
-				) as Language))
+			.then(results => {
+				return results.map(el => {
+					return WikidataInterface.isLanguageResult(el)
+						? Object.create(
+								{code: el.language_code, label: el.native_label || el.item.label}
+							) as Language
+						: null
+				}).filter(el => !!el);
+			})
 			.then(results => results.sort((a: Language, b: Language) => a.label < b.label ? -1 : 1))
 			.catch(error => console.error(error));
 	}
@@ -117,9 +127,9 @@ class WikidataInterface {
 	static sparqlQuery(sparql: string): Promise<{nodes: Node[], links: Link[]} | void> {
 		return WikidataInterface.request(wdk.sparqlQuery(sparql))
 			.then((response: SparqlResults) => wdk.simplify.sparqlResults(response))
-			.then((results: Result[]) => Object.assign({}, {
-					nodes: WikidataInterface.parseNodes(results),
-					links: WikidataInterface.parseLinks(results),
+			.then(results => Object.assign({}, {
+					nodes: WikidataInterface.parseNodes(results as unknown as Result[]),
+					links: WikidataInterface.parseLinks(results as unknown as Result[]),
 				}))
 			.catch(error => console.error(error));
 	}
@@ -184,6 +194,17 @@ class WikidataInterface {
 		const md5 = MD5(filename);
 		const extension = filename.endsWith('.svg') ? '.png' : '';
 		return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}${extension}`;
+	}
+
+	private static isLanguageResult(result: unknown): result is LanguageResult {
+		return !!(
+			typeof result === 'object'
+			&& 'item' in result
+			&& typeof result.item === 'object'
+			&& 'label' in result.item && typeof result.item.label === 'string'
+			&& 'language_code' in result && typeof result.language_code === 'string'
+			&& 'native_label' in result && typeof result.native_label === 'string'
+		);
 	}
 }
 

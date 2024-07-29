@@ -6,7 +6,7 @@ import ModeSelect from '../ModeSelect';
 import NumberInput from '../NumberInput';
 import Query from '../../lib/Query';
 import WdqsButton from '../WdqsButton';
-import {styled} from '@mui/styles';
+import {styled} from '@mui/material';
 import useQueryContext from '../App/QueryContext';
 
 const Col2 = styled(Box)({

@@ -1,6 +1,6 @@
 import Query from '../../lib/Query';
 import WdqsButton from './';
-import {render} from '../../utils/test-utils';
+import {render} from '../../../jest/utils';
 
 const mockedOpen = jest.fn();
 let windowSpy;

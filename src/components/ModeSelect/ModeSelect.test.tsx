@@ -2,7 +2,7 @@ import ModeSelect from './';
 import Query from '../../lib/Query';
 import React from 'react';
 import {fireEvent} from '@testing-library/react';
-import {render} from '../../utils/test-utils';
+import {render} from '../../../jest/utils';
 
 test('onChange prop', () => {
 	const handleChange = jest.fn();

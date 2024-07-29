@@ -1,6 +1,6 @@
 import React from 'react';
 import NumberInput from './NumberInput';
-import {fireEvent, render} from '../../utils/test-utils';
+import {fireEvent, render} from '../../../jest/utils';
 
 test('Basic rendering', () => {
 	const {container} = render(<NumberInput/>);

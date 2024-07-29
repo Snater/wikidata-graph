@@ -1,4 +1,4 @@
-import {fireEvent, render, waitFor} from '../../utils/test-utils';
+import {fireEvent, render, waitFor} from '../../../jest/utils';
 import useQueryContext, {QueryContextProvider} from '../App/QueryContext';
 import QueryManager from './';
 import Wikidata from '../../lib/WikidataInterface';

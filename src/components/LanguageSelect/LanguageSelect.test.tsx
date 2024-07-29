@@ -2,7 +2,7 @@ import {fireEvent, waitFor} from '@testing-library/react';
 import LanguageSelect from './';
 import React from 'react';
 import Wikidata from '../../lib/WikidataInterface';
-import {render} from '../../utils/test-utils';
+import {render} from '../../../jest/utils';
 
 let getLanguagesSpy;
 

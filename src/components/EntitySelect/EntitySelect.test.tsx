@@ -1,7 +1,7 @@
 import {fireEvent, waitFor} from '@testing-library/react';
 import React from 'react';
 import Wikidata from '../../lib/WikidataInterface';
-import {render} from '../../utils/test-utils';
+import {render} from '../../../jest/utils';
 import EntitySelect from './';
 
 let searchSpy;

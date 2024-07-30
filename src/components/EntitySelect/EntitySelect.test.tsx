@@ -1,8 +1,15 @@
-import {fireEvent, waitFor} from '@testing-library/react';
+import userEvent, {UserEvent} from '@testing-library/user-event';
+import EntitySelect from './';
 import React from 'react';
 import Wikidata from '../../lib/WikidataInterface';
 import {render} from '../../../jest/utils';
-import EntitySelect from './';
+import {waitFor} from '@testing-library/react';
+
+let user: UserEvent;
+
+beforeAll(() => {
+	user = userEvent.setup();
+});
 
 let searchSpy;
 
@@ -22,16 +29,15 @@ afterEach(() => {
 });
 
 test('Basic functionality', async () => {
-	const {getAllByRole, getByDisplayValue, getByRole} = render(
+	const {getByDisplayValue, getByRole, getByText} = render(
 		<EntitySelect entityId="Q1" entityType="property"/>
 	);
 
-	const input = getByRole('combobox');
-	fireEvent.keyDown(input, {key: 'ArrowDown'});
+	await user.type(getByRole('combobox'), '{arrowdown}');
 	await waitFor(() => expect(getByRole('listbox')).toBeInTheDocument());
-	getAllByRole('option')[1].click();
+	await user.click(getByText('Label 2'));
 
-	expect(getByDisplayValue('Label 3')).toBeInTheDocument();
+	expect(getByDisplayValue('Label 2')).toBeInTheDocument();
 });
 
 test('label prop', async () => {
@@ -44,16 +50,14 @@ test('label prop', async () => {
 
 test('onChange prop', async () => {
 	const handleChange = jest.fn();
-	const {getAllByRole, getByRole} = render(
+	const {getByRole, getByText} = render(
 		<EntitySelect entityId="Q1" entityType="property" onChange={handleChange}/>
 	);
 
-	const input = getByRole('combobox');
-	fireEvent.keyDown(input, {key: 'ArrowDown'});
+	await user.type(getByRole('combobox'), '{arrowdown}');
 	await waitFor(() => expect(getByRole('listbox')).toBeInTheDocument());
-	fireEvent.keyDown(input, {key: 'ArrowDown'});
-	getAllByRole('option')[1].click();
+	await user.click(getByText('Label 2'));
 
-	expect(handleChange).toHaveBeenCalledTimes(1);
+	expect(handleChange).toHaveBeenCalledTimes(2);
 	expect(handleChange).toHaveBeenCalledWith('Q1');
 });

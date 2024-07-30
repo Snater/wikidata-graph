@@ -1,8 +1,15 @@
-import {fireEvent, waitFor} from '@testing-library/react';
+import userEvent, {UserEvent} from '@testing-library/user-event';
 import LanguageSelect from './';
 import React from 'react';
 import Wikidata from '../../lib/WikidataInterface';
 import {render} from '../../../jest/utils';
+import {waitFor} from '@testing-library/react';
+
+let user: UserEvent;
+
+beforeAll(() => {
+	user = userEvent.setup();
+});
 
 let getLanguagesSpy;
 
@@ -21,14 +28,14 @@ afterEach(() => {
 
 test('onChange prop', async () => {
 	const handleChange = jest.fn();
-	const {getAllByRole, getByRole} = render(
+	const {getByRole, getByText} = render(
 		<LanguageSelect id="id" onChange={handleChange} value=""/>
 	);
 
-	await waitFor(() => expect(getByRole('button')).not.toBeDisabled());
+	await waitFor(() => expect(getByRole('combobox')).not.toBeDisabled());
 
-	fireEvent.mouseDown(getByRole('button'));
-	getAllByRole('option')[1].click();
+	await user.click(getByRole('combobox'));
+	await user.click(getByText('Deutsch'));
 
 	expect(handleChange).toHaveBeenCalledTimes(1);
 	expect(handleChange).toHaveBeenCalledWith('de');

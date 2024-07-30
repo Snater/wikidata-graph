@@ -1,15 +1,21 @@
+import userEvent, {UserEvent} from '@testing-library/user-event';
 import ModeSelect from './';
 import Query from '../../lib/Query';
 import React from 'react';
-import {fireEvent} from '@testing-library/react';
 import {render} from '../../../jest/utils';
 
-test('onChange prop', () => {
-	const handleChange = jest.fn();
-	const {getAllByRole, getByRole} = render(<ModeSelect id="id" onChange={handleChange} value=""/>);
+let user: UserEvent;
 
-	fireEvent.mouseDown(getByRole('button'));
-	getAllByRole('option')[1].click();
+beforeAll(() => {
+	user = userEvent.setup();
+});
+
+test('onChange prop', async () => {
+	const handleChange = jest.fn();
+	const {getByRole, getByText} = render(<ModeSelect id="id" onChange={handleChange} value=""/>);
+
+	await user.click(getByRole('combobox'));
+	await user.click(getByText('Reverse'));
 
 	expect(handleChange).toHaveBeenCalledTimes(1);
 	expect(handleChange).toHaveBeenCalledWith(Query.MODE.REVERSE);

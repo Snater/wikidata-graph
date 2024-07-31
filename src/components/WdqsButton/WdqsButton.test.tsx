@@ -1,4 +1,5 @@
 import Query from '../../lib/Query';
+import React from 'react';
 import WdqsButton from './';
 import {render} from '../../../jest/utils';
 

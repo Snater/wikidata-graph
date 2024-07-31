@@ -1,6 +1,7 @@
 import {fireEvent, render, waitFor} from '../../../jest/utils';
 import useQueryContext, {QueryContextProvider} from '../App/QueryContext';
 import QueryManager from './';
+import React from 'react';
 import Wikidata from '../../lib/WikidataInterface';
 
 let sparqlQuerySpy;

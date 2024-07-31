@@ -1,11 +1,11 @@
 import '@testing-library/jest-dom';
-import React, {ReactElement} from 'react';
+import React, {PropsWithChildren, ReactElement} from 'react';
+import {RenderOptions, RenderResult, render} from '@testing-library/react';
 import {ThemeProvider, createTheme} from '@mui/material';
-import {render, RenderOptions, RenderResult} from '@testing-library/react';
 
 const theme = createTheme();
 
-const CustomWrapper = function({children}) {
+const CustomWrapper = function({children}: PropsWithChildren) {
 	return (<ThemeProvider theme={theme}>{children}</ThemeProvider>);
 }
 

@@ -83,7 +83,9 @@ export default function EntitySelect({
 	}, [entityId, entityType, fetch]);
 
 	useEffect(() => {
-		value && onChange && onChange(value.id);
+		if (value && onChange) {
+			onChange(value.id);
+		}
 	}, [onChange, value]);
 
 	return(

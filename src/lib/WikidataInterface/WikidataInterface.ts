@@ -36,7 +36,7 @@ export type Link = {
 }
 
 export type Node = {
-	id: string
+	id: EntityId
 	label: string
 	uri: string
 	size: number
@@ -136,8 +136,8 @@ class WikidataInterface {
 
 	static parseNodes(results: Result[]): Node[] {
 		return results
-			.map(el => Object.assign({}, {
-				id: el.item.value,
+			.map(el => ({
+				id: el.item.value as EntityId,
 				label: el.item.label,
 				uri: `https://www.wikidata.org/entity/${el.item.value}`,
 				size: el.size,

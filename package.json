@@ -31,6 +31,7 @@
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/d3": "^7.4.3",
     "@types/ejs": "^3.1.5",
     "@types/jest": "^29.5.12",
     "@types/md5": "^2.3.5",
@@ -52,5 +53,7 @@
     "test": "jest --coverage",
     "eject": "craco eject"
   },
-  "browserslist": ["defaults"]
+  "browserslist": [
+    "defaults"
+  ]
 }

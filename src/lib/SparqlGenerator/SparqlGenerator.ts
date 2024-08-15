@@ -1,11 +1,14 @@
+'use server'
+
 import * as clause from './templates/clause'
 import ejs from 'ejs';
 import select from './templates/select';
-import Query from '../Query';
+import Query, {QueryJSON} from '../Query';
 
 class SparqlGenerator {
 
-	static generate(query: Query): string {
+	static generate(queryJSON: QueryJSON): string {
+		const query = Query.newFromJSON(queryJSON);
 		return ejs.render(select, {
 			useGAS: this.useGAS(query.limit, query.iterations),
 			sizeProperty: query.sizeProperty,
@@ -62,4 +65,6 @@ class SparqlGenerator {
 	}
 }
 
-export default SparqlGenerator;
+export default async function generateSparql(query: QueryJSON) {
+	return SparqlGenerator.generate(query);
+}

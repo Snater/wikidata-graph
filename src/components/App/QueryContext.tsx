@@ -1,3 +1,5 @@
+'use client'
+
 import {Dispatch, ReactNode, SetStateAction, createContext, useContext, useState} from 'react';
 import {Link, Node} from '../../lib/WikidataInterface/WikidataInterface';
 import Query from '../../lib/Query';

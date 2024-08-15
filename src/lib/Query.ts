@@ -26,7 +26,7 @@ export default class Query {
 	public limit?: number;
 	public sizeProperty?: EntityId;
 
-	static newFromJSON = (json: QueryJSON): Query => {
+	static newFromJSON = (json: Omit<QueryJSON, 'mode'> & Partial<Pick<QueryJSON, 'mode'>>): Query => {
 		return new Query(
 			json.item as EntityId,
 			json.property as EntityId,

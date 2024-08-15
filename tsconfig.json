@@ -1,27 +1,22 @@
 {
 	"compilerOptions": {
 		"allowJs": true,
-		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
+		"incremental": true,
 		"isolatedModules": true,
-		"jsx": "react-jsx",
-		"lib": [
-			"dom",
-			"dom.iterable",
-			"esnext"
-		],
+		"jsx": "preserve",
+		"lib": ["dom", "dom.iterable", "esnext"],
 		"module": "esnext",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"noEmit": true,
-		"noFallthroughCasesInSwitch": true,
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"plugins": [{"name": "next"}],
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		// Fixme: Required until https://github.com/maxlath/wikibase-sdk/pull/106/files is merged
-		"strict": false,
-		"target": "es5"
+		"strict": true
 	},
-	"include": [
-		"src"
-	]
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+	"exclude": ["node_modules"]
 }

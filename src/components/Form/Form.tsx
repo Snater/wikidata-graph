@@ -1,3 +1,5 @@
+'use client'
+
 import React, {useCallback} from 'react';
 import Box from '@mui/material/Box';
 import EntitySelect from '../EntitySelect';
@@ -15,7 +17,7 @@ const Col2 = styled(Box)({
 	gridTemplateColumns: '1fr 1fr',
 })
 
-export default function Form(): JSX.Element {
+export default function Form() {
 
 	const {query, setQuery} = useQueryContext();
 

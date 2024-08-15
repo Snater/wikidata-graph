@@ -1,9 +1,11 @@
+'use client'
+
 import Query, {QueryJSON} from '../../lib/Query';
 import {useCallback, useEffect} from 'react';
 import {ParsedQuery} from 'query-string';
 import PropTypes from 'prop-types';
-import SparqlGenerator from '../../lib/SparqlGenerator';
 import Wikidata from '../../lib/WikidataInterface';
+import generateSparql from '../../lib/SparqlGenerator';
 import queryString from 'query-string';
 import useQueryContext from '../App/QueryContext';
 
@@ -14,20 +16,18 @@ function matchesQueryString(query: Query) {
 }
 
 function isNew(query: Query) {
-	return !window.history.state || !query.equals(Query.newFromJSON(window.history.state));
+	return !window.history.state?.item || !query.equals(Query.newFromJSON(window.history.state));
 }
 
 function isInitial(query: Query) {
-	return !window.history.state && query.equals(DEFAULT_QUERY);
+	return !window.history.state?.item && query.equals(DEFAULT_QUERY);
 }
 
 export default function QueryManager(): null {
 
 	const {query, setQuery, setResult} = useQueryContext();
-	const popStateListener = useCallback(event => {
-		if (event.state !== null) {
-			setQuery(Query.newFromJSON(event.state));
-		}
+	const popStateListener = useCallback((event: PopStateEvent) => {
+		setQuery(event.state?.item ? Query.newFromJSON(event.state) : DEFAULT_QUERY);
 	}, [setQuery]);
 
 	// Set initial query according to query string.
@@ -61,11 +61,14 @@ export default function QueryManager(): null {
 			return;
 		}
 
-		Wikidata.sparqlQuery(SparqlGenerator.generate(query)).then(data => {
-			if (data) {
-				setResult(data);
-			}
-		})
+		generateSparql(query.toJSON())
+			.then(sparql => {
+				Wikidata.sparqlQuery(sparql).then(data => {
+					if (data) {
+						setResult(data);
+					}
+				})
+			});
 	}, [query, setResult]);
 
 	return null;

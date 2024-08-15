@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import Button, {ButtonProps} from '@mui/material/Button';
 import Query from '../../lib/Query';
-import SparqlGenerator from '../../lib/SparqlGenerator';
+import generateSparql from '../../lib/SparqlGenerator';
 
 type WdqsButtonProps = {
 	query: Query
@@ -11,7 +11,10 @@ export default function WdqsButton({query, ...rest}: WdqsButtonProps): JSX.Eleme
 
 	const handleClick = useCallback(() => {
 		const baseUrl = 'https://query.wikidata.org';
-		window.open(`${baseUrl}/#${encodeURIComponent(SparqlGenerator.generate(query))}`);
+		generateSparql(query)
+			.then(sparql => {
+				window.open(`${baseUrl}/#${encodeURIComponent(sparql)}`);
+			});
 	}, [query]);
 
 	return (

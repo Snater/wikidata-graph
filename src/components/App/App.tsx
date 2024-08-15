@@ -4,7 +4,6 @@ import Form from '../Form';
 import {QueryContextProvider} from './QueryContext';
 import QueryManager from '../QueryManager';
 import React from 'react';
-import WikidataInterface from '../../lib/WikidataInterface';
 
 export default function App(): JSX.Element {
 	return (
@@ -22,7 +21,7 @@ export default function App(): JSX.Element {
 					}}>
 					<Form/>
 				</Box>
-				<Chart getEntityImage={WikidataInterface.getEntityImage}/>
+				<Chart/>
 			</QueryContextProvider>
 		</Box>
 	);

@@ -69,7 +69,7 @@ class D3Chart {
 	 */
 	private zoom: ZoomBehavior<Element, unknown>
 
-	constructor(element: HTMLElement, getEntityImage: (id: string) => Promise<HTMLImageElement>) {
+	constructor(element: HTMLElement, getEntityImage: (id: EntityId) => Promise<HTMLImageElement>) {
 		this.svg = d3.select<HTMLElement, unknown>(element).append('svg')
 			.attr('class', 'D3Chart');
 		this.getEntityImage = getEntityImage;

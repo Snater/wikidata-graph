@@ -1,33 +1,32 @@
+'use client'
+
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import D3Chart from '../../lib/D3Chart';
 import useQueryContext from '../App/QueryContext';
 import Box from '@mui/material/Box';
+import WikidataInterface from '@/lib/WikidataInterface';
 
-type ChartProps = {
-	getEntityImage: (id: string) => Promise<HTMLImageElement>
-}
+let d3Chart: D3Chart;
 
-export default function Chart({getEntityImage}: ChartProps): JSX.Element {
-	const [width, setWidth] = useState(window.innerWidth);
-	const [height, setHeight] = useState(window.innerHeight);
-	const [d3Chart, setD3Chart] = useState(null);
+export default function Chart() {
+	const [width, setWidth] = useState<number>();
+	const [height, setHeight] = useState<number>();
 	const {result, query} = useQueryContext();
 	const canvas = useRef<HTMLDivElement>(null);
 
 	const updateDimensions = useCallback(() => {
 		setWidth(window.innerWidth);
 		setHeight(window.innerHeight);
-	}, [setHeight, setWidth]);
+	}, []);
+
+	if (canvas.current && !d3Chart) {
+		d3Chart = new D3Chart(canvas.current, WikidataInterface.getEntityImage);
+		window.addEventListener('resize', updateDimensions);
+	}
 
 	useEffect(() => {
-		setD3Chart(new D3Chart(canvas.current, getEntityImage));
-
-		window.addEventListener('resize', updateDimensions);
-
-		return () => {
-			window.removeEventListener('resize', updateDimensions);
-		}
-	}, [getEntityImage, updateDimensions]);
+		updateDimensions();
+	}, [updateDimensions]);
 
 	useEffect(() => {
 		if (d3Chart && query && result && width && height) {
@@ -38,7 +37,7 @@ export default function Chart({getEntityImage}: ChartProps): JSX.Element {
 				width,
 			});
 		}
-	}, [d3Chart, result, height, query, width]);
+	}, [result, height, query, width]);
 
 	return (
 		<Box

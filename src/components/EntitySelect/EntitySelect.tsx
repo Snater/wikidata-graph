@@ -1,3 +1,5 @@
+'use client'
+
 import {EntityId, EntityType, SearchResponse} from 'wikibase-sdk';
 import React, {useEffect, useMemo, useState} from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -27,7 +29,7 @@ export default function EntitySelect({
 	entityType,
 	label = '',
 	onChange
-}: EntitySelectProps): JSX.Element {
+}: EntitySelectProps) {
 	const [inputValue, setInputValue] = useState('');
 	const [value, setValue] = useState<Entity | null>(null);
 	const [options, setOptions] = useState<readonly Entity[]>([]);
@@ -82,12 +84,6 @@ export default function EntitySelect({
 		}
 	}, [entityId, entityType, fetch]);
 
-	useEffect(() => {
-		if (value && onChange) {
-			onChange(value.id);
-		}
-	}, [onChange, value]);
-
 	return(
 		<FormControl margin="dense">
 			<Autocomplete
@@ -99,9 +95,12 @@ export default function EntitySelect({
 				isOptionEqualToValue={(option, value) => option.id === value.id}
 				loading={loading}
 				noOptionsText="No options"
-				onChange={(event, newValue: Entity | null) => {
-					setOptions([newValue, ...options]);
-					setValue(newValue);
+				onChange={(event, newValue) => {
+					if (newValue) {
+						setOptions([newValue, ...options]);
+						setValue(newValue);
+						onChange && onChange(newValue.id);
+					}
 				}}
 				onInputChange={(event, newInputValue) => {
 					setInputValue(newInputValue);

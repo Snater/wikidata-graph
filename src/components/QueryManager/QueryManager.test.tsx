@@ -4,7 +4,7 @@ import QueryManager from './';
 import React from 'react';
 import Wikidata from '../../lib/WikidataInterface';
 
-let sparqlQuerySpy;
+let sparqlQuerySpy: jest.SpyInstance;
 
 beforeEach(() => {
 	sparqlQuerySpy = jest.spyOn(Wikidata, 'sparqlQuery');

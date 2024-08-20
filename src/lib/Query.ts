@@ -1,84 +1,46 @@
-import {EntityId} from 'wikibase-sdk';
+import {EntityId, isEntityId} from 'wikibase-sdk';
 
-export interface QueryJSON {
-	item: string
-	property: string
-	mode: string
-	language?: string
-	iterations?: number | string
-	limit?: number | string
-	sizeProperty?: string
+export type Mode = 'Forward' | 'Reverse' | 'Both';
+
+export default interface Query {
+	item: EntityId
+	property: EntityId
+	mode: Mode
+	language: string
+	iterations?: number
+	limit?: number
+	sizeProperty?: EntityId
 }
 
-export default class Query {
+export function isMode(mode: unknown): mode is Mode {
+	const modes: Mode[] = ['Forward', 'Reverse', 'Both'];
+	return typeof mode === 'string' && modes.includes(mode as Mode);
+}
 
-	static MODE = {
-		FORWARD: 'Forward',
-		REVERSE: 'Reverse',
-		BOTH: 'Both',
-	};
-
-	public item: EntityId;
-	public property: EntityId;
-	public mode: string;
-	public language?: string;
-	public iterations?: number;
-	public limit?: number;
-	public sizeProperty?: EntityId;
-
-	static newFromJSON = (json: Omit<QueryJSON, 'mode'> & Partial<Pick<QueryJSON, 'mode'>>): Query => {
-		return new Query(
-			json.item as EntityId,
-			json.property as EntityId,
-			json.mode,
-			json.language,
-			typeof json.iterations === 'string' ? parseInt(json.iterations) : json.iterations,
-			typeof json.limit === 'string' ? parseInt(json.limit) : json.limit,
-			json.sizeProperty as EntityId,
+export function isQuery(query: unknown): query is Query {
+	return (
+		query !== null && typeof query === 'object'
+		&& 'item' in query && typeof query.item === 'string' && isEntityId(query.item)
+		&& 'property' in query && typeof query.property === 'string' && isEntityId(query.property)
+		&& 'mode' in query && isMode(query.mode)
+		&& 'language' in query && typeof query.language === 'string'
+		&& 'iterations' in query && typeof query.iterations === 'number'
+		&& 'limit' in query && typeof query.limit === 'number'
+		&& (
+			!('sizeProperty' in query)
+			|| typeof query.sizeProperty === 'string' && isEntityId(query.sizeProperty)
 		)
-	}
+	);
+}
 
-	constructor(
-		item: EntityId,
-		property: EntityId,
-		mode = Query.MODE.BOTH,
-		language = 'en',
-		iterations = 5,
-		limit = 0,
-		sizeProperty?: EntityId | undefined,
-	) {
-		if (!item || !property) {
-			throw new Error('Item and property are required');
-		}
-
-		this.item = item;
-		this.property = property;
-		this.mode = mode;
-		this.language = language;
-		this.iterations = iterations;
-		this.limit = limit;
-		this.sizeProperty = sizeProperty;
-	}
-
-	equals = (query: Query): boolean => {
-		return query.item === this.item
-			&& query.property === this.property
-			&& query.mode === this.mode
-			&& query.language === this.language
-			&& query.iterations === this.iterations
-			&& query.limit === this.limit
-			&& query.sizeProperty === this.sizeProperty;
-	}
-
-	toJSON = (): QueryJSON => {
-		return {
-			item: this.item,
-			property: this.property,
-			mode: this.mode,
-			language: this.language,
-			iterations: this.iterations,
-			limit: this.limit,
-			sizeProperty: this.sizeProperty || '',
-		};
-	}
+export function isEqual(queryA: Query, queryB: Query) {
+	return (
+		queryA.item === queryB.item
+		&& queryA.property === queryB.property
+		&& queryA.mode === queryB.mode
+		&& queryA.language === queryB.language
+		&& queryA.iterations === queryB.iterations
+		&& queryA.limit === queryB.limit
+		&& queryA.sizeProperty === queryB.sizeProperty
+	);
 }

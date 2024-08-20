@@ -43,11 +43,11 @@ class D3Chart {
 	/**
 	 * Rendered circles, one for each unique data node.
 	 */
-	private circles: Selection<SVGCircleElement,  Node & {radius?: number}, SVGGElement, undefined>
+	private circles?: Selection<SVGCircleElement, Node & {radius?: number}, SVGGElement, undefined>
 	/**
 	 * Container within the SVG element, wrapping the rendered element groups.
 	 */
-	private container: Selection<SVGGElement, unknown, SVGSVGElement, undefined>
+	private container?: Selection<SVGGElement, unknown, null, undefined>
 	/**
 	 * Callback for retrieving the image corresponding to an entity.
 	 */
@@ -55,7 +55,7 @@ class D3Chart {
 	/**
 	 * Rendered labels, once for each unique data node.
 	 */
-	private labels: Selection<SVGTextElement, Node, SVGGElement, unknown>
+	private labels?: Selection<SVGTextElement, Node, SVGGElement, unknown>
 	/**
 	 * The SVG the data is rendered in.
 	 */
@@ -63,11 +63,11 @@ class D3Chart {
 	/**
 	 * Reference to the rendered force simulation.
 	 */
-	private simulation: Simulation<SimulationNodeDatum, undefined>
+	private simulation?: Simulation<D3ChartNode, undefined>
 	/**
 	 * Reference to the zoom.
 	 */
-	private zoom: ZoomBehavior<Element, unknown>
+	private zoom?: ZoomBehavior<SVGSVGElement, unknown>
 
 	constructor(element: HTMLElement, getEntityImage: (id: EntityId) => Promise<HTMLImageElement>) {
 		this.svg = d3.select<HTMLElement, unknown>(element).append('svg')
@@ -110,11 +110,12 @@ class D3Chart {
 
 	private draw(state: D3ChartState) {
 		this.container = this.svg.append('g');
+		this.zoom = d3.zoom<SVGSVGElement, unknown>().on('zoom', event => this.onZoom(event));
 
 		this.svg
 			.attr('width', state.width)
 			.attr('height', state.height)
-			.call(this.zoom = d3.zoom().on('zoom', event => this.onZoom(event)))
+			.call(this.zoom)
 			.call(this.tooltip);
 
 		this.createSimulation(state.data);
@@ -126,7 +127,10 @@ class D3Chart {
 		const links = this.drawLinks(state.data.links);
 		this.circles = this.drawNodes(nodes, state.root);
 		this.labels = this.drawLabels(nodes);
-		this.simulation.on('tick', () => this.onTick(this.circles, links, this.labels));
+
+		this.simulation?.on('tick', () => {
+			this.circles && links && this.labels && this.onTick(this.circles, links, this.labels);
+		});
 	}
 
 	private calculateRadii(nodes: D3ChartNode[]) {
@@ -170,7 +174,7 @@ class D3Chart {
 	}
 
 	private drawNodes(nodes: D3ChartNode[], root: ChartState['root']) {
-		return this.container.append('g')
+		return this.container?.append('g')
 			.selectAll<SVGCircleElement, unknown>('circle')
 			.data(nodes)
 			.join('circle')
@@ -182,14 +186,14 @@ class D3Chart {
 	}
 
 	private drawLinks(links: D3ChartLink[]) {
-		return this.container.append('g')
+		return this.container?.append('g')
 			.selectAll<SVGLineElement, unknown>('line')
 			.data(links)
 			.join('line');
 	}
 
 	private drawLabels(nodes: D3ChartNode[]) {
-		return this.container.append('g')
+		return this.container?.append('g')
 			.selectAll('text')
 			.data(nodes)
 			.enter()
@@ -200,16 +204,20 @@ class D3Chart {
 			.on('click', d => window.open(d.uri))
 			.on(
 				'mouseover',
-				(event, d) => this.enterTooltip(
+				(event, d) => this.circles && d.index && this.enterTooltip(
 					d,
-					this.circles.filter(`:nth-child(${d.index + 1})`).node()
+					this.circles.filter(`:nth-child(${d.index + 1})`).node() ?? undefined
 				)
 			)
 			.on('mouseout', () => this.exitTooltip());
 	}
 
-	private enterTooltip(d: D3ChartNode, circle: SVGCircleElement) {
-		this.labels.filter(`:not(:nth-child(${d.index + 1}))`).style('opacity', 0.3);
+	private enterTooltip(d: D3ChartNode, circle?: SVGCircleElement) {
+		if (!d.index || !circle) {
+			return;
+		}
+
+		this.labels?.filter(`:not(:nth-child(${d.index + 1}))`).style('opacity', 0.3);
 
 		this.getEntityImage(d.id)
 			.then(img => {
@@ -238,7 +246,7 @@ class D3Chart {
 	private exitTooltip() {
 		this.tooltip.html('');
 		this.tooltip.hide();
-		this.labels.style('opacity', 1);
+		this.labels?.style('opacity', 1);
 	}
 
 	private attachDragHandlers() {
@@ -247,7 +255,7 @@ class D3Chart {
 			d: D3ChartNode
 		) => {
 			if (!event.active) {
-				this.simulation.alphaTarget(0.3).restart();
+				this.simulation?.alphaTarget(0.3).restart();
 			}
 			d.fx = d.x;
 			d.fy = d.y;
@@ -266,38 +274,34 @@ class D3Chart {
 			d: D3ChartNode
 		) => {
 			if (!event.active) {
-				this.simulation.alphaTarget(0);
+				this.simulation?.alphaTarget(0);
 			}
 			d.fx = null;
 			d.fy = null;
 		};
 
-		return d3.drag()
+		return d3.drag<SVGCircleElement, D3ChartNode>()
 			.on('start', dragStarted)
 			.on('drag', dragged)
 			.on('end', dragEnded);
 	}
 
 	private onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
-		this.container.attr('transform', event.transform.toString());
+		this.container?.attr('transform', event.transform.toString());
 		this.exitTooltip();
 	}
 
-	/**
-	 * @param {d3.selection} nodes
-	 * @param {d3.selection} links
-	 * @param {d3.selection} labels
-	 */
 	private onTick(
 		nodes: Selection<SVGCircleElement, D3ChartNode, SVGElement, undefined>,
 		links: Selection<SVGLineElement, D3ChartLink, SVGGElement, unknown>,
 		labels: Selection<SVGTextElement, D3ChartNode, SVGGElement, unknown>
 	) {
 		nodes
-			.attr('cx', d => d.x)
-			.attr('cy', d => d.y);
+			.attr('cx', d => d.x ?? 0)
+			.attr('cy', d => d.y ?? 0);
 
-		this.calculateLine(links, nodes.filter(':first-child').datum().radius > 0);
+		const radius = nodes.filter(':first-child').datum().radius;
+		this.calculateLine(links, !!radius && radius > 0);
 
 		labels.attr('transform', d => `translate(${d.x},${d.y})`);
 
@@ -313,10 +317,10 @@ class D3Chart {
 	) {
 		if (!hasSize) {
 			links
-				.attr('x1', d => typeof d.source === 'object' && 'x' in d.source && d.source.x)
-				.attr('y1', d => typeof d.source === 'object' && 'y' in d.source && d.source.y)
-				.attr('x2', d => typeof d.target === 'object' && 'x' in d.target && d.target.x)
-				.attr('y2', d => typeof d.target === 'object' && 'y' in d.target && d.target.y);
+				.attr('x1', d => (typeof d.source === 'object' && 'x' in d.source && d.source.x) ?? 0)
+				.attr('y1', d => (typeof d.source === 'object' && 'y' in d.source && d.source.y) ?? 0)
+				.attr('x2', d => (typeof d.target === 'object' && 'x' in d.target && d.target.x) ?? 0)
+				.attr('y2', d => (typeof d.target === 'object' && 'y' in d.target && d.target.y) ?? 0);
 
 			return;
 		}
@@ -330,12 +334,12 @@ class D3Chart {
 					return;
 				}
 
-				const sourcePoint = {x: d.source.x, y: d.source.y};
-				const targetPoint = {x: d.target.x, y: d.target.y};
+				const sourcePoint = {x: d.source.x ?? 0, y: d.source.y ?? 0};
+				const targetPoint = {x: d.target.x ?? 0, y: d.target.y ?? 0};
 
 				if (d.source.x === d.target.x && d.source.y === d.target.y) {
 					d.scaledSource = sourcePoint;
-					d.scaledTarget  = targetPoint;
+					d.scaledTarget = targetPoint;
 					return;
 				}
 
@@ -343,18 +347,18 @@ class D3Chart {
 
 				d.scaledSource = Vector.sum(
 					sourcePoint,
-					Vector.scale(diff, d.source.radius)
+					Vector.scale(diff, d.source.radius ?? 0)
 				);
 
 				d.scaledTarget = Vector.diff(
 					targetPoint,
-					Vector.scale(diff, d.target.radius)
+					Vector.scale(diff, d.target.radius ?? 0)
 				);
 			})
-			.attr('x1', ({scaledSource}) => scaledSource.x)
-			.attr('y1', ({scaledSource}) => scaledSource.y)
-			.attr('x2', ({scaledTarget}) => scaledTarget.x)
-			.attr('y2', ({scaledTarget}) => scaledTarget.y);
+			.attr('x1', ({scaledSource}) => scaledSource?.x ?? 0)
+			.attr('y1', ({scaledSource}) => scaledSource?.y ?? 0)
+			.attr('x2', ({scaledTarget}) => scaledTarget?.x ?? 0)
+			.attr('y2', ({scaledTarget}) => scaledTarget?.y ?? 0);
 	}
 }
 

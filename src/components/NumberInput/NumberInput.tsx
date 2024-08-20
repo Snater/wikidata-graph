@@ -4,9 +4,9 @@ import React from 'react';
 
 export type NumberInputProps = {
 	onChange?: (number: number) => void
-} & TextFieldProps;
+} & Omit<TextFieldProps, 'onChange'>;
 
-export default function NumberInput({onChange, ...rest}: NumberInputProps): JSX.Element {
+export default function NumberInput({onChange, ...rest}: NumberInputProps) {
 	return (
 		<FormControl margin="dense">
 			<TextField

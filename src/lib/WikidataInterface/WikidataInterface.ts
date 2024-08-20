@@ -17,7 +17,7 @@ const wdk = WBK({
 	sparqlEndpoint: 'https://query.wikidata.org/sparql'
 })
 
-type Language = {
+export type Language = {
 	code: string
 	label: string
 }
@@ -94,7 +94,7 @@ class WikidataInterface {
 	 * filtered out.
 	 */
 	static getLanguages(): Promise<Language[] | void> {
-		return WikidataInterface.request(wdk.sparqlQuery(`
+		return WikidataInterface.request<SparqlResults>(wdk.sparqlQuery(`
 			SELECT ?item ?itemLabel ?language_code (SAMPLE(?native_label) AS ?native_label) WHERE {
 				?item wdt:P424 ?language_code.
 				?item wdt:P31 wd:Q34770.
@@ -110,7 +110,7 @@ class WikidataInterface {
 			GROUP BY ?item ?itemLabel ?language_code
 			ORDER BY ?itemLabel ?item`
 		))
-			.then((response: SparqlResults) => wdk.simplify.sparqlResults(response))
+			.then(response => wdk.simplify.sparqlResults(response))
 			.then(results => {
 				return results.map(el => {
 					return WikidataInterface.isLanguageResult(el)
@@ -125,8 +125,8 @@ class WikidataInterface {
 	}
 
 	static sparqlQuery(sparql: string): Promise<{nodes: Node[], links: Link[]} | void> {
-		return WikidataInterface.request(wdk.sparqlQuery(sparql))
-			.then((response: SparqlResults) => wdk.simplify.sparqlResults(response))
+		return WikidataInterface.request<SparqlResults>(wdk.sparqlQuery(sparql))
+			.then(response => wdk.simplify.sparqlResults(response))
 			.then(results => Object.assign({}, {
 					nodes: WikidataInterface.parseNodes(results as unknown as Result[]),
 					links: WikidataInterface.parseLinks(results as unknown as Result[]),
@@ -161,9 +161,9 @@ class WikidataInterface {
 		});
 	}
 
-	static createImage(claims: Claims): Promise<HTMLImageElement> {
+	static createImage(claims?: Claims): Promise<HTMLImageElement> {
 		const img = new Image();
-		const imgUrl = WikidataInterface.getImageUrl(claims.P18);
+		const imgUrl = WikidataInterface.getImageUrl(claims?.P18);
 
 		return new Promise(resolve => {
 			img.onload = () => resolve(img);
@@ -197,10 +197,11 @@ class WikidataInterface {
 	}
 
 	private static isLanguageResult(result: unknown): result is LanguageResult {
-		return !!(
-			typeof result === 'object'
+		return (
+			result !== null
+			&& typeof result === 'object'
 			&& 'item' in result
-			&& typeof result.item === 'object'
+			&& result.item !== null && typeof result.item === 'object'
 			&& 'label' in result.item && typeof result.item.label === 'string'
 			&& 'language_code' in result && typeof result.language_code === 'string'
 			&& 'native_label' in result && typeof result.native_label === 'string'

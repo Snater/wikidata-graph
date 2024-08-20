@@ -1,6 +1,5 @@
 import userEvent, {UserEvent} from '@testing-library/user-event';
 import ModeSelect from './';
-import Query from '../../lib/Query';
 import React from 'react';
 import {render} from '../../../jest/utils';
 
@@ -18,5 +17,5 @@ test('onChange prop', async () => {
 	await user.click(getByText('Reverse'));
 
 	expect(handleChange).toHaveBeenCalledTimes(1);
-	expect(handleChange).toHaveBeenCalledWith(Query.MODE.REVERSE);
+	expect(handleChange).toHaveBeenCalledWith('Reverse');
 });

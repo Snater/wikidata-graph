@@ -18,7 +18,7 @@ interface Entity {
 }
 
 type EntitySelectProps = {
-	entityId: EntityId
+	entityId?: EntityId
 	entityType: EntityType
 	label?: string
 	onChange?: (id: EntityId) => void
@@ -70,6 +70,10 @@ export default function EntitySelect({
 	}, [entityType, fetch, inputValue, value]);
 
 	useEffect(() => {
+		if (!entityId) {
+			return;
+		}
+
 		fetch(entityId, entityType, results => {
 			setValue({
 				// TODO: Remove redundant casting once https://github.com/maxlath/wikibase-sdk/pull/106/files is merged

@@ -3,12 +3,11 @@
 import * as clause from './templates/clause'
 import ejs from 'ejs';
 import select from './templates/select';
-import Query, {QueryJSON} from '../Query';
+import Query from '../Query';
 
 class SparqlGenerator {
 
-	static generate(queryJSON: QueryJSON): string {
-		const query = Query.newFromJSON(queryJSON);
+	static generate(query: Query): string {
 		return ejs.render(select, {
 			useGAS: this.useGAS(query.limit, query.iterations),
 			sizeProperty: query.sizeProperty,
@@ -19,11 +18,11 @@ class SparqlGenerator {
 	}
 
 	protected static generateClause(query: Query): string {
-		if (query.mode === Query.MODE.BOTH) {
-			const forwardQuery = Query.newFromJSON(query.toJSON());
-			forwardQuery.mode = Query.MODE.FORWARD;
-			const reverseQuery = Query.newFromJSON(query.toJSON());
-			reverseQuery.mode = Query.MODE.REVERSE;
+		if (query.mode === 'Both') {
+			const forwardQuery = structuredClone(query);
+			forwardQuery.mode = 'Forward';
+			const reverseQuery = structuredClone(query);
+			reverseQuery.mode = 'Reverse';
 
 			return ejs.render(clause.both, {
 				clauses: {
@@ -43,12 +42,12 @@ class SparqlGenerator {
 			});
 		}
 
-		if (query.mode !== Query.MODE.FORWARD && query.mode !== Query.MODE.REVERSE) {
+		if (query.mode !== 'Forward' && query.mode !== 'Reverse') {
 			throw new Error('GAS can be used on forward and reverse traversing only.');
 		}
 
 		return ejs.render(
-			query.mode === Query.MODE.FORWARD ? clause.forward : clause.reverse,
+			query.mode === 'Forward' ? clause.forward : clause.reverse,
 			{
 				item: query.item,
 				property: query.property,
@@ -61,10 +60,10 @@ class SparqlGenerator {
 	 * (https://wiki.blazegraph.com/wiki/index.php/RDF_GAS_API)
 	 */
 	protected static useGAS(limit?: number, iterations?: number): boolean {
-		return (limit && limit > 0) || (iterations && iterations > 0);
+		return !!((limit && limit > 0) || (iterations && iterations > 0));
 	}
 }
 
-export default async function generateSparql(query: QueryJSON) {
+export default async function generateSparql(query: Query) {
 	return SparqlGenerator.generate(query);
 }

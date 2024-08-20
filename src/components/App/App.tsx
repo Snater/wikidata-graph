@@ -5,7 +5,7 @@ import {QueryContextProvider} from './QueryContext';
 import QueryManager from '../QueryManager';
 import React from 'react';
 
-export default function App(): JSX.Element {
+export default function App() {
 	return (
 		<Box display="flex" height={1} width={1}>
 			<QueryContextProvider>

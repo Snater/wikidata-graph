@@ -7,6 +7,7 @@ const config: Config = {
 		'!<rootDir>/src/utils/*.{js,ts,tsx}'
 	],
 	resolver: '<rootDir>/jest/customResolver.js',
+	setupFilesAfterEnv: ['<rootDir>/jest/setupTests.ts'],
 	testEnvironment: 'jsdom',
 	transform: {
 		'\\.[jt]sx?$': ['babel-jest', {configFile: './jest/babel.config.json'}],

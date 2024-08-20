@@ -7,7 +7,7 @@ type WdqsButtonProps = {
 	query: Query
 } & ButtonProps
 
-export default function WdqsButton({query, ...rest}: WdqsButtonProps): JSX.Element {
+export default function WdqsButton({query, ...rest}: WdqsButtonProps) {
 
 	const handleClick = useCallback(() => {
 		const baseUrl = 'https://query.wikidata.org';

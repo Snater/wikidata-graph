@@ -1,10 +1,10 @@
-import Query, {QueryJSON} from '../Query';
+import Query from '../Query';
 import generateSparql from './SparqlGenerator';
 
-const data: QueryJSON = {
+const data: Query = {
 	item: 'Q9682',
 	property: 'P40',
-	mode: Query.MODE.BOTH,
+	mode: 'Both',
 	language: 'en',
 	iterations: 5,
 	limit: 0,
@@ -12,54 +12,29 @@ const data: QueryJSON = {
 
 describe('generate()', () => {
 
-	it('throws an error if item is omitted', async () => {
-		await expect(generateSparql(
-			Object.assign({}, data, {item: undefined})
-		)).rejects.toBeTruthy();
-	});
-
-	it('throws an error if property is omitted', async () => {
-		await expect(generateSparql(
-			Object.assign({}, data, {property: undefined})
-		)).rejects.toBeTruthy();
-	});
-
 	it('returns a string when all data is supplied', async () => {
 		const sparql = await generateSparql(data);
 		expect(typeof sparql).toStrictEqual('string');
 	});
 
-	it('returns a string when only item and property are supplied', async () => {
-		const sparql = await generateSparql(Query.newFromJSON(
-			Object.assign({}, {item: data.item}, {property: data.property})
-		));
-		expect(typeof sparql).toStrictEqual('string');
-	});
-
 	it('generates a string for mode "both"', async () => {
-		const sparql = await generateSparql(Query.newFromJSON(
-			Object.assign({}, data, {mode: Query.MODE.BOTH})
-		));
+		const sparql = await generateSparql(Object.assign({}, data, {mode: 'Both'}));
 		expect(typeof sparql).toStrictEqual('string');
 	});
 
 	it('generates a string for mode "forward"', async () => {
-		const sparql = await generateSparql(Query.newFromJSON(
-			Object.assign({}, data, {mode: Query.MODE.FORWARD})
-		));
+		const sparql = await generateSparql(Object.assign({}, data, {mode: 'Forward'}));
 		expect(typeof sparql).toStrictEqual('string');
 	});
 
 	it('generates a string for mode "reverse"', async () => {
-		const sparql = await generateSparql(Query.newFromJSON(
-			Object.assign({}, data, {mode: Query.MODE.REVERSE})
-		));
+		const sparql = await generateSparql(Object.assign({}, data, {mode: 'Reverse'}));
 		expect(typeof sparql).toStrictEqual('string');
 	});
 
 	it('generates a string for mode "forward" not using GAS', async () => {
 		const sparql = await generateSparql(Object.assign({}, data, {
-			mode: Query.MODE.FORWARD,
+			mode: 'Forward',
 			iterations: 0,
 			limit: 0,
 		}));
@@ -67,11 +42,11 @@ describe('generate()', () => {
 	});
 
 	it('generates a string for mode "reverse" not using GAS', async () => {
-		const queryJSON = Object.assign({}, data);
-		queryJSON.iterations = undefined;
-		queryJSON.limit = undefined;
+		const query = Object.assign({}, data);
+		query.iterations = undefined;
+		query.limit = undefined;
 
-		const sparql = await generateSparql(queryJSON);
+		const sparql = await generateSparql(query);
 		expect(typeof sparql).toStrictEqual('string');
 	});
 

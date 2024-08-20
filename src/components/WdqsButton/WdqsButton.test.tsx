@@ -5,7 +5,7 @@ import WdqsButton from './';
 import {render} from '../../../jest/utils';
 
 const mockedOpen = jest.fn();
-let windowSpy;
+let windowSpy: jest.SpyInstance;
 let user: UserEvent;
 
 beforeAll(() => {
@@ -22,7 +22,17 @@ afterEach(() => {
 });
 
 test('basic', async () => {
-	const {getByRole} = render(<WdqsButton query={new Query('Q123', 'P123')}/>)
+	const queryMock: Query = {
+		item: 'Q123',
+		property: 'P123',
+		mode: 'Both',
+		language: 'en',
+		iterations: 5,
+		limit: 0,
+		sizeProperty: 'P456',
+	};
+
+	const {getByRole} = render(<WdqsButton query={queryMock}/>);
 
 	await user.click(getByRole('button'));
 

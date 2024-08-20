@@ -11,7 +11,7 @@ beforeAll(() => {
 	user = userEvent.setup();
 });
 
-let searchSpy;
+let searchSpy: jest.SpyInstance;
 
 beforeEach(() => {
 	searchSpy = jest.spyOn(Wikidata, 'search');
@@ -58,6 +58,6 @@ test('onChange prop', async () => {
 	await waitFor(() => expect(getByRole('listbox')).toBeInTheDocument());
 	await user.click(getByText('Label 2'));
 
-	expect(handleChange).toHaveBeenCalledTimes(2);
-	expect(handleChange).toHaveBeenCalledWith('Q1');
+	expect(handleChange).toHaveBeenCalledTimes(1);
+	expect(handleChange).toHaveBeenCalledWith('Q2');
 });

@@ -1,33 +1,40 @@
 'use client'
 
-import Query, {QueryJSON} from '../../lib/Query';
+import Query, {isEqual, isQuery} from '../../lib/Query';
 import {useCallback, useEffect} from 'react';
-import {ParsedQuery} from 'query-string';
 import PropTypes from 'prop-types';
 import Wikidata from '../../lib/WikidataInterface';
 import generateSparql from '../../lib/SparqlGenerator';
 import queryString from 'query-string';
 import useQueryContext from '../App/QueryContext';
 
-export const DEFAULT_QUERY = new Query('Q9682', 'P40', Query.MODE.BOTH, 'en', 5, 0, 'P3373');
+export const DEFAULT_QUERY: Query = {
+	item: 'Q9682',
+	property: 'P40',
+	mode: 'Both',
+	language: 'en',
+	iterations: 5,
+	limit: 0,
+	sizeProperty: 'P3373',
+};
 
 function matchesQueryString(query: Query) {
-	return queryString.stringify(query.toJSON()) === window.location.search.slice(1);
+	return queryString.stringify(query) === window.location.search.slice(1);
 }
 
 function isNew(query: Query) {
-	return !window.history.state?.item || !query.equals(Query.newFromJSON(window.history.state));
+	return !window.history.state?.item || !isEqual(query, window.history.state);
 }
 
 function isInitial(query: Query) {
-	return !window.history.state?.item && query.equals(DEFAULT_QUERY);
+	return !window.history.state?.item && isEqual(query, DEFAULT_QUERY);
 }
 
 export default function QueryManager(): null {
 
 	const {query, setQuery, setResult} = useQueryContext();
 	const popStateListener = useCallback((event: PopStateEvent) => {
-		setQuery(event.state?.item ? Query.newFromJSON(event.state) : DEFAULT_QUERY);
+		setQuery(event.state?.item ? event.state : DEFAULT_QUERY);
 	}, [setQuery]);
 
 	// Set initial query according to query string.
@@ -35,11 +42,21 @@ export default function QueryManager(): null {
 		if (window.location.search === '') {
 			setQuery(DEFAULT_QUERY);
 		} else {
-			type ParsedQueryAsQuery = ParsedQuery & QueryJSON;
-			const parsedQueryString = queryString.parse(window.location.search);
-			const queryStringQuery = Query.newFromJSON(parsedQueryString as ParsedQueryAsQuery);
-			window.history.replaceState(queryStringQuery.toJSON(), '', `/${window.location.search}`);
-			setQuery(queryStringQuery);
+			const parsedQueryString = queryString.parse(window.location.search, {parseNumbers: true});
+			const queryStringQuery = {
+				item: parsedQueryString.item,
+				property: parsedQueryString.property,
+				mode: parsedQueryString.mode,
+				language: parsedQueryString.language,
+				iterations: parsedQueryString.iterations,
+				limit: parsedQueryString.limit,
+				sizeProperty: parsedQueryString.sizeProperty,
+			}
+
+			if (isQuery(queryStringQuery)) {
+				window.history.replaceState(queryStringQuery, '', `/${window.location.search}`);
+				setQuery(queryStringQuery);
+			}
 		}
 	}, [setQuery]);
 
@@ -48,7 +65,7 @@ export default function QueryManager(): null {
 		window.addEventListener('popstate', popStateListener);
 
 		if (query && !matchesQueryString(query) && isNew(query) && !isInitial(query)) {
-			window.history.pushState(query.toJSON(), '', `/?${queryString.stringify(query.toJSON())}`);
+			window.history.pushState(query, '', `/?${queryString.stringify(query)}`);
 		}
 
 		return () => {
@@ -61,7 +78,7 @@ export default function QueryManager(): null {
 			return;
 		}
 
-		generateSparql(query.toJSON())
+		generateSparql(query)
 			.then(sparql => {
 				Wikidata.sparqlQuery(sparql).then(data => {
 					if (data) {

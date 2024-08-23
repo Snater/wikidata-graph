@@ -31,4 +31,4 @@ jobs:
         server: ${{vars.ftp_server}}
         username: ${{vars.ftp_username}}
         password: ${{secrets.ftp_password}}
-        local-dir: ./build/
+        local-dir: ./out/

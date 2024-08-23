@@ -1,6 +1,7 @@
 /.idea
 /.next
+/build
 /coverage
 /node_modules
-/build
+/out
 next-env.d.ts

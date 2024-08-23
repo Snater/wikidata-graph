@@ -1,4 +1,5 @@
-'use server'
+// May also be switched to 'use server'
+'use client'
 
 import * as clause from './templates/clause'
 import ejs from 'ejs';

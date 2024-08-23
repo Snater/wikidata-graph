@@ -1,6 +1,13 @@
 'use client'
 
-import {Dispatch, ReactNode, SetStateAction, createContext, useContext, useState} from 'react';
+import {
+	Dispatch,
+	PropsWithChildren,
+	SetStateAction,
+	createContext,
+	useContext,
+	useState
+} from 'react';
 import {Link, Node} from '@/lib/WikidataInterface/WikidataInterface';
 import Query from '@/lib/Query';
 import React from 'react';
@@ -14,11 +21,7 @@ interface QueryContextType {
 
 const QueryContext = createContext<QueryContextType | null>(null);
 
-interface QueryContextProviderProps {
-	children: ReactNode
-}
-
-export function QueryContextProvider({children}: QueryContextProviderProps) {
+export function QueryContextProvider({children}: PropsWithChildren) {
 	const [query, setQuery] = useState<Query | undefined>();
 	const [result, setResult] = useState<{nodes: Node[], links: Link[]} | undefined>();
 

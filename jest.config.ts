@@ -6,6 +6,9 @@ const config: Config = {
 		'!<rootDir>/src/**/index.{js,ts,tsx}',
 		'!<rootDir>/src/utils/*.{js,ts,tsx}'
 	],
+	moduleNameMapper: {
+		'^@/(.*)$': '<rootDir>/src/$1',
+	},
 	resolver: '<rootDir>/jest/customResolver.js',
 	setupFilesAfterEnv: ['<rootDir>/jest/setupTests.ts'],
 	testEnvironment: 'jsdom',

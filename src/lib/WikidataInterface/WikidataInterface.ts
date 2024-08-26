@@ -53,6 +53,8 @@ type Result = {
 
 class WikidataInterface {
 
+	private static cache: Record<EntityId, Entity> = {};
+
 	static imageFallback = 'No_image_available_500_x_500.svg';
 
 	static request<T>(url: string): Promise<T> {
@@ -68,13 +70,18 @@ class WikidataInterface {
 		});
 	}
 
-	static getEntity(id: EntityId): Promise<Entity> {
-		return WikidataInterface.request<{entities: Entities}>(wdk.getEntities({
-			ids: [id],
-			languages: ['en'],
-			props: ['claims'],
-		}))
-			.then(response => response.entities[id]);
+	static async getEntity(id: EntityId): Promise<Entity> {
+		if (!WikidataInterface.cache[id]) {
+			const response = await WikidataInterface.request<{ entities: Entities }>(wdk.getEntities({
+				ids: [id],
+				languages: ['en'],
+				props: ['claims'],
+			}));
+
+			WikidataInterface.cache[id] = response.entities[id];
+		}
+
+		return WikidataInterface.cache[id];
 	}
 
 	static search(search: string, type?: EntityType): Promise<SearchResponse> {

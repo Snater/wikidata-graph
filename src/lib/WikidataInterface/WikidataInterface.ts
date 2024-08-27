@@ -57,17 +57,13 @@ class WikidataInterface {
 
 	static imageFallback = 'No_image_available_500_x_500.svg';
 
-	static request<T>(url: string): Promise<T> {
-		return new Promise((resolve, reject): void => {
-			const request = new XMLHttpRequest();
-			request.open('GET', url);
-			request.onload = () =>
-				request.status === 200
-					? resolve(JSON.parse(request.response))
-					: reject(Error(request.statusText));
-			request.onerror = error => reject(error);
-			request.send();
-		});
+	static async request<T>(url: string): Promise<T> {
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error(response.statusText);
+		}
+
+		return response.json();
 	}
 
 	static async getEntity(id: EntityId): Promise<Entity> {

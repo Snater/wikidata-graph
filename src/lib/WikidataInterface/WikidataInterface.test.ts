@@ -1,5 +1,21 @@
 import WikidataInterface from './WikidataInterface';
 
+beforeEach(() => {
+	global.fetch = jest.fn().mockImplementation((url: string) => Promise.resolve({
+		json: () => Promise.resolve({entities: {Q1: 'getEntity() result'}}),
+		ok: !url.includes('Q999'),
+	}));
+});
+
+it('retrieves an entity', async () => {
+	const response = await WikidataInterface.getEntity('Q1');
+	expect(response).toEqual('getEntity() result');
+});
+
+it('throws an error when unable to retrieve an entity', async () => {
+	await expect(WikidataInterface.getEntity('Q999')).rejects.toBeTruthy();
+});
+
 it('returns a Promise when submitting a SPARQL query', () => {
 	WikidataInterface.request = function<T>(): Promise<T> {
 		return new Promise(resolve => {
@@ -60,7 +76,7 @@ it('triggers a request when searching for entities', () => {
 });
 
 it('appends "property" parameter to the query string when searching for a property', () => {
-	WikidataInterface.request = function <T>(url): Promise<T> {
+	WikidataInterface.request = function <T>(url: string): Promise<T> {
 		return new Promise(resolve => resolve(url as T));
 	};
 

@@ -28,6 +28,7 @@ jobs:
     - name: Deploy
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
+        dangerous-clean-slate: true
         server: ${{vars.ftp_server}}
         username: ${{vars.ftp_username}}
         password: ${{secrets.ftp_password}}

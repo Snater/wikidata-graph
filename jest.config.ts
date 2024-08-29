@@ -9,7 +9,9 @@ const config: Config = {
 	moduleNameMapper: {
 		'^@/(.*)$': '<rootDir>/src/$1',
 	},
+	resetMocks: true,
 	resolver: '<rootDir>/jest/customResolver.js',
+	restoreMocks: true,
 	setupFilesAfterEnv: ['<rootDir>/jest/setupTests.ts'],
 	testEnvironment: 'jsdom',
 	transform: {

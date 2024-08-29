@@ -57,8 +57,9 @@ class WikidataInterface {
 
 	static imageFallback = 'No_image_available_500_x_500.svg';
 
-	static async request<T>(url: string): Promise<T> {
+	private static async request<T>(url: string): Promise<T> {
 		const response = await fetch(url);
+
 		if (!response.ok) {
 			throw new Error(response.statusText);
 		}

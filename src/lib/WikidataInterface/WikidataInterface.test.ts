@@ -1,5 +1,13 @@
 import WikidataInterface from './WikidataInterface';
 
+const originalFetch = global.fetch;
+const originalConsoleError = console.error;
+
+afterAll(() => {
+	global.fetch = originalFetch;
+	console.error = originalConsoleError;
+})
+
 it('retrieves an entity', async () => {
 	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
 		json: () => Promise.resolve({entities: {Q1: 'getEntity() result'}}),
@@ -124,4 +132,55 @@ it('gets an image URL', () => {
 it('gets missing image fallback URL', () => {
 	expect(WikidataInterface.getImageUrl([]))
 		.toBe(WikidataInterface.createCommonsUrl(WikidataInterface.imageFallback));
+});
+
+it('retrieves the languages', async () => {
+	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
+		json: () => Promise.resolve({
+			head: {
+				vars: ['item', 'itemLabel', 'language_code', 'native_label'],
+			},
+			results: {
+				bindings: [{
+						item: {
+							type: 'uri',
+							value: 'http://www.wikidata.org/entity/Q1860'
+						},
+						itemLabel: {
+							'xml:lang': 'en',
+							type: 'literal',
+							value: 'English'
+						},
+						language_code: {
+							type: 'literal',
+							value: 'en'
+						},
+						native_label: {
+							'xml:lang': 'en',
+							type: 'literal',
+							value: 'English'
+						},
+					},
+				],
+			},
+		}),
+		ok: true,
+	}));
+
+	const languages = await WikidataInterface.getLanguages();
+
+	expect(languages).toEqual([{code: 'en', label: 'English'}]);
+});
+
+it('logs error when retrieving the language fails', async () => {
+	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
+		json: () => Promise.resolve(),
+		ok: false,
+	}));
+
+	console.error = jest.fn();
+
+	await WikidataInterface.getLanguages();
+
+	expect(console.error).toHaveBeenCalledTimes(1);
 });

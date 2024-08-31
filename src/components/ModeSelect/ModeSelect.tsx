@@ -1,5 +1,3 @@
-'use client'
-
 import Select, {SelectProps} from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';

@@ -1,5 +1,3 @@
-'use client'
-
 import {EntityId, EntityType, SearchResponse} from 'wikibase-sdk';
 import React, {useEffect, useMemo, useState} from 'react';
 import Autocomplete from '@mui/material/Autocomplete';

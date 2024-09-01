@@ -3,7 +3,7 @@ import WikidataInterface from './WikidataInterface';
 const originalFetch = global.fetch;
 const originalConsoleError = console.error;
 
-afterAll(() => {
+afterEach(() => {
 	global.fetch = originalFetch;
 	console.error = originalConsoleError;
 })
@@ -181,6 +181,19 @@ it('logs error when retrieving the language fails', async () => {
 	console.error = jest.fn();
 
 	await WikidataInterface.getLanguages();
+
+	expect(console.error).toHaveBeenCalledTimes(1);
+});
+
+it('logs error when SPARQL query failed', async () => {
+	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
+		json: () => Promise.resolve(),
+		ok: false,
+	}));
+
+	console.error = jest.fn();
+
+	await WikidataInterface.sparqlQuery('');
 
 	expect(console.error).toHaveBeenCalledTimes(1);
 });

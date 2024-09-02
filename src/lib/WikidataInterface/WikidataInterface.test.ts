@@ -30,37 +30,51 @@ it('throws an error when unable to retrieve an entity', async () => {
 it('returns a Promise when submitting a SPARQL query', async () => {
 	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
 		json: () => Promise.resolve({
-			'head': {
-				'vars': ['item', 'itemLabel', 'linkTo']
+			head: {
+				vars: ['item', 'itemLabel', 'linkTo']
 			},
-			'results': {
-				'bindings': [{
-					'item': {
-						'type': 'uri',
-						'value': 'http://www.wikidata.org/entity/Q9439'
+			results: {
+				bindings: [{
+					item: {
+						type: 'uri',
+						value: 'http://www.wikidata.org/entity/Q9439'
 					},
-					'linkTo': {
-						'type': 'uri',
-						'value': 'http://www.wikidata.org/entity/Q20875'
+					linkTo: {
+						type: 'uri',
+						value: 'http://www.wikidata.org/entity/Q20875'
 					},
-					'itemLabel': {
+					itemLabel: {
 						'xml:lang': 'en',
-						'type': 'literal',
-						'value': 'Victoria'
+						type: 'literal',
+						value: 'Victoria'
 					}
 				}, {
-					'item': {
-						'type': 'uri',
-						'value': 'http://www.wikidata.org/entity/Q9682'
+					item: {
+						type: 'uri',
+						value: 'http://www.wikidata.org/entity/Q9682'
 					},
-					'linkTo': {
-						'type': 'uri',
-						'value': 'http://www.wikidata.org/entity/Q154920'
+					linkTo: {
+						type: 'uri',
+						value: 'http://www.wikidata.org/entity/Q154920'
 					},
-					'itemLabel': {
+					itemLabel: {
 						'xml:lang': 'en',
-						'type': 'literal',
-						'value': 'Elizabeth II'
+						type: 'literal',
+						value: 'Elizabeth II'
+					}
+				}, {
+					item: {
+						type: 'uri',
+						value: 'http://www.wikidata.org/entity/Q1234'
+					},
+					linkTo: {
+						type: 'uri',
+						value: 'http://www.wikidata.org/entity/Q9682'
+					},
+					itemLabel: {
+						'xml:lang': 'en',
+						type: 'literal',
+						value: 'Test Link'
 					}
 				}]
 			}
@@ -78,11 +92,18 @@ it('returns a Promise when submitting a SPARQL query', async () => {
 				uri: 'https://www.wikidata.org/entity/Q9439',
 			}, {
 				id: 'Q9682',
-				label:'Elizabeth II',
-				uri:'https://www.wikidata.org/entity/Q9682',
+				label: 'Elizabeth II',
+				uri: 'https://www.wikidata.org/entity/Q9682',
+			}, {
+				id: 'Q1234',
+				label: 'Test Link',
+				uri: 'https://www.wikidata.org/entity/Q1234',
 			},
 		],
-		links: [],
+		links: [{
+			source: 'Q1234',
+			target: 'Q9682',
+		}],
 	});
 });
 

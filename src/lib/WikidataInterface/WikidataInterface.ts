@@ -136,7 +136,7 @@ class WikidataInterface {
 			.catch(error => console.error(error));
 	}
 
-	static parseNodes(results: Result[]): Node[] {
+	private static parseNodes(results: Result[]): Node[] {
 		return results
 			.map(el => ({
 				id: el.item.value as EntityId,
@@ -147,7 +147,7 @@ class WikidataInterface {
 			.filter((el, index, self) => self.findIndex(t => t.id === el.id) === index);
 	}
 
-	static parseLinks(results: Result[]): Link[] {
+	private static parseLinks(results: Result[]): Link[] {
 		return results
 			.filter(el => results.find(result => el.linkTo === result.item.value))
 			.map(el => Object.assign({}, {source: el.item.value, target: el.linkTo}));

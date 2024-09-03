@@ -55,7 +55,7 @@ class WikidataInterface {
 
 	private static cache: Record<EntityId, Entity> = {};
 
-	static imageFallback = 'No_image_available_500_x_500.svg';
+	private static imageFallback = 'No_image_available_500_x_500.svg';
 
 	private static async request<T>(url: string): Promise<T> {
 		const response = await fetch(url);
@@ -163,7 +163,7 @@ class WikidataInterface {
 		});
 	}
 
-	static createImage(claims?: Claims): Promise<HTMLImageElement> {
+	private static createImage(claims?: Claims): Promise<HTMLImageElement> {
 		const img = new Image();
 		const imgUrl = WikidataInterface.getImageUrl(claims?.P18);
 
@@ -174,25 +174,21 @@ class WikidataInterface {
 		});
 	}
 
-	static getImageUrl(propertyClaims?: PropertyClaims): string {
-		if (propertyClaims && propertyClaims.length > 0) {
-			const mainsnak = propertyClaims[0].mainsnak;
+	private static getImageUrl(propertyClaims?: PropertyClaims): string {
+		const mainsnak = propertyClaims?.[0]?.mainsnak;
 
-			if (mainsnak.datatype === 'commonsMedia') {
-				const value = mainsnak.datavalue?.value;
+		if (mainsnak?.datatype === 'commonsMedia') {
+			const value = mainsnak.datavalue?.value;
 
-				if (typeof value !== 'string') {
-					return '';
-				}
-
-				return WikidataInterface.createCommonsUrl(value.replace(/ /g, '_'))
+			if (typeof value === 'string') {
+				return WikidataInterface.createCommonsUrl(value.replace(/ /g, '_'));
 			}
 		}
 
 		return WikidataInterface.createCommonsUrl(WikidataInterface.imageFallback);
 	}
 
-	static createCommonsUrl(filename: string): string {
+	private static createCommonsUrl(filename: string): string {
 		const md5 = MD5(filename);
 		const extension = filename.endsWith('.svg') ? '.png' : '';
 		return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}${extension}`;

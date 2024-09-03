@@ -1,12 +1,30 @@
 import WikidataInterface from './WikidataInterface';
 
+const originalImage = Image;
 const originalFetch = global.fetch;
 const originalConsoleError = console.error;
 
 afterEach(() => {
 	global.fetch = originalFetch;
 	console.error = originalConsoleError;
-})
+});
+
+beforeAll(() => {
+	global.Image = class {
+		onload: () => void;
+
+		constructor() {
+			this.onload = jest.fn();
+			setTimeout(() => {
+				this.onload();
+			}, 50);
+		}
+	} as unknown as typeof originalImage;
+});
+
+afterAll(() => {
+	global.Image = originalImage;
+});
 
 it('retrieves an entity', async () => {
 	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
@@ -130,31 +148,6 @@ it('appends "property" parameter to the query string when searching for a proper
 		});
 });
 
-it('creates a Commons URL', () => {
-	expect(WikidataInterface.createCommonsUrl('filename'))
-		.toBe(`https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/filename/64px-filename`);
-});
-
-it('gets an image URL', () => {
-	expect(WikidataInterface.getImageUrl([{
-		id: 'Q1$',
-		mainsnak: {
-			datatype: 'commonsMedia',
-			datavalue: {type: 'string', value: 'filename'},
-			hash: '',
-			property: 'P1',
-			snaktype: 'value',
-		},
-		rank: 'normal',
-		type: 'statement',
-	}])).toBe(WikidataInterface.createCommonsUrl(('filename')));
-});
-
-it('gets missing image fallback URL', () => {
-	expect(WikidataInterface.getImageUrl([]))
-		.toBe(WikidataInterface.createCommonsUrl(WikidataInterface.imageFallback));
-});
-
 it('retrieves the languages', async () => {
 	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
 		json: () => Promise.resolve({
@@ -217,4 +210,68 @@ it('logs error when SPARQL query failed', async () => {
 	await WikidataInterface.sparqlQuery('');
 
 	expect(console.error).toHaveBeenCalledTimes(1);
+});
+
+it('retrieves an entity image', async () => {
+	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
+		json: () => Promise.resolve({
+			entities: {
+				Q6789: {
+					claims: {
+						P18: [{
+							mainsnak: {
+								datavalue: {value: 'image_URL_placeholder'},
+								datatype: 'commonsMedia'
+							},
+						}],
+					},
+				},
+			},
+		}),
+		ok: true,
+	}));
+
+	const image = await WikidataInterface.getEntityImage('Q6789');
+
+	expect(image).toBeInstanceOf(Image);
+	expect(image.src).toContain('/image_URL_placeholder/');
+});
+
+it('fails retrieving image when value\'s data type is not a string', async () => {
+	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
+		json: () => Promise.resolve({
+			entities: {
+				Q2345: {
+					claims: {
+						P18: [{
+							mainsnak: {
+								datavalue: {value: 123},
+								datatype: 'commonsMedia'
+							},
+						}],
+					},
+				},
+			},
+		}),
+		ok: true,
+	}));
+
+	const image = await WikidataInterface.getEntityImage('Q2345');
+
+	expect(image).toBeInstanceOf(Image);
+	expect(image.src).toContain('No_image_available');
+});
+
+it('fails retrieving image when no claim to retrieve Commons image from', async () => {
+	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
+		json: () => Promise.resolve({
+			entities: {Q9876: {}},
+		}),
+		ok: true,
+	}));
+
+	const image = await WikidataInterface.getEntityImage('Q9876');
+
+	expect(image).toBeInstanceOf(Image);
+	expect(image.src).toContain('No_image_available');
 });

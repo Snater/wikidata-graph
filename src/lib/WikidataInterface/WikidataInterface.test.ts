@@ -36,6 +36,23 @@ it('retrieves an entity', async () => {
 	expect(response).toEqual('getEntity() result');
 });
 
+it('retrieves an entity from the cache', async () => {
+	const fetchMock = jest.fn().mockImplementation(() => Promise.resolve({
+		json: () => Promise.resolve({entities: {Q4839: 'getEntity() result'}}),
+		ok: true,
+	}));
+
+	global.fetch = fetchMock;
+
+	const response = await WikidataInterface.getEntity('Q4839');
+	expect(response).toEqual('getEntity() result');
+
+	const response2 = await WikidataInterface.getEntity('Q4839');
+	expect(response2).toEqual('getEntity() result');
+
+	expect(fetchMock).toHaveBeenCalledTimes(1);
+});
+
 it('throws an error when unable to retrieve an entity', async () => {
 	global.fetch = jest.fn().mockImplementation(() => Promise.resolve({
 		json: () => Promise.resolve(),

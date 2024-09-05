@@ -118,7 +118,7 @@ class WikidataInterface {
 			.then(results => {
 				return results.map(el => {
 					return WikidataInterface.isLanguageResult(el)
-						? {code: el.language_code, label: el.native_label ?? el.item.label} as Language
+						? {code: el.language_code, label: el.native_label || el.item.label} as Language
 						: null
 				}).filter(el => !!el);
 			})

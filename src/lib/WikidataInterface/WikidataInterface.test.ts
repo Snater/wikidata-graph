@@ -172,25 +172,29 @@ it('retrieves the languages', async () => {
 				vars: ['item', 'itemLabel', 'language_code', 'native_label'],
 			},
 			results: {
-				bindings: [{
-						item: {
-							type: 'uri',
-							value: 'http://www.wikidata.org/entity/Q1860'
-						},
+				bindings: [
+					{
+						item: {value: 'http://www.wikidata.org/entity/Q1111'},
+						itemLabel: {value: 'ZZZ'},
+						language_code: {value: 'zz'},
+						native_label: {value: 'ZZZ'},
+					}, {
+						item: {value: 'http://www.wikidata.org/entity/Q2222'},
+						itemLabel: {value: 'AAA'},
+						language_code: {value: 'aa'},
+						native_label: {value: 'AAA'},
+					}, {
+						item: {value: 'http://www.wikidata.org/entity/Q3333'},
+						itemLabel: {value: 'XXX'},
+						language_code: {value: 'xx'},
+						native_label: {value: ''},
+					}, {
+						item: {value: 'http://www.wikidata.org/entity/Q4444'},
 						itemLabel: {
-							'xml:lang': 'en',
-							type: 'literal',
-							value: 'English'
+							value: 1 // not a proper language result
 						},
-						language_code: {
-							type: 'literal',
-							value: 'en'
-						},
-						native_label: {
-							'xml:lang': 'en',
-							type: 'literal',
-							value: 'English'
-						},
+						language_code: {value: 'bb'},
+						native_label: {value: 'BBB'},
 					},
 				],
 			},
@@ -200,7 +204,11 @@ it('retrieves the languages', async () => {
 
 	const languages = await WikidataInterface.getLanguages();
 
-	expect(languages).toEqual([{code: 'en', label: 'English'}]);
+	expect(languages).toEqual([
+		{code: 'aa', label: 'AAA'},
+		{code: 'xx', label: 'XXX'},
+		{code: 'zz', label: 'ZZZ'},
+	]);
 });
 
 it('logs error when retrieving the language fails', async () => {

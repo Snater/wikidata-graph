@@ -74,8 +74,7 @@ export default function EntitySelect({
 
 		fetch(entityId, entityType, results => {
 			setValue({
-				// TODO: Remove redundant casting once https://github.com/maxlath/wikibase-sdk/pull/106/files is merged
-				id: results[0].id as EntityId,
+				id: results[0].id,
 				label: results[0].label,
 				description: results[0].description
 			});

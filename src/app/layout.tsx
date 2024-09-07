@@ -4,6 +4,7 @@ import {Metadata} from 'next';
 import {PropsWithChildren} from 'react';
 import {ThemeProvider} from '@mui/material/styles';
 import theme from '@/theme';
+import {CssBaseline} from '@mui/material';
 
 export const metadata: Metadata = {
 	title: 'Wikidata Graph',
@@ -16,6 +17,7 @@ export default function RootLayout({children}: Props) {
 		<html lang="en">
 			<body>
 				<AppRouterCacheProvider>
+					<CssBaseline/>
 					<ThemeProvider theme={theme}>{children}</ThemeProvider>
 				</AppRouterCacheProvider>
 			</body>

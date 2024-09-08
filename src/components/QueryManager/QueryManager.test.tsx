@@ -8,7 +8,7 @@ let sparqlQuerySpy: jest.SpyInstance;
 
 beforeEach(() => {
 	sparqlQuerySpy = jest.spyOn(Wikidata, 'sparqlQuery');
-	sparqlQuerySpy.mockImplementation(async () => 'data replacement');
+	sparqlQuerySpy.mockImplementation(async () => ({nodes: 'nodes replacement', links: 'links replacement'}));
 });
 
 afterEach(() => {
@@ -17,7 +17,7 @@ afterEach(() => {
 
 function Helper() {
 	const {result} = useQueryContext();
-	return <>{result}</>;
+	return <>{result?.nodes}</>;
 }
 
 test('emulate popState event', async () => {
@@ -27,7 +27,7 @@ test('emulate popState event', async () => {
 		location: '/?item=Q9682&iterations=5&language=en&limit=0&mode=Both&property=P40&sizeProperty=P3373',
 	})
 
-	await waitFor(() => expect(container.textContent).toMatch('data replacement'));
+	await waitFor(() => expect(container.textContent).toMatch('nodes replacement'));
 });
 
 test('emulate popState event with new query', async () => {
@@ -45,7 +45,7 @@ test('emulate popState event with new query', async () => {
 		}
 	})
 
-	await waitFor(() => expect(container.textContent).toMatch('data replacement'));
+	await waitFor(() => expect(container.textContent).toMatch('nodes replacement'));
 });
 
 test('emulate popState on query mismatching to current history state', async () => {
@@ -73,7 +73,7 @@ test('emulate popState on query mismatching to current history state', async () 
 		}
 	})
 
-	await waitFor(() => expect(container.textContent).toMatch('data replacement'));
+	await waitFor(() => expect(container.textContent).toMatch('nodes replacement'));
 });
 
 test('initial query string', async () => {
@@ -83,5 +83,5 @@ test('initial query string', async () => {
 		}
 	});
 	const {container} = render(<QueryContextProvider><QueryManager/><Helper/></QueryContextProvider>);
-	await waitFor(() => expect(container.textContent).toMatch('data replacement'));
+	await waitFor(() => expect(container.textContent).toMatch('nodes replacement'));
 });

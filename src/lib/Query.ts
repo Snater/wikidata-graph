@@ -44,3 +44,15 @@ export function isEqual(queryA: Query, queryB: Query) {
 		&& queryA.sizeProperty === queryB.sizeProperty
 	);
 }
+
+export function extractQuery(query: Query): Query {
+	return {
+		item: query.item,
+		property: query.property,
+		mode: query.mode,
+		language: query.language,
+		iterations: query.iterations,
+		limit: query.limit,
+		sizeProperty: query.sizeProperty,
+	}
+}

@@ -11,7 +11,7 @@ let d3Chart: D3Chart;
 export default function Chart() {
 	const [width, setWidth] = useState<number>();
 	const [height, setHeight] = useState<number>();
-	const {result, query} = useQueryContext();
+	const {result} = useQueryContext();
 	const canvas = useRef<HTMLDivElement>(null);
 
 	const updateDimensions = useCallback(() => {
@@ -29,15 +29,15 @@ export default function Chart() {
 	}, [updateDimensions]);
 
 	useEffect(() => {
-		if (d3Chart && query && result && width && height) {
+		if (d3Chart && result && width && height) {
 			d3Chart.update({
 				data: result,
-				root: query.item,
+				root: result.root,
 				height,
 				width,
 			});
 		}
-	}, [result, height, query, width]);
+	}, [result, height, width]);
 
 	return (
 		<Box

@@ -1,6 +1,6 @@
 'use client'
 
-import Query, {isEqual, isQuery} from '../../lib/Query';
+import Query, {extractQuery, isEqual, isQuery} from '../../lib/Query';
 import {useCallback, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import Wikidata from '../../lib/WikidataInterface';
@@ -34,7 +34,7 @@ export default function QueryManager(): null {
 
 	const {query, setQuery, setResult} = useQueryContext();
 	const popStateListener = useCallback((event: PopStateEvent) => {
-		setQuery(event.state?.item ? event.state : DEFAULT_QUERY);
+		setQuery(isQuery(event.state) ? extractQuery(event.state) : DEFAULT_QUERY);
 	}, [setQuery]);
 
 	// Set initial query according to query string.
@@ -82,7 +82,7 @@ export default function QueryManager(): null {
 			.then(sparql => {
 				Wikidata.sparqlQuery(sparql).then(data => {
 					if (data) {
-						setResult(data);
+						setResult({root: query.item, ...data});
 					}
 				})
 			});

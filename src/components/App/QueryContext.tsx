@@ -9,21 +9,28 @@ import {
 	useState
 } from 'react';
 import {Link, Node} from '@/lib/WikidataInterface/WikidataInterface';
+import {EntityId} from 'wikibase-sdk';
 import Query from '@/lib/Query';
 import React from 'react';
+
+type Result = {
+	root: EntityId
+	nodes: Node[]
+	links: Link[]
+}
 
 interface QueryContextType {
 	query?: Query
 	setQuery: Dispatch<SetStateAction<Query | undefined>>
-	result?: {nodes: Node[], links: Link[]}
-	setResult: Dispatch<SetStateAction<{nodes: Node[], links: Link[]} | undefined>>
+	result?: Result
+	setResult: Dispatch<SetStateAction<Result | undefined>>
 }
 
 const QueryContext = createContext<QueryContextType | null>(null);
 
 export function QueryContextProvider({children}: PropsWithChildren) {
-	const [query, setQuery] = useState<Query | undefined>();
-	const [result, setResult] = useState<{nodes: Node[], links: Link[]} | undefined>();
+	const [query, setQuery] = useState<Query>();
+	const [result, setResult] = useState<Result>();
 
 	return (
 		<QueryContext.Provider value={{query, setQuery, result, setResult}}>

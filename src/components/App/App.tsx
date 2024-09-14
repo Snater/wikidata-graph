@@ -1,8 +1,8 @@
 import Box from '@mui/material/Box';
-import Chart from '../Chart';
-import Form from '../Form';
+import Chart from '@/components/Chart';
+import Drawer from '@/components/Drawer';
 import {QueryContextProvider} from './QueryContext';
-import QueryManager from '../QueryManager';
+import QueryManager from '@/components/QueryManager';
 import React from 'react';
 
 export default function App() {
@@ -10,17 +10,7 @@ export default function App() {
 		<Box display="flex" height={1} width={1}>
 			<QueryContextProvider>
 				<QueryManager/>
-				<Box
-					bgcolor="common.white"
-					boxShadow={8}
-					height={1}
-					maxHeight={1}
-					position="absolute"
-					sx={{
-						overflowY: 'auto',
-					}}>
-					<Form/>
-				</Box>
+				<Drawer/>
 				<Chart/>
 			</QueryContextProvider>
 		</Box>

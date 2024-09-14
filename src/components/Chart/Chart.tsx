@@ -41,6 +41,7 @@ export default function Chart() {
 
 	return (
 		<Box
+			height="100vH"
 			ref={canvas}
 			width={1}
 			{...result ? {} : {

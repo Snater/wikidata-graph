@@ -38,7 +38,7 @@ export default function Form() {
 	}
 
 	return (
-		<Box component="form" display="flex" flexDirection="column" m={2} width={280}>
+		<Box component="form" display="flex" flexDirection="column" m={2}>
 			<EntitySelect
 				entityType="item"
 				entityId={query.item}

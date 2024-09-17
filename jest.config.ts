@@ -3,8 +3,9 @@ import type {Config} from 'jest';
 const config: Config = {
 	collectCoverageFrom: [
 		'<rootDir>/src/**/*.{js,ts,tsx}',
-		'!<rootDir>/src/**/index.{js,ts,tsx}',
-		'!<rootDir>/src/utils/*.{js,ts,tsx}'
+		'!<rootDir>/src/*.d.ts',
+		'!<rootDir>/src/**/{index,theme}.{js,ts,tsx}',
+		'!<rootDir>/src/utils/*.{js,ts,tsx}',
 	],
 	moduleNameMapper: {
 		'^@/(.*)$': '<rootDir>/src/$1',

@@ -198,13 +198,20 @@ class D3Chart {
 			.data(nodes)
 			.enter()
 			.append('text')
+			.attr('role', 'link')
+			.attr('tabindex', '0')
 			.attr('x', 8)
 			.attr('y', '.31em')
 			.text(d => d.label)
-			.on('click', d => window.open(d.uri))
+			.on('click', (_event, d) => window.open(d.uri))
+			.on('keydown', (event, d) => {
+				if (event.key === 'Enter') {
+					window.open(d.uri);
+				}
+			})
 			.on(
 				'mouseover',
-				(event, d) => this.circles && d.index && this.enterTooltip(
+				(_event, d) => this.circles && d.index && this.enterTooltip(
 					d,
 					this.circles.filter(`:nth-child(${d.index + 1})`).node() ?? undefined
 				)

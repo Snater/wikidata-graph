@@ -10,6 +10,7 @@ import {
 	SparqlResults,
 	WBK,
 } from 'wikibase-sdk';
+import GraphMapper from "@/lib/GraphMapper";
 import MD5 from 'md5';
 
 const wdk = WBK({
@@ -39,15 +40,6 @@ export type Node = {
 	id: EntityId
 	label: string
 	uri: string
-	size: number
-}
-
-type Result = {
-	item: {
-		label: string
-		value: string
-	}
-	linkTo: string
 	size: number
 }
 
@@ -129,28 +121,8 @@ class WikidataInterface {
 	static sparqlQuery(sparql: string): Promise<{nodes: Node[], links: Link[]} | void> {
 		return WikidataInterface.request<SparqlResults>(wdk.sparqlQuery(sparql))
 			.then(response => wdk.simplify.sparqlResults(response))
-			.then(results => Object.assign({}, {
-					nodes: WikidataInterface.parseNodes(results as unknown as Result[]),
-					links: WikidataInterface.parseLinks(results as unknown as Result[]),
-				}))
+			.then(results => GraphMapper.toGraph(GraphMapper.toRawGraph(results)))
 			.catch(error => console.error(error));
-	}
-
-	private static parseNodes(results: Result[]): Node[] {
-		return results
-			.map(el => ({
-				id: el.item.value as EntityId,
-				label: el.item.label,
-				uri: `https://www.wikidata.org/entity/${el.item.value}`,
-				size: el.size,
-			}))
-			.filter((el, index, self) => self.findIndex(t => t.id === el.id) === index);
-	}
-
-	private static parseLinks(results: Result[]): Link[] {
-		return results
-			.filter(el => results.find(result => el.linkTo === result.item.value))
-			.map(el => Object.assign({}, {source: el.item.value, target: el.linkTo}));
 	}
 
 	static getEntityImage(id: EntityId): Promise<HTMLImageElement> {

@@ -12,6 +12,7 @@ import {
 } from 'wikibase-sdk';
 import GraphMapper from "@/lib/GraphMapper";
 import MD5 from 'md5';
+import { isLanguageResult } from "@/lib/sparql/guards";
 
 const wdk = WBK({
 	instance: 'https://www.wikidata.org',
@@ -21,14 +22,6 @@ const wdk = WBK({
 export type Language = {
 	code: string
 	label: string
-}
-
-type LanguageResult = {
-	item: {
-		label: string
-	}
-	language_code: string
-	native_label: string
 }
 
 export type Link = {
@@ -109,7 +102,7 @@ class WikidataInterface {
 			.then(response => wdk.simplify.sparqlResults(response))
 			.then(results => {
 				return results.map(el => {
-					return WikidataInterface.isLanguageResult(el)
+					return isLanguageResult(el)
 						? {code: el.language_code, label: el.native_label || el.item.label} as Language
 						: null
 				}).filter(el => !!el);
@@ -164,18 +157,6 @@ class WikidataInterface {
 		const md5 = MD5(filename);
 		const extension = filename.endsWith('.svg') ? '.png' : '';
 		return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}${extension}`;
-	}
-
-	private static isLanguageResult(result: unknown): result is LanguageResult {
-		return (
-			result !== null
-			&& typeof result === 'object'
-			&& 'item' in result
-			&& result.item !== null && typeof result.item === 'object'
-			&& 'label' in result.item && typeof result.item.label === 'string'
-			&& 'language_code' in result && typeof result.language_code === 'string'
-			&& 'native_label' in result && typeof result.native_label === 'string'
-		);
 	}
 }
 

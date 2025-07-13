@@ -1,5 +1,6 @@
 import { type EntityId, simplify } from 'wikibase-sdk';
 import type { Link, Node } from '@/lib/WikidataInterface/WikidataInterface';
+import { hasString } from "@/lib/sparql/guards";
 
 export type GraphResult = {
 	nodes: Node[]
@@ -24,12 +25,7 @@ export default class GraphMapper {
 			const size = (row as unknown as Record<string, unknown>).size;
 
 			if (
-				!item
-				|| typeof item !== 'object'
-				|| !('value' in item)
-				|| !('label' in item)
-				|| typeof item.value !== 'string'
-				|| typeof item.label !== 'string'
+				!hasString(item, 'value', 'label')
 				|| typeof linkTo !== 'string'
 				|| typeof size !== 'number'
 			) {

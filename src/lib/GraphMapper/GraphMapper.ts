@@ -1,6 +1,6 @@
 import { type EntityId, simplify } from 'wikibase-sdk';
 import type { Link, Node } from '@/lib/WikidataInterface/WikidataInterface';
-import { hasString } from "@/lib/sparql/guards";
+import { getEntity, getNumber, getString } from "@/lib/sparql/extractors";
 
 export type GraphResult = {
 	nodes: Node[]
@@ -20,23 +20,15 @@ export default class GraphMapper {
 		const results: RawGraphResult[] = [];
 
 		for (const row of rows) {
-			const item = (row as unknown as Record<string, unknown>).item;
-			const linkTo = (row as unknown as Record<string, unknown>).linkTo;
-			const size = (row as unknown as Record<string, unknown>).size;
+			const item = getEntity(row, 'item');
+			const linkTo = getString(row, 'linkTo');
+			const size = getNumber(row, 'size');
 
-			if (
-				!hasString(item, 'value', 'label')
-				|| typeof linkTo !== 'string'
-				|| typeof size !== 'number'
-			) {
+			if (!item || !linkTo || !size) {
 				continue;
 			}
 
-			results.push({
-				item: { value: item.value, label: item.label },
-				linkTo,
-				size,
-			});
+			results.push({item, linkTo, size});
 		}
 
 		return results;

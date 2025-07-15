@@ -10,9 +10,9 @@ import {
 	SparqlResults,
 	WBK,
 } from 'wikibase-sdk';
-import GraphMapper from "@/lib/GraphMapper";
 import MD5 from 'md5';
 import { isLanguageResult } from "@/lib/sparql/guards";
+import { toGraph } from "@/lib/graph/graph";
 
 const wdk = WBK({
 	instance: 'https://www.wikidata.org',
@@ -113,8 +113,7 @@ class WikidataInterface {
 
 	static sparqlQuery(sparql: string): Promise<{nodes: Node[], links: Link[]} | void> {
 		return WikidataInterface.request<SparqlResults>(wdk.sparqlQuery(sparql))
-			.then(response => wdk.simplify.sparqlResults(response))
-			.then(results => GraphMapper.toGraph(GraphMapper.toRawGraph(results)))
+			.then(response => toGraph(wdk.simplify.sparqlResults(response)))
 			.catch(error => console.error(error));
 	}
 

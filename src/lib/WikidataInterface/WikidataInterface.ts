@@ -11,8 +11,9 @@ import {
 	WBK,
 } from 'wikibase-sdk';
 import MD5 from 'md5';
-import { isLanguageResult } from "@/lib/sparql/guards";
-import { toGraph } from "@/lib/graph/graph";
+import {isLanguageResult} from "@/lib/sparql/guards";
+import {toGraph} from "@/lib/graph/graph";
+import { parseLanguages } from "@/lib/language/language";
 
 const wdk = WBK({
 	instance: 'https://www.wikidata.org',
@@ -82,33 +83,30 @@ class WikidataInterface {
 	 * provided, the English label. Languages featuring the same English label are
 	 * filtered out.
 	 */
-	static getLanguages(): Promise<Language[] | void> {
-		return WikidataInterface.request<SparqlResults>(wdk.sparqlQuery(`
-			SELECT ?item ?itemLabel ?language_code (SAMPLE(?native_label) AS ?native_label) WHERE {
-				?item wdt:P424 ?language_code.
-				?item wdt:P31 wd:Q34770.
-				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q152559. } # macrolanguage
-				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q14827288. } # Wikimedia project
-				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q17442446. } # Wikimedia internal item
-				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q20671729. } # Wikinews language edition
-				MINUS { ?item (wdt:P31/wdt:P279*) wd:Q21450877. } # Wikimedia multilingual project main page
-				MINUS { ?item wdt:P4913 ?main_language. } # is a dialect
-				OPTIONAL { ?item wdt:P1705 ?native_label. }
-				SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
-			}
-			GROUP BY ?item ?itemLabel ?language_code
-			ORDER BY ?itemLabel ?item`
-		))
-			.then(response => wdk.simplify.sparqlResults(response))
-			.then(results => {
-				return results.map(el => {
-					return isLanguageResult(el)
-						? {code: el.language_code, label: el.native_label || el.item.label} as Language
-						: null
-				}).filter(el => !!el);
-			})
-			.then(results => results.sort((a: Language, b: Language) => a.label < b.label ? -1 : 1))
-			.catch(error => console.error(error));
+	static async getLanguages(): Promise<Language[]> {
+		try {
+			const response = await WikidataInterface.request<SparqlResults>(wdk.sparqlQuery(`
+				SELECT ?item ?itemLabel ?language_code (SAMPLE(?native_label) AS ?native_label) WHERE {
+					?item wdt:P424 ?language_code.
+					?item wdt:P31 wd:Q34770.
+					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q152559. } # macrolanguage
+					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q14827288. } # Wikimedia project
+					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q17442446. } # Wikimedia internal item
+					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q20671729. } # Wikinews language edition
+					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q21450877. } # Wikimedia multilingual project main page
+					MINUS { ?item wdt:P4913 ?main_language. } # is a dialect
+					OPTIONAL { ?item wdt:P1705 ?native_label. }
+					SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+				}
+				GROUP BY ?item ?itemLabel ?language_code
+				ORDER BY ?itemLabel ?item`
+			));
+
+			return parseLanguages(response);
+		} catch (error) {
+			console.error(error);
+			return [];
+		}
 	}
 
 	static sparqlQuery(sparql: string): Promise<{nodes: Node[], links: Link[]} | void> {

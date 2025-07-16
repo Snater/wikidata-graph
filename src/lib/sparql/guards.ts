@@ -1,4 +1,4 @@
-import { LanguageResult, SparqlEntity } from "@/lib/sparql/types";
+import {LanguageResult, SparqlEntity} from "@/lib/sparql/types";
 
 export function isString(value: unknown): value is string {
 	return typeof value === 'string';

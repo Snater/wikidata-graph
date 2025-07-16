@@ -1,5 +1,5 @@
-import { isNumber, isSparqlEntity, isString } from './guards'
-import type { SparqlEntity, SparqlRow } from "@/lib/sparql/types";
+import {isNumber, isSparqlEntity, isString} from './guards'
+import type {SparqlEntity, SparqlRow} from "@/lib/sparql/types";
 
 function getValue<T>(
 	row: SparqlRow,

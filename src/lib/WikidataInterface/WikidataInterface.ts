@@ -77,30 +77,18 @@ class WikidataInterface {
 		return WikidataInterface.request(url);
 	}
 
-	/**
-	 * Retrieves all available languages. Each object contains the fields "code"
-	 * and "label" with "label" being the native language label or, if none is
-	 * provided, the English label. Languages featuring the same English label are
-	 * filtered out.
-	 */
 	static async getLanguages(): Promise<Language[]> {
 		try {
 			const response = await WikidataInterface.request<SparqlResults>(wdk.sparqlQuery(`
 				SELECT ?item ?itemLabel ?language_code (SAMPLE(?native_label) AS ?native_label) WHERE {
 					?item wdt:P424 ?language_code.
-					?item wdt:P31 wd:Q34770.
-					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q152559. } # macrolanguage
-					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q14827288. } # Wikimedia project
-					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q17442446. } # Wikimedia internal item
-					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q20671729. } # Wikinews language edition
-					MINUS { ?item (wdt:P31/wdt:P279*) wd:Q21450877. } # Wikimedia multilingual project main page
-					MINUS { ?item wdt:P4913 ?main_language. } # is a dialect
+					?item wdt:P218 ?iso_code.
 					OPTIONAL { ?item wdt:P1705 ?native_label. }
 					SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
 				}
 				GROUP BY ?item ?itemLabel ?language_code
-				ORDER BY ?itemLabel ?item`
-			));
+				ORDER BY ?itemLabel ?item
+			`));
 
 			return parseLanguages(response);
 		} catch (error) {

@@ -1,19 +1,15 @@
 import {
 	Claims,
-	Entities,
-	Entity,
 	EntityId,
-	EntityType,
 	Item,
 	PropertyClaims,
-	SearchResponse,
 	SparqlResults,
 	WBK,
 } from 'wikibase-sdk';
 import MD5 from 'md5';
-import {isLanguageResult} from "@/lib/sparql/guards";
-import {toGraph} from "@/lib/graph/graph";
-import { parseLanguages } from "@/lib/language/language";
+import {getEntity, querySparql, request} from '@/lib/wikidata/client';
+import {parseLanguages} from '@/lib/language/language';
+import {toGraph} from '@/lib/graph/graph';
 
 const wdk = WBK({
 	instance: 'https://www.wikidata.org',
@@ -34,52 +30,16 @@ export type Node = {
 	id: EntityId
 	label: string
 	uri: string
-	size: number
+	size?: number
 }
 
 class WikidataInterface {
 
-	private static cache: Record<EntityId, Entity> = {};
-
 	private static imageFallback = 'No_image_available_500_x_500.svg';
-
-	private static async request<T>(url: string): Promise<T> {
-		const response = await fetch(url);
-
-		if (!response.ok) {
-			throw new Error(response.statusText);
-		}
-
-		return response.json();
-	}
-
-	static async getEntity(id: EntityId): Promise<Entity> {
-		if (!WikidataInterface.cache[id]) {
-			const response = await WikidataInterface.request<{ entities: Entities }>(wdk.getEntities({
-				ids: [id],
-				languages: ['en'],
-				props: ['claims'],
-			}));
-
-			WikidataInterface.cache[id] = response.entities[id];
-		}
-
-		return WikidataInterface.cache[id];
-	}
-
-	static search(search: string, type?: EntityType): Promise<SearchResponse> {
-		let url = wdk.searchEntities({search});
-
-		if (type === 'property') {
-			url += '&type=property';
-		}
-
-		return WikidataInterface.request(url);
-	}
 
 	static async getLanguages(): Promise<Language[]> {
 		try {
-			const response = await WikidataInterface.request<SparqlResults>(wdk.sparqlQuery(`
+			const response = await querySparql(`
 				SELECT ?item ?itemLabel ?language_code (SAMPLE(?native_label) AS ?native_label) WHERE {
 					?item wdt:P424 ?language_code.
 					?item wdt:P218 ?iso_code.
@@ -88,7 +48,7 @@ class WikidataInterface {
 				}
 				GROUP BY ?item ?itemLabel ?language_code
 				ORDER BY ?itemLabel ?item
-			`));
+			`);
 
 			return parseLanguages(response);
 		} catch (error) {
@@ -98,14 +58,14 @@ class WikidataInterface {
 	}
 
 	static sparqlQuery(sparql: string): Promise<{nodes: Node[], links: Link[]} | void> {
-		return WikidataInterface.request<SparqlResults>(wdk.sparqlQuery(sparql))
+		return request<SparqlResults>(wdk.sparqlQuery(sparql))
 			.then(response => toGraph(wdk.simplify.sparqlResults(response)))
 			.catch(error => console.error(error));
 	}
 
 	static getEntityImage(id: EntityId): Promise<HTMLImageElement> {
 		return new Promise(resolve => {
-			WikidataInterface.getEntity(id)
+			getEntity(id)
 				.then(entity => {
 					const item = entity as Item;
 					return resolve(WikidataInterface.createImage(item.claims))

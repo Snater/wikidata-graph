@@ -9,5 +9,5 @@ export type Graph = {
 export type GraphRow = {
 	item: SparqlEntity
 	linkTo: string
-	size: number
+	size?: number
 }

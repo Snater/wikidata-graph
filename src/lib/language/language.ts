@@ -1,21 +1,13 @@
 import type {Language} from "@/lib/language/types";
-import type {SparqlResults} from 'wikibase-sdk'
+import type {SparqlRow} from '@/lib/sparql/types';
 import {isLanguageResult} from '@/lib/sparql/guards'
-import {simplify} from 'wikibase-sdk';
 
-export function parseLanguages(result: SparqlResults): Language[] {
-	return simplify
-		.sparqlResults(result)
-		.map((row) => {
-			if (!isLanguageResult(row)) {
-				return null;
-			}
-
-			return {
-				code: row.language_code,
-				label: row.native_label || row.item.label,
-			};
-		})
-		.filter((l): l is Language => l !== null)
+export function parseLanguages(rows: SparqlRow[]): Language[] {
+	return rows
+		.filter(isLanguageResult)
+		.map((row) => ({
+			code: row.language_code,
+			label: row.native_label || row.item.label,
+		}))
 		.sort((a, b) => a.label.localeCompare(b.label));
 }

@@ -12,7 +12,7 @@ export function parseGraphRows(rows: SparqlRow[]): GraphRow[] {
 		const linkTo = getString(row, 'linkTo');
 		const size = getNumber(row, 'size');
 
-		if (!item || !linkTo || size === undefined) {
+		if (!item || !linkTo) {
 			continue;
 		}
 

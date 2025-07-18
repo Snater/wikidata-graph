@@ -6,8 +6,8 @@ import FormControl from '@mui/material/FormControl';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import TextField from '@mui/material/TextField';
-import Wikidata from '../../lib/WikidataInterface';
 import {debounce} from '@mui/material/utils';
+import {searchEntities} from '@/lib/wikidata/client';
 
 interface Entity {
 	id: EntityId
@@ -35,7 +35,7 @@ export default function EntitySelect({
 
 	const fetch = useMemo(() => debounce(
 		(input: string, entityType: EntityType, callback: (results: readonly Entity[]) => void) => {
-			Wikidata.search(input, entityType)
+			searchEntities(input, entityType)
 				.then((response: SearchResponse) => {
 					callback(response.search.map(
 						result => Object.create({

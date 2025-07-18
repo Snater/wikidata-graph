@@ -1,7 +1,7 @@
+import * as WikidataClient from '@/lib/wikidata/client';
 import userEvent, {UserEvent} from '@testing-library/user-event';
 import EntitySelect from './';
 import React from 'react';
-import Wikidata from '../../lib/WikidataInterface';
 import {render} from '../../../jest/utils';
 import {waitFor} from '@testing-library/react';
 
@@ -14,7 +14,7 @@ beforeAll(() => {
 let searchSpy: jest.SpyInstance;
 
 beforeEach(() => {
-	searchSpy = jest.spyOn(Wikidata, 'search');
+	searchSpy = jest.spyOn(WikidataClient, 'searchEntities');
 	searchSpy.mockImplementation(async () => ({
 		search: [
 			{id: 'Q1', label: 'Label 1', description: 'Description 1'},

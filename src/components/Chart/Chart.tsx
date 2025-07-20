@@ -20,7 +20,7 @@ export default function Chart() {
 	}, []);
 
 	if (canvas.current && !d3Chart) {
-		d3Chart = new D3Chart(canvas.current, WikidataInterface.getEntityImage);
+		d3Chart = new D3Chart(canvas.current);
 		window.addEventListener('resize', updateDimensions);
 	}
 

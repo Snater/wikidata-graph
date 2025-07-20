@@ -1,14 +1,6 @@
-import {
-	Claims,
-	EntityId,
-	Item,
-	PropertyClaims,
-	SparqlResults,
-	WBK,
-} from 'wikibase-sdk';
-import MD5 from 'md5';
-import {getEntity, querySparql, request} from '@/lib/wikidata/client';
+import {EntityId, SparqlResults, WBK} from 'wikibase-sdk';
 import {parseLanguages} from '@/lib/language/language';
+import {querySparql, request} from '@/lib/wikidata/client';
 import {toGraph} from '@/lib/graph/graph';
 
 const wdk = WBK({
@@ -35,8 +27,6 @@ export type Node = {
 
 class WikidataInterface {
 
-	private static imageFallback = 'No_image_available_500_x_500.svg';
-
 	static async getLanguages(): Promise<Language[]> {
 		try {
 			const response = await querySparql(`
@@ -61,47 +51,6 @@ class WikidataInterface {
 		return request<SparqlResults>(wdk.sparqlQuery(sparql))
 			.then(response => toGraph(wdk.simplify.sparqlResults(response)))
 			.catch(error => console.error(error));
-	}
-
-	static getEntityImage(id: EntityId): Promise<HTMLImageElement> {
-		return new Promise(resolve => {
-			getEntity(id)
-				.then(entity => {
-					const item = entity as Item;
-					return resolve(WikidataInterface.createImage(item.claims))
-				});
-		});
-	}
-
-	private static createImage(claims?: Claims): Promise<HTMLImageElement> {
-		const img = new Image();
-		const imgUrl = WikidataInterface.getImageUrl(claims?.P18);
-
-		return new Promise(resolve => {
-			img.onload = () => resolve(img);
-			img.alt = '';
-			img.src = imgUrl;
-		});
-	}
-
-	private static getImageUrl(propertyClaims?: PropertyClaims): string {
-		const mainsnak = propertyClaims?.[0]?.mainsnak;
-
-		if (mainsnak?.datatype === 'commonsMedia') {
-			const value = mainsnak.datavalue?.value;
-
-			if (typeof value === 'string') {
-				return WikidataInterface.createCommonsUrl(value.replace(/ /g, '_'));
-			}
-		}
-
-		return WikidataInterface.createCommonsUrl(WikidataInterface.imageFallback);
-	}
-
-	private static createCommonsUrl(filename: string): string {
-		const md5 = MD5(filename);
-		const extension = filename.endsWith('.svg') ? '.png' : '';
-		return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}${extension}`;
 	}
 }
 

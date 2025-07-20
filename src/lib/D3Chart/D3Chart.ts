@@ -13,6 +13,7 @@ import Vector, {Point} from '../Vector';
 import {EntityId} from 'wikibase-sdk';
 import {Simulation} from 'd3-force';
 import {tip} from 'd3-v6-tip';
+import {getEntityImage} from '@/lib/wikidata/image';
 
 type ChartState = {
 	data: {nodes: Node[], links: Link[]}
@@ -49,10 +50,6 @@ class D3Chart {
 	 */
 	private container?: Selection<SVGGElement, unknown, null, undefined>
 	/**
-	 * Callback for retrieving the image corresponding to an entity.
-	 */
-	private getEntityImage: (id: EntityId) => Promise<HTMLImageElement>
-	/**
 	 * Rendered labels, once for each unique data node.
 	 */
 	private labels?: Selection<SVGTextElement, Node, SVGGElement, unknown>
@@ -69,10 +66,9 @@ class D3Chart {
 	 */
 	private zoom?: ZoomBehavior<SVGSVGElement, unknown>
 
-	constructor(element: HTMLElement, getEntityImage: (id: EntityId) => Promise<HTMLImageElement>) {
+	constructor(element: HTMLElement) {
 		this.svg = d3.select<HTMLElement, unknown>(element).append('svg')
 			.attr('class', 'D3Chart');
-		this.getEntityImage = getEntityImage;
 		this.tooltip = this.createTooltip();
 	}
 
@@ -226,7 +222,7 @@ class D3Chart {
 
 		this.labels?.filter(`:not(:nth-child(${d.index + 1}))`).style('opacity', 0.3);
 
-		this.getEntityImage(d.id)
+		getEntityImage(d.id)
 			.then(img => {
 				const dimensions = this.determineImageDimensions(img);
 				this.tooltip.html(`<img alt="" src="${img.src}" height="${dimensions.height}" width="${dimensions.width}">`);

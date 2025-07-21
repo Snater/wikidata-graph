@@ -42,5 +42,5 @@ function getImageUrl(propertyClaims?: PropertyClaims) {
 function createCommonsUrl(filename: string) {
 	const md5 = MD5(filename);
 	const extension = filename.endsWith('.svg') ? '.png' : '';
-	return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/64px-${filename}${extension}`;
+	return `https://upload.wikimedia.org/wikipedia/commons/thumb/${md5[0]}/${md5[0]}${md5[1]}/${filename}/60px-${filename}${extension}`;
 }

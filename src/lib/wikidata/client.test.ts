@@ -1,11 +1,9 @@
 import {getEntity, searchEntities} from '@/lib/wikidata/client';
 
 const originalFetch = global.fetch;
-const originalConsoleError = console.error;
 
 afterEach(() => {
 	global.fetch = originalFetch;
-	console.error = originalConsoleError;
 });
 
 it('retrieves an entity', async () => {

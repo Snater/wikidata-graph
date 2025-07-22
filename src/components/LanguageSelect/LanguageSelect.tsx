@@ -2,9 +2,9 @@ import React, {useEffect, useState} from 'react';
 import Select, {SelectProps} from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import {Language} from '@/lib/WikidataInterface/WikidataInterface';
+import type {Language} from '@/lib/language/types';
 import MenuItem from '@mui/material/MenuItem';
-import Wikidata from '@/lib/WikidataInterface';
+import {getLanguages} from '@/lib/language/service';
 
 export type LanguageSelectProps = {
 	id: string
@@ -15,7 +15,7 @@ export default function LanguageSelect({id, onChange, ...rest}: LanguageSelectPr
 	const [languages, setLanguages] = useState<Language[]>([]);
 
 	useEffect(() => {
-		Wikidata.getLanguages()
+		getLanguages()
 			.then(languages => {
 				if (languages) {
 					setLanguages(languages);

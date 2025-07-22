@@ -2,11 +2,9 @@ import {getEntityImage} from '@/lib/wikidata/image';
 
 const originalImage = Image;
 const originalFetch = global.fetch;
-const originalConsoleError = console.error;
 
 afterEach(() => {
 	global.fetch = originalFetch;
-	console.error = originalConsoleError;
 });
 
 beforeAll(() => {

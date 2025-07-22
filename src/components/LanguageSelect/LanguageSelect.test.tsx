@@ -1,8 +1,8 @@
-import userEvent, {UserEvent} from '@testing-library/user-event';
+import * as LanguageService from '@/lib/language/service';
 import LanguageSelect from './';
 import React from 'react';
-import Wikidata from '../../lib/WikidataInterface';
 import {render} from '../../../jest/utils';
+import userEvent, {UserEvent} from '@testing-library/user-event';
 import {waitFor} from '@testing-library/react';
 
 let user: UserEvent;
@@ -14,7 +14,7 @@ beforeAll(() => {
 let getLanguagesSpy: jest.SpyInstance;
 
 beforeEach(() => {
-	getLanguagesSpy = jest.spyOn(Wikidata, 'getLanguages');
+	getLanguagesSpy = jest.spyOn(LanguageService, 'getLanguages');
 });
 
 afterEach(() => {

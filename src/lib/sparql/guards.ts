@@ -1,4 +1,5 @@
-import {LanguageResult, SparqlEntity} from "@/lib/sparql/types";
+import type {LanguageRow} from '@/lib/language/types';
+import type {SparqlEntity} from '@/lib/sparql/types';
 
 export function isString(value: unknown): value is string {
 	return typeof value === 'string';
@@ -31,7 +32,7 @@ export function hasString<K extends string>(value: unknown, ...keys: K[]): value
 	return true;
 }
 
-export function isLanguageResult(result: unknown): result is LanguageResult {
+export function isLanguageRow(result: unknown): result is LanguageRow {
 	return (
 		isObject(result)
 		&& 'item' in result

@@ -1,13 +1,13 @@
+import * as GraphService from '@/lib/graph/service';
 import {fireEvent, render, waitFor} from '../../../jest/utils';
 import useQueryContext, {QueryContextProvider} from '../App/QueryContext';
 import QueryManager from './';
 import React from 'react';
-import Wikidata from '../../lib/WikidataInterface';
 
 let sparqlQuerySpy: jest.SpyInstance;
 
 beforeEach(() => {
-	sparqlQuerySpy = jest.spyOn(Wikidata, 'sparqlQuery');
+	sparqlQuerySpy = jest.spyOn(GraphService, 'runGraphQuery');
 	sparqlQuerySpy.mockImplementation(async () => ({nodes: 'nodes replacement', links: 'links replacement'}));
 });
 

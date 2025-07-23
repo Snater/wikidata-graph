@@ -8,9 +8,9 @@ import {
 	SimulationNodeDatum,
 	ZoomBehavior
 } from 'd3';
-import {Link, Node} from '../WikidataInterface/WikidataInterface';
 import Vector, {Point} from '../Vector';
 import {EntityId} from 'wikibase-sdk';
+import type {Link, Node} from '@/lib/graph/types';
 import {Simulation} from 'd3-force';
 import {tip} from 'd3-v6-tip';
 import {getEntityImage} from '@/lib/wikidata/image';

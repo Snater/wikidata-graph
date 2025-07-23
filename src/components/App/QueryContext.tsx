@@ -8,8 +8,8 @@ import {
 	useContext,
 	useState
 } from 'react';
-import {Link, Node} from '@/lib/WikidataInterface/WikidataInterface';
 import {EntityId} from 'wikibase-sdk';
+import type {Link} from '@/lib/graph/types';
 import Query from '@/lib/Query';
 import React from 'react';
 

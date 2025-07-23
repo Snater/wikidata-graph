@@ -3,9 +3,9 @@
 import Query, {extractQuery, isEqual, isQuery} from '../../lib/Query';
 import {useCallback, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import Wikidata from '../../lib/WikidataInterface';
 import generateSparql from '../../lib/SparqlGenerator';
 import queryString from 'query-string';
+import {runGraphQuery} from '@/lib/graph/service';
 import useQueryContext from '../App/QueryContext';
 
 export const DEFAULT_QUERY: Query = {
@@ -80,11 +80,11 @@ export default function QueryManager(): null {
 
 		generateSparql(query)
 			.then(sparql => {
-				Wikidata.sparqlQuery(sparql).then(data => {
+				runGraphQuery(sparql).then(data => {
 					if (data) {
 						setResult({root: query.item, ...data});
 					}
-				})
+				});
 			});
 	}, [query, setResult]);
 

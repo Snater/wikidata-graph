@@ -1,8 +1,7 @@
-import type {EntityId} from 'wikibase-sdk';
-import type {Graph, GraphRow} from "@/lib/graph/types";
-import type {Link, Node} from '@/lib/WikidataInterface/WikidataInterface';
-import type {SparqlRow} from '@/lib/sparql/types';
+import type {Graph, GraphRow, Link, Node} from '@/lib/graph/types';
 import {getEntity, getNumber, getString} from '@/lib/sparql/extractors';
+import type {EntityId} from 'wikibase-sdk';
+import type {SparqlRow} from '@/lib/sparql/types';
 
 export function parseGraphRows(rows: SparqlRow[]): GraphRow[] {
 	const results: GraphRow[] = [];

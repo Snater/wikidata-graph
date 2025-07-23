@@ -1,6 +1,5 @@
-import WikidataInterface from './WikidataInterface';
+import {runGraphQuery} from '@/lib/graph/service';
 
-const originalImage = Image;
 const originalFetch = global.fetch;
 const originalConsoleError = console.error;
 
@@ -64,7 +63,7 @@ it('returns a Promise when submitting a SPARQL query', async () => {
 		ok: true,
 	}));
 
-	const sparqlQuery = await WikidataInterface.sparqlQuery('imagine some SPARQL query here');
+	const sparqlQuery = await runGraphQuery('imagine some SPARQL query here');
 
 	return expect(sparqlQuery).toEqual({
 		nodes: [
@@ -97,7 +96,7 @@ it('logs error when SPARQL query failed', async () => {
 
 	console.error = jest.fn();
 
-	await WikidataInterface.sparqlQuery('');
+	await runGraphQuery('');
 
 	expect(console.error).toHaveBeenCalledTimes(1);
 });

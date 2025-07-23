@@ -4,7 +4,6 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import D3Chart from '../../lib/D3Chart';
 import useQueryContext from '../App/QueryContext';
 import Box from '@mui/material/Box';
-import WikidataInterface from '@/lib/WikidataInterface';
 
 let d3Chart: D3Chart;
 

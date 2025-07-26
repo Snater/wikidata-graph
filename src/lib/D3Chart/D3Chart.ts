@@ -8,12 +8,11 @@ import {
 	SimulationNodeDatum,
 	ZoomBehavior
 } from 'd3';
+import type {Link, Node} from '@/lib/graph/types';
 import Vector, {Point} from '../Vector';
 import {EntityId} from 'wikibase-sdk';
-import type {Link, Node} from '@/lib/graph/types';
 import {Simulation} from 'd3-force';
-import {tip} from 'd3-v6-tip';
-import {getEntityImage} from '@/lib/wikidata/image';
+import {createTooltipController} from '@/lib/d3/tooltip';
 
 type ChartState = {
 	data: {nodes: Node[], links: Link[]}
@@ -38,9 +37,9 @@ type D3ChartState = Omit<ChartState, 'data'> & {
 class D3Chart {
 
 	/**
-	 * Tooltip shown when hovering a circle.
+	 * Manages the tooltip shown when hovering a circle.
 	 */
-	private readonly tooltip: ReturnType<typeof tip>
+	private tooltipController: ReturnType<typeof createTooltipController>
 	/**
 	 * Rendered circles, one for each unique data node.
 	 */
@@ -69,7 +68,7 @@ class D3Chart {
 	constructor(element: HTMLElement) {
 		this.svg = d3.select<HTMLElement, unknown>(element).append('svg')
 			.attr('class', 'D3Chart');
-		this.tooltip = this.createTooltip();
+		this.tooltipController = createTooltipController();
 	}
 
 	update(state: ChartState) {
@@ -95,13 +94,7 @@ class D3Chart {
 
 		this.draw(clonedState);
 
-		this.tooltip.hide();
-	}
-
-	private createTooltip() {
-		return tip()
-			.attr('class', 'd3-tip')
-			.offset([-10, 0]);
+		this.tooltipController.hide();
 	}
 
 	private draw(state: D3ChartState) {
@@ -112,7 +105,7 @@ class D3Chart {
 			.attr('width', state.width)
 			.attr('height', state.height)
 			.call(this.zoom)
-			.call(this.tooltip);
+			.call(this.tooltipController.tooltip);
 
 		this.createSimulation(state.data);
 
@@ -177,8 +170,8 @@ class D3Chart {
 			.attr('r', d => d.radius || 5)
 			.attr('class', d => d.id === root ? 'root' : '')
 			.call(this.attachDragHandlers())
-			.on('mouseover', (event, d) => this.enterTooltip(d, event.srcElement))
-			.on('mouseout', () => this.exitTooltip());
+			.on('mouseover', (event, d) => this.tooltipController.show(d, event.srcElement))
+			.on('mouseout', () => this.tooltipController.hide());
 	}
 
 	private drawLinks(links: D3ChartLink[]) {
@@ -207,49 +200,12 @@ class D3Chart {
 			})
 			.on(
 				'mouseover',
-				(_event, d) => this.circles && d.index && this.enterTooltip(
+				(_event, d) => this.circles && d.index && this.tooltipController.show(
 					d,
 					this.circles.filter(`:nth-child(${d.index + 1})`).node() ?? undefined
 				)
 			)
-			.on('mouseout', () => this.exitTooltip());
-	}
-
-	private enterTooltip(d: D3ChartNode, circle?: SVGCircleElement) {
-		if (!d.index || !circle) {
-			return;
-		}
-
-		this.labels?.filter(`:not(:nth-child(${d.index + 1}))`).style('opacity', 0.3);
-
-		getEntityImage(d.id)
-			.then(img => {
-				const dimensions = this.determineImageDimensions(img);
-				this.tooltip.html(`<img alt="" src="${img.src}" height="${dimensions.height}" width="${dimensions.width}">`);
-				this.tooltip.show(d, circle);
-			})
-			.catch(() => {
-				this.tooltip.html('no image');
-				this.tooltip.show(d, circle);
-			});
-	}
-
-	private determineImageDimensions(img: HTMLImageElement) {
-		const tempCanvas = document.createElement('div');
-		tempCanvas.style.position = 'absolute';
-		tempCanvas.style.left = '-999px';
-		tempCanvas.style.top = '-999px';
-		document.getElementsByTagName('body')[0].appendChild(tempCanvas);
-		tempCanvas.appendChild(img);
-		const dimensions = {height: tempCanvas.clientHeight, width: tempCanvas.clientWidth};
-		tempCanvas.remove();
-		return dimensions;
-	}
-
-	private exitTooltip() {
-		this.tooltip.html('');
-		this.tooltip.hide();
-		this.labels?.style('opacity', 1);
+			.on('mouseout', () => this.tooltipController.hide());
 	}
 
 	private attachDragHandlers() {
@@ -291,7 +247,7 @@ class D3Chart {
 
 	private onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
 		this.container?.attr('transform', event.transform.toString());
-		this.exitTooltip();
+		this.tooltipController.hide();
 	}
 
 	private onTick(
@@ -308,9 +264,9 @@ class D3Chart {
 
 		labels.attr('transform', d => `translate(${d.x},${d.y})`);
 
-		if (this.tooltip.style('opacity') === '1') {
+		if (this.tooltipController.tooltip.style('opacity') === '1') {
 			// Reset tooltip position:
-			this.tooltip.hide().show();
+			this.tooltipController.tooltip.hide().show();
 		}
 	}
 

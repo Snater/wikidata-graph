@@ -12,6 +12,7 @@ import type {Link, Node} from '@/lib/graph/types';
 import Vector, {Point} from '../Vector';
 import {EntityId} from 'wikibase-sdk';
 import {Simulation} from 'd3-force';
+import {createRenderer} from '@/lib/d3/render';
 import {createTooltipController} from '@/lib/d3/tooltip';
 
 type ChartState = {
@@ -21,11 +22,11 @@ type ChartState = {
 	width: number
 }
 
-type D3ChartNode = Node & SimulationNodeDatum & {
+export type D3ChartNode = Node & SimulationNodeDatum & {
 	radius?: number
 }
 
-type D3ChartLink = SimulationLinkDatum<D3ChartNode> & {
+export type D3ChartLink = SimulationLinkDatum<D3ChartNode> & {
 	scaledSource?: Point
 	scaledTarget?: Point
 }
@@ -44,10 +45,6 @@ class D3Chart {
 	 * Rendered circles, one for each unique data node.
 	 */
 	private circles?: Selection<SVGCircleElement, Node & {radius?: number}, SVGGElement, undefined>
-	/**
-	 * Container within the SVG element, wrapping the rendered element groups.
-	 */
-	private container?: Selection<SVGGElement, unknown, null, undefined>
 	/**
 	 * Rendered labels, once for each unique data node.
 	 */
@@ -98,8 +95,11 @@ class D3Chart {
 	}
 
 	private draw(state: D3ChartState) {
-		this.container = this.svg.append('g');
-		this.zoom = d3.zoom<SVGSVGElement, unknown>().on('zoom', event => this.onZoom(event));
+		const container = this.svg.append('g');
+
+		this.zoom = d3.zoom<SVGSVGElement, unknown>().on('zoom', event => {
+			this.onZoom(event, container);
+		});
 
 		this.svg
 			.attr('width', state.width)
@@ -111,11 +111,31 @@ class D3Chart {
 
 		const nodes = this.calculateRadii(state.data.nodes);
 
-		this.drawDefs(!!nodes[0].radius);
+		const renderer = createRenderer(container);
+		renderer.init(!nodes.some(node => node.radius === undefined));
 
-		const links = this.drawLinks(state.data.links);
-		this.circles = this.drawNodes(nodes, state.root);
-		this.labels = this.drawLabels(nodes);
+		const links = renderer.renderLinks(state.data.links);
+
+		this.circles = renderer.renderNodes(nodes, state.root)
+			.call(this.attachDragHandlers())
+			.on('mouseover', (event, d) => this.tooltipController.show(d, event.srcElement))
+			.on('mouseout', () => this.tooltipController.hide());
+
+		this.labels = renderer.renderLabels(nodes)
+			.on('click', (_event, d) => window.open(d.uri))
+			.on('keydown', (event, d) => {
+				if (event.key === 'Enter') {
+					window.open(d.uri);
+				}
+			})
+			.on(
+				'mouseover',
+				(_event, d) => this.circles && d.index && this.tooltipController.show(
+					d,
+					this.circles.filter(`:nth-child(${d.index + 1})`).node() ?? undefined
+				)
+			)
+			.on('mouseout', () => this.tooltipController.hide());
 
 		this.simulation?.on('tick', () => {
 			this.circles && links && this.labels && this.onTick(this.circles, links, this.labels);
@@ -162,52 +182,6 @@ class D3Chart {
 			);
 	}
 
-	private drawNodes(nodes: D3ChartNode[], root: ChartState['root']) {
-		return this.container?.append('g')
-			.selectAll<SVGCircleElement, unknown>('circle')
-			.data(nodes)
-			.join('circle')
-			.attr('r', d => d.radius || 5)
-			.attr('class', d => d.id === root ? 'root' : '')
-			.call(this.attachDragHandlers())
-			.on('mouseover', (event, d) => this.tooltipController.show(d, event.srcElement))
-			.on('mouseout', () => this.tooltipController.hide());
-	}
-
-	private drawLinks(links: D3ChartLink[]) {
-		return this.container?.append('g')
-			.selectAll<SVGLineElement, unknown>('line')
-			.data(links)
-			.join('line');
-	}
-
-	private drawLabels(nodes: D3ChartNode[]) {
-		return this.container?.append('g')
-			.selectAll('text')
-			.data(nodes)
-			.enter()
-			.append('text')
-			.attr('role', 'link')
-			.attr('tabindex', '0')
-			.attr('x', 8)
-			.attr('y', '.31em')
-			.text(d => d.label)
-			.on('click', (_event, d) => window.open(d.uri))
-			.on('keydown', (event, d) => {
-				if (event.key === 'Enter') {
-					window.open(d.uri);
-				}
-			})
-			.on(
-				'mouseover',
-				(_event, d) => this.circles && d.index && this.tooltipController.show(
-					d,
-					this.circles.filter(`:nth-child(${d.index + 1})`).node() ?? undefined
-				)
-			)
-			.on('mouseout', () => this.tooltipController.hide());
-	}
-
 	private attachDragHandlers() {
 		const dragStarted = (
 			event: D3DragEvent<SVGCircleElement, D3ChartNode, D3ChartNode>,
@@ -245,8 +219,11 @@ class D3Chart {
 			.on('end', dragEnded);
 	}
 
-	private onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
-		this.container?.attr('transform', event.transform.toString());
+	private onZoom(
+		event: D3ZoomEvent<SVGSVGElement, unknown>,
+		container: d3.Selection<SVGGElement, unknown, null, undefined>
+	) {
+		container.attr('transform', event.transform.toString());
 		this.tooltipController.hide();
 	}
 

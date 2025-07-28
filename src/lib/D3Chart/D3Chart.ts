@@ -12,6 +12,7 @@ import type {Link, Node} from '@/lib/graph/types';
 import Vector, {Point} from '../Vector';
 import {EntityId} from 'wikibase-sdk';
 import {Simulation} from 'd3-force';
+import {attachNodeDragBehaviour} from '@/lib/d3/interactions';
 import {createRenderer} from '@/lib/d3/render';
 import {createTooltipController} from '@/lib/d3/tooltip';
 
@@ -107,7 +108,7 @@ class D3Chart {
 			.call(this.zoom)
 			.call(this.tooltipController.tooltip);
 
-		this.createSimulation(state.data);
+		const simulation = this.createSimulation(state.data);
 
 		const nodes = this.calculateRadii(state.data.nodes);
 
@@ -117,7 +118,7 @@ class D3Chart {
 		const links = renderer.renderLinks(state.data.links);
 
 		this.circles = renderer.renderNodes(nodes, state.root)
-			.call(this.attachDragHandlers())
+			.call(attachNodeDragBehaviour(simulation))
 			.on('mouseover', (event, d) => this.tooltipController.show(d, event.srcElement))
 			.on('mouseout', () => this.tooltipController.hide());
 
@@ -137,7 +138,7 @@ class D3Chart {
 			)
 			.on('mouseout', () => this.tooltipController.hide());
 
-		this.simulation?.on('tick', () => {
+		simulation?.on('tick', () => {
 			this.circles && links && this.labels && this.onTick(this.circles, links, this.labels);
 		});
 	}
@@ -174,49 +175,12 @@ class D3Chart {
 	}
 
 	private createSimulation(data: D3ChartState['data']) {
-		this.simulation = d3.forceSimulation(data.nodes)
+		return d3.forceSimulation(data.nodes)
 			.force('link', d3.forceLink<D3ChartNode, D3ChartLink>(data.links).id(d => d.id))
 			.force('charge', d3.forceManyBody())
 			.force('center', d3.forceCenter(
 				(parseInt(this.svg.attr('width')) / 2) + 100, parseInt(this.svg.attr('height')) / 2)
 			);
-	}
-
-	private attachDragHandlers() {
-		const dragStarted = (
-			event: D3DragEvent<SVGCircleElement, D3ChartNode, D3ChartNode>,
-			d: D3ChartNode
-		) => {
-			if (!event.active) {
-				this.simulation?.alphaTarget(0.3).restart();
-			}
-			d.fx = d.x;
-			d.fy = d.y;
-		};
-
-		const dragged = (
-			event: D3DragEvent<SVGCircleElement, D3ChartNode, D3ChartNode>,
-			d: D3ChartNode
-		) => {
-			d.fx = event.x;
-			d.fy = event.y;
-		};
-
-		const dragEnded = (
-			event: D3DragEvent<SVGCircleElement, D3ChartNode, D3ChartNode>,
-			d: D3ChartNode
-		) => {
-			if (!event.active) {
-				this.simulation?.alphaTarget(0);
-			}
-			d.fx = null;
-			d.fy = null;
-		};
-
-		return d3.drag<SVGCircleElement, D3ChartNode>()
-			.on('start', dragStarted)
-			.on('drag', dragged)
-			.on('end', dragEnded);
 	}
 
 	private onZoom(

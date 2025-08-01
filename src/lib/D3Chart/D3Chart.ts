@@ -1,7 +1,6 @@
 import './D3Chart.css';
 import * as d3 from 'd3';
 import {
-	D3DragEvent,
 	D3ZoomEvent,
 	Selection,
 	SimulationLinkDatum,
@@ -10,9 +9,13 @@ import {
 } from 'd3';
 import type {Link, Node} from '@/lib/graph/types';
 import Vector, {Point} from '../Vector';
+import {
+	attachLabelInteractions,
+	attachNodeDragBehaviour,
+	attachNodeInteractions,
+} from '@/lib/d3/interactions';
 import {EntityId} from 'wikibase-sdk';
 import {Simulation} from 'd3-force';
-import {attachNodeDragBehaviour, attachNodeInteractions} from '@/lib/d3/interactions';
 import {createRenderer} from '@/lib/d3/render';
 import {createTooltipController} from '@/lib/d3/tooltip';
 
@@ -43,21 +46,9 @@ class D3Chart {
 	 */
 	private tooltipController: ReturnType<typeof createTooltipController>
 	/**
-	 * Rendered circles, one for each unique data node.
-	 */
-	private circles?: Selection<SVGCircleElement, Node & {radius?: number}, SVGGElement, undefined>
-	/**
-	 * Rendered labels, once for each unique data node.
-	 */
-	private labels?: Selection<SVGTextElement, Node, SVGGElement, unknown>
-	/**
 	 * The SVG the data is rendered in.
 	 */
 	private svg: Selection<SVGSVGElement, unknown, null, undefined>
-	/**
-	 * Reference to the rendered force simulation.
-	 */
-	private simulation?: Simulation<D3ChartNode, undefined>
 	/**
 	 * Reference to the zoom.
 	 */
@@ -117,32 +108,24 @@ class D3Chart {
 
 		const links = renderer.renderLinks(state.data.links);
 
-		this.circles = renderer.renderNodes(nodes, state.root)
+		const circles = renderer.renderNodes(nodes, state.root)
 			.call(attachNodeDragBehaviour(simulation));
 
-		attachNodeInteractions(this.circles, {
+		attachNodeInteractions(circles, {
 			hideTooltip: this.tooltipController.hide,
 			showTooltip: this.tooltipController.show,
 		});
 
-		this.labels = renderer.renderLabels(nodes)
-			.on('click', (_event, d) => window.open(d.uri))
-			.on('keydown', (event, d) => {
-				if (event.key === 'Enter') {
-					window.open(d.uri);
-				}
-			})
-			.on(
-				'mouseover',
-				(_event, d) => this.circles && d.index && this.tooltipController.show(
-					d,
-					this.circles.filter(`:nth-child(${d.index + 1})`).node() ?? undefined
-				)
-			)
-			.on('mouseout', () => this.tooltipController.hide());
+		const labels = renderer.renderLabels(nodes);
+
+		attachLabelInteractions(labels, {
+			circles: circles,
+			hideTooltip: this.tooltipController.hide,
+			showTooltip: this.tooltipController.show,
+		});
 
 		simulation?.on('tick', () => {
-			this.circles && links && this.labels && this.onTick(this.circles, links, this.labels);
+			circles && links && labels && this.onTick(circles, links, labels);
 		});
 	}
 

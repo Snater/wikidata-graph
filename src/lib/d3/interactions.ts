@@ -7,6 +7,12 @@ type NodeInteractionOptions = {
 	showTooltip: (node: D3ChartNode, circle?: SVGCircleElement) => void
 }
 
+type LabelInteractionOptions = {
+	circles?: Selection<SVGCircleElement, D3ChartNode, SVGGElement, unknown>
+	hideTooltip: () => void
+	showTooltip: (node: D3ChartNode, circle?: SVGCircleElement) => void
+}
+
 export function attachNodeDragBehaviour(simulation: Simulation<D3ChartNode, undefined>) {
 	const dragStarted = (
 		event: D3DragEvent<SVGCircleElement, D3ChartNode, D3ChartNode>,
@@ -51,6 +57,38 @@ export function attachNodeInteractions(
 	selection
 		.on('mouseover', (event, node) => {
 			options.showTooltip(node, event.currentTarget as SVGCircleElement);
+		})
+		.on('mouseout', () => {
+			options.hideTooltip();
+		});
+}
+
+export function attachLabelInteractions(
+	selection: Selection<SVGTextElement, D3ChartNode, SVGGElement, unknown>,
+	options: LabelInteractionOptions
+) {
+	selection
+		.on('click', (_event, node) => {
+			window.open(node.uri);
+		})
+		.on('keydown', (event, node) => {
+			if (event.key === 'Enter') {
+				window.open(node.uri);
+			}
+		})
+		.on('mouseover', (_event, node) => {
+
+			if (!options.circles || node.index === undefined) {
+				return;
+			}
+
+			const circle = options.circles
+				.filter(`:nth-child(${node.index + 1})`)
+				.node();
+
+			if (circle) {
+				options.showTooltip(node, circle);
+			}
 		})
 		.on('mouseout', () => {
 			options.hideTooltip();

@@ -15,7 +15,7 @@ import {
 	attachNodeInteractions,
 } from '@/lib/d3/interactions';
 import {EntityId} from 'wikibase-sdk';
-import {Simulation} from 'd3-force';
+import {calculateRadii} from '@/lib/d3/layout';
 import {createRenderer} from '@/lib/d3/render';
 import {createTooltipController} from '@/lib/d3/tooltip';
 
@@ -99,9 +99,9 @@ class D3Chart {
 			.call(this.zoom)
 			.call(this.tooltipController.tooltip);
 
-		const simulation = this.createSimulation(state.data);
+		const nodes = calculateRadii(state.data.nodes);
 
-		const nodes = this.calculateRadii(state.data.nodes);
+		const simulation = this.createSimulation(nodes, state.data.links);
 
 		const renderer = createRenderer(container);
 		renderer.init(!nodes.some(node => node.radius === undefined));
@@ -129,27 +129,9 @@ class D3Chart {
 		});
 	}
 
-	private calculateRadii(nodes: D3ChartNode[]) {
-		const sizes = nodes.map(node => node.size);
-		const uniqueSizes = sizes.filter(
-			(size, index, self) => self.indexOf(size) === index
-		);
-
-		if (uniqueSizes.length < 1) {
-			return nodes;
-		}
-
-		const maxSize = nodes.reduce((max, node) => !max || node.size > max.size ? node : max).size;
-		const minSize = nodes.reduce((min, node) => !min || node.size < min.size ? node : min).size;
-		const scaleRange = [3, 20];
-		const scale = d3.scaleLinear().domain([minSize, maxSize]).range(scaleRange);
-
-		return nodes.map(node => Object.assign(node, {radius: scale(node.size)}));
-	}
-
-	private createSimulation(data: D3ChartState['data']) {
-		return d3.forceSimulation(data.nodes)
-			.force('link', d3.forceLink<D3ChartNode, D3ChartLink>(data.links).id(d => d.id))
+	private createSimulation(nodes: D3ChartNode[], links: D3ChartLink[]) {
+		return d3.forceSimulation(nodes)
+			.force('link', d3.forceLink<D3ChartNode, D3ChartLink>(links).id(d => d.id))
 			.force('charge', d3.forceManyBody())
 			.force('center', d3.forceCenter(
 				(parseInt(this.svg.attr('width')) / 2) + 100, parseInt(this.svg.attr('height')) / 2)

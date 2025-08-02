@@ -5,7 +5,7 @@ export type Node = {
 	id: EntityId
 	label: string
 	uri: string
-	size?: number
+	size: number
 }
 
 export type Link = {

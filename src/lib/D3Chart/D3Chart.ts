@@ -15,7 +15,7 @@ import {
 	attachNodeInteractions,
 } from '@/lib/d3/interactions';
 import {EntityId} from 'wikibase-sdk';
-import {calculateRadii} from '@/lib/d3/layout';
+import {calculateLinkGeometry, calculateRadii} from '@/lib/d3/layout';
 import {createRenderer} from '@/lib/d3/render';
 import {createTooltipController} from '@/lib/d3/tooltip';
 
@@ -180,36 +180,12 @@ class D3Chart {
 			return;
 		}
 
-		links
-			.each(d => {
-				if (
-					typeof d.source !== 'object' || !('x' in d.source && 'y' in d.source)
-					|| typeof d.target !== 'object' || !('x' in d.target && 'y' in d.target)
-				) {
-					return;
-				}
+		links.each(link => {
+			const geom = calculateLinkGeometry(link);
 
-				const sourcePoint = {x: d.source.x ?? 0, y: d.source.y ?? 0};
-				const targetPoint = {x: d.target.x ?? 0, y: d.target.y ?? 0};
-
-				if (d.source.x === d.target.x && d.source.y === d.target.y) {
-					d.scaledSource = sourcePoint;
-					d.scaledTarget = targetPoint;
-					return;
-				}
-
-				const diff = Vector.diff(targetPoint, sourcePoint);
-
-				d.scaledSource = Vector.sum(
-					sourcePoint,
-					Vector.scale(diff, d.source.radius ?? 0)
-				);
-
-				d.scaledTarget = Vector.diff(
-					targetPoint,
-					Vector.scale(diff, d.target.radius ?? 0)
-				);
-			})
+			link.scaledSource = geom.scaledSource;
+			link.scaledTarget = geom.scaledTarget;
+		})
 			.attr('x1', ({scaledSource}) => scaledSource?.x ?? 0)
 			.attr('y1', ({scaledSource}) => scaledSource?.y ?? 0)
 			.attr('x2', ({scaledTarget}) => scaledTarget?.x ?? 0)

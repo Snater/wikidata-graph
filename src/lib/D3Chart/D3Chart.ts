@@ -8,14 +8,14 @@ import {
 	ZoomBehavior
 } from 'd3';
 import type {Link, Node} from '@/lib/graph/types';
-import Vector, {Point} from '../Vector';
 import {
 	attachLabelInteractions,
 	attachNodeDragBehaviour,
 	attachNodeInteractions,
 } from '@/lib/d3/interactions';
-import {EntityId} from 'wikibase-sdk';
 import {calculateLinkGeometry, calculateRadii} from '@/lib/d3/layout';
+import type {EntityId} from 'wikibase-sdk';
+import {Point} from '../Vector';
 import {createRenderer} from '@/lib/d3/render';
 import {createTooltipController} from '@/lib/d3/tooltip';
 
@@ -37,6 +37,16 @@ export type D3ChartLink = SimulationLinkDatum<D3ChartNode> & {
 
 type D3ChartState = Omit<ChartState, 'data'> & {
 	data: {nodes: D3ChartNode[], links: D3ChartLink[]}
+}
+
+type NodesSelection = Selection<SVGCircleElement, D3ChartNode, SVGElement, undefined>
+type LinksSelection = Selection<SVGLineElement, D3ChartLink, SVGGElement, unknown>
+type LabelsSelection = Selection<SVGTextElement, D3ChartNode, SVGGElement, unknown>
+
+type View = {
+	nodes: NodesSelection
+	links: LinksSelection
+	labels: LabelsSelection
 }
 
 class D3Chart {
@@ -125,7 +135,7 @@ class D3Chart {
 		});
 
 		simulation?.on('tick', () => {
-			circles && links && labels && this.onTick(circles, links, labels);
+			circles && links && labels && this.onTick({nodes: circles, links, labels});
 		});
 	}
 
@@ -146,50 +156,33 @@ class D3Chart {
 		this.tooltipController.hide();
 	}
 
-	private onTick(
-		nodes: Selection<SVGCircleElement, D3ChartNode, SVGElement, undefined>,
-		links: Selection<SVGLineElement, D3ChartLink, SVGGElement, unknown>,
-		labels: Selection<SVGTextElement, D3ChartNode, SVGGElement, unknown>
-	) {
-		nodes
-			.attr('cx', d => d.x ?? 0)
-			.attr('cy', d => d.y ?? 0);
-
-		const radius = nodes.filter(':first-child').datum().radius;
-		this.calculateLine(links, !!radius && radius > 0);
-
-		labels.attr('transform', d => `translate(${d.x},${d.y})`);
-
-		if (this.tooltipController.tooltip.style('opacity') === '1') {
-			// Reset tooltip position:
-			this.tooltipController.tooltip.hide().show();
-		}
+	private onTick(view: View) {
+		this.updateLinkGeometry(view.links);
+		this.renderFrame(view);
 	}
 
-	private calculateLine(
-		links: Selection<SVGLineElement, D3ChartLink, SVGGElement, unknown>,
-		hasSize = false
-	) {
-		if (!hasSize) {
-			links
-				.attr('x1', d => (typeof d.source === 'object' && 'x' in d.source && d.source.x) ?? 0)
-				.attr('y1', d => (typeof d.source === 'object' && 'y' in d.source && d.source.y) ?? 0)
-				.attr('x2', d => (typeof d.target === 'object' && 'x' in d.target && d.target.x) ?? 0)
-				.attr('y2', d => (typeof d.target === 'object' && 'y' in d.target && d.target.y) ?? 0);
-
-			return;
-		}
-
+	private updateLinkGeometry(links: LinksSelection) {
 		links.each(link => {
-			const geom = calculateLinkGeometry(link);
+			const {scaledSource, scaledTarget} = calculateLinkGeometry(link);
 
-			link.scaledSource = geom.scaledSource;
-			link.scaledTarget = geom.scaledTarget;
-		})
-			.attr('x1', ({scaledSource}) => scaledSource?.x ?? 0)
-			.attr('y1', ({scaledSource}) => scaledSource?.y ?? 0)
-			.attr('x2', ({scaledTarget}) => scaledTarget?.x ?? 0)
-			.attr('y2', ({scaledTarget}) => scaledTarget?.y ?? 0);
+			link.scaledSource = scaledSource;
+			link.scaledTarget = scaledTarget;
+		});
+	}
+
+	private renderFrame(view: View) {
+		view.nodes
+			.attr('cx', node => node.x ?? 0)
+			.attr('cy', node => node.y ?? 0);
+
+		view.links
+			.attr('x1', node => node.scaledSource?.x ?? 0)
+			.attr('y1', node => node.scaledSource?.y ?? 0)
+			.attr('x2', node => node.scaledTarget?.x ?? 0)
+			.attr('y2', node => node.scaledTarget?.y ?? 0);
+
+		view.labels
+			.attr('transform', d => `translate(${d.x},${d.y})`);
 	}
 }
 

@@ -134,9 +134,7 @@ class D3Chart {
 			showTooltip: this.tooltipController.show,
 		});
 
-		simulation?.on('tick', () => {
-			circles && links && labels && this.onTick({nodes: circles, links, labels});
-		});
+		simulation?.on('tick', () => this.renderFrame({nodes: circles, links, labels}));
 	}
 
 	private createSimulation(nodes: D3ChartNode[], links: D3ChartLink[]) {
@@ -156,24 +154,16 @@ class D3Chart {
 		this.tooltipController.hide();
 	}
 
-	private onTick(view: View) {
-		this.updateLinkGeometry(view.links);
-		this.renderFrame(view);
-	}
-
-	private updateLinkGeometry(links: LinksSelection) {
-		links.each(link => {
-			const {scaledSource, scaledTarget} = calculateLinkGeometry(link);
-
-			link.scaledSource = scaledSource;
-			link.scaledTarget = scaledTarget;
-		});
-	}
-
 	private renderFrame(view: View) {
 		view.nodes
 			.attr('cx', node => node.x ?? 0)
 			.attr('cy', node => node.y ?? 0);
+
+		view.links.each(link => {
+			const { scaledSource, scaledTarget } = calculateLinkGeometry(link);
+			link.scaledSource = scaledSource;
+			link.scaledTarget = scaledTarget;
+		});
 
 		view.links
 			.attr('x1', node => node.scaledSource?.x ?? 0)

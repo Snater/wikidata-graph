@@ -109,32 +109,32 @@ class D3Chart {
 			.call(this.zoom)
 			.call(this.tooltipController.tooltip);
 
-		const nodes = calculateRadii(state.data.nodes);
+		const chartNodes = calculateRadii(state.data.nodes);
 
-		const simulation = this.createSimulation(nodes, state.data.links);
+		const simulation = this.createSimulation(chartNodes, state.data.links);
 
 		const renderer = createRenderer(container);
-		renderer.init(!nodes.some(node => node.radius === undefined));
+		renderer.init(!chartNodes.some(chartNode => chartNode.radius === undefined));
 
 		const links = renderer.renderLinks(state.data.links);
 
-		const circles = renderer.renderNodes(nodes, state.root)
+		const nodes = renderer.renderNodes(chartNodes, state.root)
 			.call(attachNodeDragBehaviour(simulation));
 
-		attachNodeInteractions(circles, {
+		attachNodeInteractions(nodes, {
 			hideTooltip: this.tooltipController.hide,
 			showTooltip: this.tooltipController.show,
 		});
 
-		const labels = renderer.renderLabels(nodes);
+		const labels = renderer.renderLabels(chartNodes);
 
 		attachLabelInteractions(labels, {
-			circles: circles,
+			nodes,
 			hideTooltip: this.tooltipController.hide,
 			showTooltip: this.tooltipController.show,
 		});
 
-		simulation?.on('tick', () => this.renderFrame({nodes: circles, links, labels}));
+		simulation?.on('tick', () => this.renderFrame({nodes, links, labels}));
 	}
 
 	private createSimulation(nodes: D3ChartNode[], links: D3ChartLink[]) {

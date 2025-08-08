@@ -8,7 +8,7 @@ type NodeInteractionOptions = {
 }
 
 type LabelInteractionOptions = {
-	circles?: Selection<SVGCircleElement, D3ChartNode, SVGGElement, unknown>
+	nodes?: Selection<SVGCircleElement, D3ChartNode, SVGGElement, unknown>
 	hideTooltip: () => void
 	showTooltip: (node: D3ChartNode, circle?: SVGCircleElement) => void
 }
@@ -78,11 +78,11 @@ export function attachLabelInteractions(
 		})
 		.on('mouseover', (_event, node) => {
 
-			if (!options.circles || node.index === undefined) {
+			if (!options.nodes || node.index === undefined) {
 				return;
 			}
 
-			const circle = options.circles
+			const circle = options.nodes
 				.filter(`:nth-child(${node.index + 1})`)
 				.node();
 

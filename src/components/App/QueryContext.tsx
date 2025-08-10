@@ -9,14 +9,14 @@ import {
 	useState
 } from 'react';
 import {EntityId} from 'wikibase-sdk';
-import type {Link} from '@/lib/graph/types';
+import type {GraphLink, GraphNode} from '@/lib/graph/types';
 import Query from '@/lib/Query';
 import React from 'react';
 
 type Result = {
 	root: EntityId
-	nodes: Node[]
-	links: Link[]
+	nodes: GraphNode[]
+	links: GraphLink[]
 }
 
 interface QueryContextType {

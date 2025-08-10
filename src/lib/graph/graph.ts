@@ -1,4 +1,4 @@
-import type {Graph, GraphRow, Link, Node} from '@/lib/graph/types';
+import type {Graph, GraphLink, GraphNode, GraphRow} from '@/lib/graph/types';
 import {getEntity, getNumber, getString} from '@/lib/sparql/extractors';
 import type {EntityId} from 'wikibase-sdk';
 import type {SparqlRow} from '@/lib/sparql/types';
@@ -24,7 +24,7 @@ export function parseGraphRows(rows: SparqlRow[]): GraphRow[] {
 export function toGraph(sparqlRows: SparqlRow[]): Graph {
 	const rows = parseGraphRows(sparqlRows);
 
-	const nodes: Node[] = [];
+	const nodes: GraphNode[] = [];
 	const nodeIds = new Set<string>();
 
 	for (const row of rows) {
@@ -40,11 +40,11 @@ export function toGraph(sparqlRows: SparqlRow[]): Graph {
 			id,
 			label: row.item.label,
 			uri: `https://www.wikidata.org/entity/${id}`,
-			size: row.size,
+			size: row.size ?? 1,
 		});
 	}
 
-	const links: Link[] = [];
+	const links: GraphLink[] = [];
 
 	for (const row of rows) {
 		if (!nodeIds.has(row.linkTo)) {

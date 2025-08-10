@@ -1,17 +1,11 @@
 import {tip} from 'd3-v6-tip';
 import type {Selection} from 'd3-selection';
 import {getEntityImage} from '@/lib/wikidata/image';
-import type {Node} from '@/lib/graph/types';
-
-export type TooltipController = {
-	tooltip: ReturnType<typeof tip>
-	show: (node: Node, circle?: SVGCircleElement) => void
-	hide: () => void
-}
+import type {GraphNode} from '@/lib/graph/types';
 
 export function createTooltipController(
 	labels?: Selection<SVGTextElement, Node, any, any>
-): TooltipController {
+) {
 
 	const tooltip = tip()
 		.attr('class', 'd3-tip')
@@ -23,7 +17,7 @@ export function createTooltipController(
 		labels?.style('opacity', 1);
 	}
 
-	async function show(node: Node, circle?: SVGCircleElement) {
+	async function show(node: GraphNode, circle?: SVGCircleElement) {
 		if (!circle) {
 			return;
 		}

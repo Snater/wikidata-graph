@@ -1,13 +1,8 @@
-import './D3Chart.css';
+import './D3Graph.css';
 import * as d3 from 'd3';
-import {
-	D3ZoomEvent,
-	Selection,
-	SimulationLinkDatum,
-	SimulationNodeDatum,
-	ZoomBehavior
-} from 'd3';
-import type {Link, Node} from '@/lib/graph/types';
+import type {D3GraphLink, D3GraphNode} from '@/lib/D3Graph/types';
+import {D3ZoomEvent, Selection, ZoomBehavior} from 'd3';
+import {GraphLink, GraphNode} from '@/lib/graph/types';
 import {
 	attachLabelInteractions,
 	attachNodeDragBehaviour,
@@ -15,33 +10,23 @@ import {
 } from '@/lib/d3/interactions';
 import {calculateLinkGeometry, calculateRadii} from '@/lib/d3/layout';
 import type {EntityId} from 'wikibase-sdk';
-import {Point} from '../Vector';
 import {createRenderer} from '@/lib/d3/render';
 import {createTooltipController} from '@/lib/d3/tooltip';
 
-type ChartState = {
-	data: {nodes: Node[], links: Link[]}
+type GraphState = {
+	data: {nodes: GraphNode[], links: GraphLink[]}
 	root: EntityId
 	height: number
 	width: number
 }
 
-export type D3ChartNode = Node & SimulationNodeDatum & {
-	radius?: number
+type D3GraphState = Omit<GraphState, 'data'> & {
+	data: {nodes: D3GraphNode[], links: D3GraphLink[]}
 }
 
-export type D3ChartLink = SimulationLinkDatum<D3ChartNode> & {
-	scaledSource?: Point
-	scaledTarget?: Point
-}
-
-type D3ChartState = Omit<ChartState, 'data'> & {
-	data: {nodes: D3ChartNode[], links: D3ChartLink[]}
-}
-
-type NodesSelection = Selection<SVGCircleElement, D3ChartNode, SVGElement, undefined>
-type LinksSelection = Selection<SVGLineElement, D3ChartLink, SVGGElement, unknown>
-type LabelsSelection = Selection<SVGTextElement, D3ChartNode, SVGGElement, unknown>
+type NodesSelection = Selection<SVGCircleElement, D3GraphNode, SVGElement, undefined>
+type LinksSelection = Selection<SVGLineElement, D3GraphLink, SVGGElement, unknown>
+type LabelsSelection = Selection<SVGTextElement, D3GraphNode, SVGGElement, unknown>
 
 type View = {
 	nodes: NodesSelection
@@ -49,7 +34,7 @@ type View = {
 	labels: LabelsSelection
 }
 
-class D3Chart {
+class D3Graph {
 
 	/**
 	 * Manages the tooltip shown when hovering a circle.
@@ -66,15 +51,15 @@ class D3Chart {
 
 	constructor(element: HTMLElement) {
 		this.svg = d3.select<HTMLElement, unknown>(element).append('svg')
-			.attr('class', 'D3Chart');
+			.attr('class', 'D3Graph');
 		this.tooltipController = createTooltipController();
 	}
 
-	update(state: ChartState) {
+	update(state: GraphState) {
 
 		// D3 will extend node and link object with properties. Therefore, clone the objects to prevent
 		// D3 specifics leaking outside the class.
-		const clonedState: D3ChartState = {
+		const clonedState: D3GraphState = {
 			...state,
 			data: {
 				nodes: state.data.nodes.map(node => ({...node})),
@@ -96,7 +81,7 @@ class D3Chart {
 		this.tooltipController.hide();
 	}
 
-	private draw(state: D3ChartState) {
+	private draw(state: D3GraphState) {
 		const container = this.svg.append('g');
 
 		this.zoom = d3.zoom<SVGSVGElement, unknown>().on('zoom', event => {
@@ -109,16 +94,16 @@ class D3Chart {
 			.call(this.zoom)
 			.call(this.tooltipController.tooltip);
 
-		const chartNodes = calculateRadii(state.data.nodes);
+		const graphNodes = calculateRadii(state.data.nodes);
 
-		const simulation = this.createSimulation(chartNodes, state.data.links);
+		const simulation = this.createSimulation(graphNodes, state.data.links);
 
 		const renderer = createRenderer(container);
-		renderer.init(!chartNodes.some(chartNode => chartNode.radius === undefined));
+		renderer.init(!graphNodes.some(graphNode => graphNode.radius === undefined));
 
 		const links = renderer.renderLinks(state.data.links);
 
-		const nodes = renderer.renderNodes(chartNodes, state.root)
+		const nodes = renderer.renderNodes(graphNodes, state.root)
 			.call(attachNodeDragBehaviour(simulation));
 
 		attachNodeInteractions(nodes, {
@@ -126,7 +111,7 @@ class D3Chart {
 			showTooltip: this.tooltipController.show,
 		});
 
-		const labels = renderer.renderLabels(chartNodes);
+		const labels = renderer.renderLabels(graphNodes);
 
 		attachLabelInteractions(labels, {
 			nodes,
@@ -137,9 +122,9 @@ class D3Chart {
 		simulation?.on('tick', () => this.renderFrame({nodes, links, labels}));
 	}
 
-	private createSimulation(nodes: D3ChartNode[], links: D3ChartLink[]) {
+	private createSimulation(nodes: D3GraphNode[], links: D3GraphLink[]) {
 		return d3.forceSimulation(nodes)
-			.force('link', d3.forceLink<D3ChartNode, D3ChartLink>(links).id(d => d.id))
+			.force('link', d3.forceLink<D3GraphNode, D3GraphLink>(links).id(d => d.id))
 			.force('charge', d3.forceManyBody())
 			.force('center', d3.forceCenter(
 				(parseInt(this.svg.attr('width')) / 2) + 100, parseInt(this.svg.attr('height')) / 2)
@@ -176,4 +161,4 @@ class D3Chart {
 	}
 }
 
-export default D3Chart;
+export default D3Graph;

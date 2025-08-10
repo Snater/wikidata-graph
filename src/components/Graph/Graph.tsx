@@ -1,13 +1,13 @@
 'use client'
 
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import D3Chart from '../../lib/D3Chart';
 import useQueryContext from '../App/QueryContext';
 import Box from '@mui/material/Box';
+import D3Graph from '@/lib/D3Graph/D3Graph';
 
-let d3Chart: D3Chart;
+let d3Graph: D3Graph;
 
-export default function Chart() {
+export default function Graph() {
 	const [width, setWidth] = useState<number>();
 	const [height, setHeight] = useState<number>();
 	const {result} = useQueryContext();
@@ -18,8 +18,8 @@ export default function Chart() {
 		setHeight(window.innerHeight);
 	}, []);
 
-	if (canvas.current && !d3Chart) {
-		d3Chart = new D3Chart(canvas.current);
+	if (canvas.current && !d3Graph) {
+		d3Graph = new D3Graph(canvas.current);
 		window.addEventListener('resize', updateDimensions);
 	}
 
@@ -28,8 +28,8 @@ export default function Chart() {
 	}, [updateDimensions]);
 
 	useEffect(() => {
-		if (d3Chart && result && width && height) {
-			d3Chart.update({
+		if (d3Graph && result && width && height) {
+			d3Graph.update({
 				data: result,
 				root: result.root,
 				height,

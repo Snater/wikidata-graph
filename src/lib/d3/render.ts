@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import type {D3ChartLink, D3ChartNode} from '@/lib/D3Chart/D3Chart';
+import {D3GraphLink, D3GraphNode} from '@/lib/D3Graph/types';
 
 export function createRenderer(
 	container: d3.Selection<SVGGElement, unknown, null, undefined>
@@ -20,28 +20,28 @@ export function createRenderer(
 			.attr('d', 'M 0 -5 L 10 0 L 0 5');
 	}
 
-	function renderNodes(nodes: D3ChartNode[], root: string) {
+	function renderNodes(nodes: D3GraphNode[], root: string) {
 		return container
 			.append('g')
-			.selectAll<SVGCircleElement, D3ChartNode>('circle')
+			.selectAll<SVGCircleElement, D3GraphNode>('circle')
 			.data(nodes)
 			.join('circle')
 			.attr('r', d => d.radius || 5)
 			.attr('class', d => d.id === root ? 'root' : '');
 	}
 
-	function renderLinks(links: D3ChartLink[]) {
+	function renderLinks(links: D3GraphLink[]) {
 		return container
 			.append('g')
-			.selectAll<SVGLineElement, D3ChartLink>('line')
+			.selectAll<SVGLineElement, D3GraphLink>('line')
 			.data(links)
 			.join('line');
 	}
 
-	function renderLabels(nodes: D3ChartNode[]) {
+	function renderLabels(nodes: D3GraphNode[]) {
 		return container
 			.append('g')
-			.selectAll<SVGTextElement, D3ChartNode>('text')
+			.selectAll<SVGTextElement, D3GraphNode>('text')
 			.data(nodes)
 			.join('text')
 			.attr('x', 8)

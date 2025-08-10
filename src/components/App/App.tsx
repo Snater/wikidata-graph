@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import Chart from '@/components/Chart';
+import Graph from '@/components/Graph';
 import Drawer from '@/components/Drawer';
 import {QueryContextProvider} from './QueryContext';
 import QueryManager from '@/components/QueryManager';
@@ -11,7 +11,7 @@ export default function App() {
 			<QueryContextProvider>
 				<QueryManager/>
 				<Drawer/>
-				<Chart/>
+				<Graph/>
 			</QueryContextProvider>
 		</Box>
 	);

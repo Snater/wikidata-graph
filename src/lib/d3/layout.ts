@@ -1,4 +1,4 @@
-import type {D3ChartLink, D3ChartNode} from '@/lib/D3Chart/D3Chart';
+import type {D3GraphLink, D3GraphNode} from '@/lib/D3Graph/types';
 import Vector from '@/lib/Vector';
 import {scaleLinear} from 'd3';
 
@@ -8,7 +8,7 @@ type PositionedNode = {
 	radius?: number
 }
 
-export function calculateRadii(nodes: D3ChartNode[]): D3ChartNode[] {
+export function calculateRadii(nodes: D3GraphNode[]): D3GraphNode[] {
 
 	const uniqueSizes = [...new Set(nodes.map(node => node.size))];
 
@@ -29,7 +29,7 @@ export function calculateRadii(nodes: D3ChartNode[]): D3ChartNode[] {
 	}));
 }
 
-export function calculateLinkGeometry(link: D3ChartLink): {
+export function calculateLinkGeometry(link: D3GraphLink): {
 	scaledSource: {x: number; y: number}
 	scaledTarget: {x: number; y: number}
 } {

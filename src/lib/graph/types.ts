@@ -1,21 +1,21 @@
 import type {EntityId} from 'wikibase-sdk';
 import type {SparqlEntity} from "@/lib/sparql/types";
 
-export type Node = {
+export type GraphNode = {
 	id: EntityId
 	label: string
 	uri: string
 	size: number
 }
 
-export type Link = {
+export type GraphLink = {
 	source: string
 	target: string
 }
 
 export type Graph = {
-	nodes: Node[]
-	links: Link[]
+	nodes: GraphNode[]
+	links: GraphLink[]
 }
 
 export type GraphRow = {

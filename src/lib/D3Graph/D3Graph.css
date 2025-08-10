@@ -1,4 +1,4 @@
-.D3Chart {
+.D3Graph {
 	--dark-color: #303f9f;
 	--light-color: #8E9AEB;
 
@@ -7,28 +7,28 @@
 	width: 100%;
 }
 
-.D3Chart #triangle {
+.D3Graph #triangle {
 	fill: var(--dark-color);
 }
 
-.D3Chart circle {
+.D3Graph circle {
 	cursor: move;
 	fill: var(--light-color);
 	stroke: var(--dark-color);
 }
 
-.D3Chart circle.root {
+.D3Graph circle.root {
 	fill: #EBC752;
 	stroke: #9F8530;
 }
 
-.D3Chart line {
+.D3Graph line {
 	marker-end: url(#triangle);
 	stroke: var(--dark-color);
 	stroke-width: 1.5;
 }
 
-.D3Chart text {
+.D3Graph text {
 	cursor: pointer;
 	font-size: 9px;
 	text-shadow:

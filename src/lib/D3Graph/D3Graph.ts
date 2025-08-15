@@ -33,10 +33,14 @@ type View = {
 class D3Graph {
 
 	private svg: Selection<SVGSVGElement, unknown, null, undefined>
-	private readonly container: Selection<SVGGElement, unknown, null, undefined>
+	private container: Selection<SVGGElement, unknown, null, undefined>
 	private readonly simulation: d3.Simulation<D3GraphNode, D3GraphLink>
-	private tooltipController: ReturnType<typeof createTooltipController>
+	private readonly tooltipController: ReturnType<typeof createTooltipController>
 	private zoom: ZoomBehavior<SVGSVGElement, unknown>
+	private readonly nodesLayer: Selection<SVGGElement, unknown, null, undefined>
+	private readonly linksLayer: Selection<SVGGElement, unknown, null, undefined>
+	private readonly labelsLayer: Selection<SVGGElement, unknown, null, undefined>
+	private renderer: ReturnType<typeof createRenderer>
 
 	constructor(element: HTMLElement) {
 		this.svg = d3.select<HTMLElement, unknown>(element)
@@ -44,6 +48,10 @@ class D3Graph {
 			.attr('class', 'D3Graph');
 
 		this.container = this.svg.append('g');
+
+		this.nodesLayer = this.container.append('g');
+		this.linksLayer = this.container.append('g');
+		this.labelsLayer = this.container.append('g');
 
 		this.tooltipController = createTooltipController();
 
@@ -61,11 +69,17 @@ class D3Graph {
 					.id(node => node.id)
 			)
 			.force('charge', d3.forceManyBody());
+
+		this.renderer = createRenderer({
+			nodesLayer: this.nodesLayer,
+			linksLayer: this.linksLayer,
+			labelsLayer: this.labelsLayer,
+		});
 	}
 
 	update(state: GraphState) {
-		const graphNodes = calculateRadii(state.data.nodes.map(node => ({ ...node })));
-		const graphLinks: D3GraphLink[] = state.data.links.map(link => ({...link,}));
+		const graphNodes: D3GraphNode[] = calculateRadii(state.data.nodes.map(node => ({...node})));
+		const graphLinks: D3GraphLink[] = state.data.links.map(link => ({...link}));
 
 		this.svg
 			.attr('width', state.width)
@@ -73,34 +87,26 @@ class D3Graph {
 
 		this.updateSimulation(graphNodes, graphLinks, state.width, state.height);
 
-		const renderer = createRenderer(this.container);
+		const nodes = this.renderer.renderNodes(graphNodes, state.root);
+		const links = this.renderer.renderLinks(graphLinks);
+		const labels = this.renderer.renderLabels(graphNodes);
 
-		renderer.init(!graphNodes.some(node => node.radius === undefined));
-
-		const links = renderer.renderLinks(graphLinks);
-
-		const nodes = renderer
-			.renderNodes(graphNodes, state.root)
-			.call(attachNodeDragBehaviour(this.simulation));
+		attachNodeDragBehaviour(this.simulation)(nodes);
 
 		attachNodeInteractions(nodes, {
-			hideTooltip: this.tooltipController.hide,
 			showTooltip: this.tooltipController.show,
+			hideTooltip: this.tooltipController.hide,
 		});
-
-		const labels = renderer.renderLabels(graphNodes);
 
 		attachLabelInteractions(labels, {
 			nodes,
-			hideTooltip: this.tooltipController.hide,
 			showTooltip: this.tooltipController.show,
+			hideTooltip: this.tooltipController.hide,
 		});
 
 		this.simulation.on('tick', () => {
 			this.renderFrame({nodes, links, labels});
 		});
-
-		this.tooltipController.hide();
 	}
 
 	private updateSimulation(
@@ -134,16 +140,16 @@ class D3Graph {
 			.attr('cy', node => node.y ?? 0);
 
 		view.links.each(link => {
-			const { scaledSource, scaledTarget } = calculateLinkGeometry(link);
+			const {scaledSource, scaledTarget} = calculateLinkGeometry(link);
 			link.scaledSource = scaledSource;
 			link.scaledTarget = scaledTarget;
 		});
 
 		view.links
-			.attr('x1', node => node.scaledSource?.x ?? 0)
-			.attr('y1', node => node.scaledSource?.y ?? 0)
-			.attr('x2', node => node.scaledTarget?.x ?? 0)
-			.attr('y2', node => node.scaledTarget?.y ?? 0);
+			.attr('x1', link => link.scaledSource?.x ?? 0)
+			.attr('y1', link => link.scaledSource?.y ?? 0)
+			.attr('x2', link => link.scaledTarget?.x ?? 0)
+			.attr('y2', link => link.scaledTarget?.y ?? 0);
 
 		view.labels
 			.attr('transform', d => `translate(${d.x},${d.y})`);

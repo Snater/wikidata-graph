@@ -9,6 +9,7 @@ export type GraphNode = {
 }
 
 export type GraphLink = {
+	id: string
 	source: string
 	target: string
 }

@@ -7,6 +7,7 @@ export type D3GraphNode = GraphNode & SimulationNodeDatum & {
 }
 
 export type D3GraphLink = SimulationLinkDatum<D3GraphNode> & {
+	id: string
 	scaledSource?: Point
 	scaledTarget?: Point
 }

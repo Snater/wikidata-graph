@@ -3,31 +3,17 @@ import * as d3 from 'd3';
 import type {D3GraphLink, D3GraphNode} from '@/lib/D3Graph/types';
 import {D3ZoomEvent, Selection, ZoomBehavior} from 'd3';
 import {GraphLink, GraphNode} from '@/lib/graph/types';
-import {
-	attachLabelInteractions,
-	attachNodeDragBehaviour,
-	attachNodeInteractions,
-} from '@/lib/d3/interactions';
-import {calculateLinkGeometry, calculateRadii} from '@/lib/d3/layout';
+import {D3Renderer} from '@/lib/d3/D3Renderer';
 import type {EntityId} from 'wikibase-sdk';
-import {createRenderer} from '@/lib/d3/render';
+import {calculateRadii} from '@/lib/d3/layout';
 import {createTooltipController} from '@/lib/d3/tooltip';
+import {attachLabelInteractions, attachNodeDragBehaviour, attachNodeInteractions} from '@/lib/d3/interactions';
 
 type GraphState = {
 	data: {nodes: GraphNode[], links: GraphLink[]}
 	root: EntityId
 	height: number
 	width: number
-}
-
-type NodesSelection = Selection<SVGCircleElement, D3GraphNode, SVGElement, undefined>
-type LinksSelection = Selection<SVGLineElement, D3GraphLink, SVGGElement, unknown>
-type LabelsSelection = Selection<SVGTextElement, D3GraphNode, SVGGElement, unknown>
-
-type View = {
-	nodes: NodesSelection
-	links: LinksSelection
-	labels: LabelsSelection
 }
 
 class D3Graph {
@@ -37,10 +23,7 @@ class D3Graph {
 	private readonly simulation: d3.Simulation<D3GraphNode, D3GraphLink>
 	private readonly tooltipController: ReturnType<typeof createTooltipController>
 	private zoom: ZoomBehavior<SVGSVGElement, unknown>
-	private readonly nodesLayer: Selection<SVGGElement, unknown, null, undefined>
-	private readonly linksLayer: Selection<SVGGElement, unknown, null, undefined>
-	private readonly labelsLayer: Selection<SVGGElement, unknown, null, undefined>
-	private renderer: ReturnType<typeof createRenderer>
+	private renderer: D3Renderer
 
 	constructor(element: HTMLElement) {
 		this.svg = d3.select<HTMLElement, unknown>(element)
@@ -48,10 +31,6 @@ class D3Graph {
 			.attr('class', 'D3Graph');
 
 		this.container = this.svg.append('g');
-
-		this.nodesLayer = this.container.append('g');
-		this.linksLayer = this.container.append('g');
-		this.labelsLayer = this.container.append('g');
 
 		this.tooltipController = createTooltipController();
 
@@ -70,43 +49,42 @@ class D3Graph {
 			)
 			.force('charge', d3.forceManyBody());
 
-		this.renderer = createRenderer({
-			nodesLayer: this.nodesLayer,
-			linksLayer: this.linksLayer,
-			labelsLayer: this.labelsLayer,
-		});
+		this.renderer = new D3Renderer(this.container);
 	}
 
 	update(state: GraphState) {
-		const graphNodes: D3GraphNode[] = calculateRadii(state.data.nodes.map(node => ({...node})));
-		const graphLinks: D3GraphLink[] = state.data.links.map(link => ({...link}));
+		const nodes = calculateRadii(state.data.nodes.map(n => ({...n})));
+
+		this.renderer.updateDefs(!nodes.some(node => node.radius === undefined));
+
+		const links = state.data.links.map(l => ({...l}));
 
 		this.svg
 			.attr('width', state.width)
 			.attr('height', state.height);
 
-		this.updateSimulation(graphNodes, graphLinks, state.width, state.height);
+		this.updateSimulation(nodes, links, state.width, state.height);
 
-		const nodes = this.renderer.renderNodes(graphNodes, state.root);
-		const links = this.renderer.renderLinks(graphLinks);
-		const labels = this.renderer.renderLabels(graphNodes);
+		const view = this.renderer.update(nodes, links, state.root);
 
-		attachNodeDragBehaviour(this.simulation)(nodes);
+		attachNodeDragBehaviour(this.simulation)(view.nodes);
 
-		attachNodeInteractions(nodes, {
+		attachNodeInteractions(view.nodes, {
 			showTooltip: this.tooltipController.show,
 			hideTooltip: this.tooltipController.hide,
 		});
 
-		attachLabelInteractions(labels, {
-			nodes,
+		attachLabelInteractions(view.labels, {
+			nodes: view.nodes,
 			showTooltip: this.tooltipController.show,
 			hideTooltip: this.tooltipController.hide,
 		});
 
 		this.simulation.on('tick', () => {
-			this.renderFrame({nodes, links, labels});
+			this.renderer.renderFrame();
 		});
+
+		this.simulation.alpha(1).restart();
 	}
 
 	private updateSimulation(
@@ -131,28 +109,6 @@ class D3Graph {
 
 	private onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
 		this.container.attr('transform', event.transform.toString());
-		this.tooltipController.hide();
-	}
-
-	private renderFrame(view: View) {
-		view.nodes
-			.attr('cx', node => node.x ?? 0)
-			.attr('cy', node => node.y ?? 0);
-
-		view.links.each(link => {
-			const {scaledSource, scaledTarget} = calculateLinkGeometry(link);
-			link.scaledSource = scaledSource;
-			link.scaledTarget = scaledTarget;
-		});
-
-		view.links
-			.attr('x1', link => link.scaledSource?.x ?? 0)
-			.attr('y1', link => link.scaledSource?.y ?? 0)
-			.attr('x2', link => link.scaledTarget?.x ?? 0)
-			.attr('y2', link => link.scaledTarget?.y ?? 0);
-
-		view.labels
-			.attr('transform', d => `translate(${d.x},${d.y})`);
 	}
 }
 

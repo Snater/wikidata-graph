@@ -52,6 +52,7 @@ export function toGraph(sparqlRows: SparqlRow[]): Graph {
 		}
 
 		links.push({
+			id: `${row.item.value}-${row.linkTo}`,
 			source: row.item.value,
 			target: row.linkTo,
 		});

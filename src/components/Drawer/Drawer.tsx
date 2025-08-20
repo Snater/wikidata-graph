@@ -9,10 +9,14 @@ import {Menu as MenuIcon} from '@mui/icons-material';
 import {default as MuiDrawer} from '@mui/material/Drawer';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import theme from '@/theme';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const drawerWidth = 312;
 
 export default function Drawer() {
+	const isDesktop = useMediaQuery<typeof theme>((theme) => theme.breakpoints.up("sm"));
+
 	const [mobileOpen, setMobileOpen] = useState(false);
 	const [isClosing, setIsClosing] = useState(false);
 
@@ -27,80 +31,64 @@ export default function Drawer() {
 
 	const handleDrawerToggle = () => {
 		if (!isClosing) {
-			setMobileOpen(!mobileOpen);
+			setMobileOpen((prev) => !prev);
 		}
 	};
 
+	const form = <Form />;
+
 	return (
 		<>
-			<AppBar
-				position="fixed"
-				sx={{
-					display: {
-						sm: 'none',
-					},
-				}}
-			>
-				<Toolbar>
-					<IconButton
-						aria-label="open drawer"
-						color="inherit"
-						edge="start"
-						onClick={handleDrawerToggle}
-						sx={{mr: 2}}
+			{!isDesktop && (
+				<AppBar position="fixed">
+					<Toolbar>
+						<IconButton
+							aria-label="open drawer"
+							color="inherit"
+							edge="start"
+							onClick={handleDrawerToggle}
+							sx={{mr: 2}}
+						>
+							<MenuIcon />
+						</IconButton>
+						<Typography noWrap variant="h6">
+							Wikidata Graph
+						</Typography>
+					</Toolbar>
+				</AppBar>
+			)}
+			<Box sx={{display: "flex"}}>
+				{!isDesktop && (
+					<MuiDrawer
+						open={mobileOpen}
+						onClose={handleDrawerClose}
+						onTransitionEnd={handleDrawerTransitionEnd}
+						ModalProps={{keepMounted: true}}
+						sx={{
+							"& .MuiDrawer-paper": {
+								width: drawerWidth,
+								boxSizing: "border-box",
+							},
+						}}
+						variant="temporary"
 					>
-						<MenuIcon />
-					</IconButton>
-					<Typography component="div" noWrap variant="h6">
-						Wikidata Graph
-					</Typography>
-				</Toolbar>
-			</AppBar>
-			<Box
-				sx={{
-					width: {
-						sm: drawerWidth,
-					},
-					flexShrink: {
-						sm: 0,
-					}
-				}}
-			>
-				<MuiDrawer
-					ModalProps={{keepMounted: true}}
-					onClose={handleDrawerClose}
-					onTransitionEnd={handleDrawerTransitionEnd}
-					open={mobileOpen}
-					sx={{
-						display: {
-							xs: 'block',
-							sm: 'none',
-						},
-						'& .MuiDrawer-paper': {
-							boxSizing: 'border-box',
-							width: drawerWidth,
-						},
-					}}
-					variant="temporary"
-				>
-					<Form/>
-				</MuiDrawer>
-				<MuiDrawer
-					open
-					sx={{
-						display: {
-							xs: 'none',
-							sm: 'block',
-						},
-						'& .MuiDrawer-paper': {
-							boxSizing: 'border-box',
-							width: drawerWidth,
-						},
-					}}
-					variant="permanent"
-				>
-					<Form/>
-				</MuiDrawer>
+						{form}
+					</MuiDrawer>
+				)}
+				{isDesktop && (
+					<MuiDrawer
+						open
+						variant="permanent"
+						sx={{
+							"& .MuiDrawer-paper": {
+								width: drawerWidth,
+								boxSizing: "border-box",
+							},
+						}}
+					>
+						{form}
+					</MuiDrawer>
+				)}
 			</Box>
 		</>
 	);

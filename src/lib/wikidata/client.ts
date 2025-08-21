@@ -29,7 +29,7 @@ export async function request<T>(url: string): Promise<T> {
 
 export async function getEntity(id: EntityId): Promise<Entity> {
 	if (!cache[id]) {
-		const response = await request<{ entities: Entities }>(wdk.getEntities({
+		const response = await request<{entities: Entities}>(wdk.getEntities({
 			ids: [id],
 			languages: ['en'],
 			props: ['claims'],

@@ -17,7 +17,7 @@ const wdk = WBK({
 
 const cache: Record<EntityId, Entity> = {};
 
-export async function request<T>(url: string): Promise<T> {
+async function request<T>(url: string): Promise<T> {
 	const response = await fetch(url);
 
 	if (!response.ok) {

@@ -27,7 +27,7 @@ class D3Graph {
 	private dimensions: {width: number, height: number} | undefined
 
 	constructor(element: HTMLElement) {
-		this.svg = d3.select<HTMLElement, unknown>(element)
+		this.svg = d3.select(element)
 			.append('svg')
 			.attr('class', 'D3Graph');
 
@@ -36,7 +36,7 @@ class D3Graph {
 		this.tooltipController = createTooltipController();
 
 		this.zoom = d3.zoom<SVGSVGElement, unknown>()
-			.on('zoom', event => this.onZoom(event));
+			.on('zoom', this.onZoom);
 
 		this.svg
 			.call(this.zoom)
@@ -58,21 +58,17 @@ class D3Graph {
 
 	update(state: GraphState) {
 		const nodes = calculateRadii(state.data.nodes.map(n => ({...n})));
+		const links = state.data.links.map(l => ({...l}));
 
 		this.renderer.updateDefs(!nodes.some(node => node.radius === undefined));
-
-		const links = state.data.links.map(l => ({...l}));
 
 		this.svg
 			.attr('width', state.width)
 			.attr('height', state.height);
 
-		this.updateSimulation(nodes, links);
+		this.updateDimensions(state.width, state.height);
 
-		if (state.width !== this.dimensions?.width || state.height !== this.dimensions?.height) {
-			this.dimensions = {width: state.width, height: state.height};
-			this.updateCenterForce(state.width, state.height);
-		}
+		this.syncSimulation(nodes, links);
 
 		const view = this.renderer.update(nodes, links, state.root);
 
@@ -92,17 +88,22 @@ class D3Graph {
 		this.simulation.alpha(1).restart();
 	}
 
-	private updateSimulation(nodes: D3GraphNode[], links: D3GraphLink[]) {
+	private syncSimulation(nodes: D3GraphNode[], links: D3GraphLink[]) {
 		this.simulation.nodes(nodes);
 
 		const linkForce = this.simulation.force<d3.ForceLink<D3GraphNode, D3GraphLink>>('link');
 		linkForce?.links(links);
-
-		this.simulation.alpha(1).restart();
 	}
 
-	private updateCenterForce(width: number, height: number) {
-		this.simulation.force('center', d3.forceCenter(width / 2, height / 2));
+	private updateDimensions(width: number, height: number) {
+		if (this.dimensions?.width === width && this.dimensions?.height === height) {
+			return;
+		}
+
+		this.dimensions = {width, height};
+
+		this.simulation.force('center', d3.forceCenter((width / 2) + 100, height / 2)
+		);
 	}
 
 	private onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {

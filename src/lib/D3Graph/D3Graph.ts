@@ -19,12 +19,14 @@ type GraphState = {
 class D3Graph {
 
 	private svg: Selection<SVGSVGElement, unknown, null, undefined>
-	private container: Selection<SVGGElement, unknown, null, undefined>
+	private readonly container: Selection<SVGGElement, unknown, null, undefined>
 	private readonly simulation: d3.Simulation<D3GraphNode, D3GraphLink>
 	private readonly tooltipController: ReturnType<typeof createTooltipController>
 	private zoom: ZoomBehavior<SVGSVGElement, unknown>
 	private renderer: D3Renderer
 	private dimensions: {width: number, height: number} | undefined
+	private needsRestart = false
+	private prevKey?: string
 
 	constructor(element: HTMLElement) {
 		this.svg = d3.select(element)
@@ -85,10 +87,21 @@ class D3Graph {
 			hideTooltip: this.tooltipController.hide,
 		});
 
-		this.simulation.alpha(1).restart();
+		if (this.needsRestart) {
+			this.simulation.alpha(1).restart();
+			this.needsRestart = false;
+		}
 	}
 
 	private syncSimulation(nodes: D3GraphNode[], links: D3GraphLink[]) {
+		const key = JSON.stringify({
+			nodes: nodes.map(n => n.id),
+			links: links.map(l => `${l.source}-${l.target}`)
+		});
+
+		this.needsRestart = key !== this.prevKey;
+		this.prevKey = key;
+
 		this.simulation.nodes(nodes);
 
 		const linkForce = this.simulation.force<d3.ForceLink<D3GraphNode, D3GraphLink>>('link');

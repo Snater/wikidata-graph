@@ -3,17 +3,22 @@ import * as d3 from 'd3';
 import type {D3GraphLink, D3GraphNode} from '@/lib/D3Graph/types';
 import {D3ZoomEvent, Selection, ZoomBehavior} from 'd3';
 import {GraphLink, GraphNode} from '@/lib/graph/types';
+import {attachLabelInteractions, attachNodeDragBehaviour, attachNodeInteractions} from '@/lib/d3/interactions';
 import {D3Renderer} from '@/lib/d3/D3Renderer';
 import type {EntityId} from 'wikibase-sdk';
 import {calculateRadii} from '@/lib/d3/layout';
 import {createTooltipController} from '@/lib/d3/tooltip';
-import {attachLabelInteractions, attachNodeDragBehaviour, attachNodeInteractions} from '@/lib/d3/interactions';
 
 type GraphState = {
 	data: {nodes: GraphNode[], links: GraphLink[]}
 	root: EntityId
 	height: number
 	width: number
+}
+
+type TopologySignature = {
+	nodes: Set<string>
+	links: Set<string>
 }
 
 class D3Graph {
@@ -26,7 +31,7 @@ class D3Graph {
 	private renderer: D3Renderer
 	private dimensions: {width: number, height: number} | undefined
 	private needsRestart = false
-	private prevKey?: string
+	private prevTopologySignature?: TopologySignature
 
 	constructor(element: HTMLElement) {
 		this.svg = d3.select(element)
@@ -94,13 +99,12 @@ class D3Graph {
 	}
 
 	private syncSimulation(nodes: D3GraphNode[], links: D3GraphLink[]) {
-		const key = JSON.stringify({
-			nodes: nodes.map(n => n.id),
-			links: links.map(l => `${l.source}-${l.target}`)
-		});
+		const topologySignature = this.topologySignature(nodes, links);
 
-		this.needsRestart = key !== this.prevKey;
-		this.prevKey = key;
+		this.needsRestart = !this.prevTopologySignature
+			|| !this.topologySignatureEquals(this.prevTopologySignature, topologySignature);
+
+		this.prevTopologySignature = topologySignature;
 
 		this.simulation.nodes(nodes);
 
@@ -121,6 +125,41 @@ class D3Graph {
 
 	private onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
 		this.container.attr('transform', event.transform.toString());
+	}
+
+	private topologySignature(nodes: D3GraphNode[], links: D3GraphLink[]) {
+		return {
+			nodes: this.nodeIdsToKeySet(nodes),
+			links: this.linksToKeySet(links),
+		};
+	}
+
+	private nodeIdsToKeySet(nodes: D3GraphNode[]){
+		return new Set(nodes.map(n => n.id));
+	}
+
+	private linksToKeySet(links: D3GraphLink[]) {
+		return new Set(
+			links.map(l => {
+				const source = typeof l.source === 'object' ? l.source.id : l.source;
+				const target = typeof l.target === 'object' ? l.target.id : l.target;
+				return `${source}->${target}`;
+			})
+		);
+	}
+
+	private topologySignatureEquals(a: TopologySignature, b: TopologySignature) {
+		return this.setEquals(a.nodes, b.nodes) && this.setEquals(a.links, b.links);
+	}
+
+	private setEquals(a: Set<string>, b: Set<string>) {
+		if (a.size !== b.size) return false;
+
+		for (const value of a) {
+			if (!b.has(value)) return false;
+		}
+
+		return true;
 	}
 }
 

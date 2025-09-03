@@ -30,7 +30,7 @@ class D3Graph {
 	private zoom: ZoomBehavior<SVGSVGElement, unknown>
 	private renderer: D3Renderer
 	private dimensions: {width: number, height: number} | undefined
-	private needsRestart = false
+	private restartReason: 'none' | 'layout' | 'topology' = 'none'
 	private prevTopologySignature?: TopologySignature
 
 	constructor(element: HTMLElement) {
@@ -92,17 +92,21 @@ class D3Graph {
 			hideTooltip: this.tooltipController.hide,
 		});
 
-		if (this.needsRestart) {
-			this.simulation.alpha(1).restart();
-			this.needsRestart = false;
+		if (this.restartReason !== 'none') {
+			this.simulation.alpha(this.restartReason === 'layout' ? 0.1 : 1).restart();
+			this.restartReason = 'none';
 		}
 	}
 
 	private syncSimulation(nodes: D3GraphNode[], links: D3GraphLink[]) {
 		const topologySignature = this.topologySignature(nodes, links);
 
-		this.needsRestart = !this.prevTopologySignature
-			|| !this.topologySignatureEquals(this.prevTopologySignature, topologySignature);
+		if (
+			!this.prevTopologySignature
+			|| !this.topologySignatureEquals(this.prevTopologySignature, topologySignature)
+		) {
+			this.requestRestart('topology');
+		}
 
 		this.prevTopologySignature = topologySignature;
 
@@ -119,12 +123,28 @@ class D3Graph {
 
 		this.dimensions = {width, height};
 
-		this.simulation.force('center', d3.forceCenter((width / 2) + 100, height / 2)
-		);
+		this.simulation.force('center', d3.forceCenter((width / 2) + 100, height / 2));
+
+		this.requestRestart('layout');
 	}
 
 	private onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
 		this.container.attr('transform', event.transform.toString());
+	}
+
+	private requestRestart(reason: 'layout' | 'topology') {
+		if (this.restartReason === 'topology') {
+			return;
+		}
+
+		if (reason === 'topology') {
+			this.restartReason = 'topology';
+			return;
+		}
+
+		if (this.restartReason === 'none') {
+			this.restartReason = 'layout';
+		}
 	}
 
 	private topologySignature(nodes: D3GraphNode[], links: D3GraphLink[]) {

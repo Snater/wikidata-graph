@@ -71,17 +71,21 @@ it('returns a Promise when submitting a SPARQL query', async () => {
 				id: 'Q9439',
 				label: 'Victoria',
 				uri: 'https://www.wikidata.org/entity/Q9439',
+				size: 1,
 			}, {
 				id: 'Q9682',
 				label: 'Elizabeth II',
 				uri: 'https://www.wikidata.org/entity/Q9682',
+				size: 1,
 			}, {
 				id: 'Q1234',
 				label: 'Test Link',
 				uri: 'https://www.wikidata.org/entity/Q1234',
+				size: 1,
 			},
 		],
 		links: [{
+			id: 'Q1234-Q9682',
 			source: 'Q1234',
 			target: 'Q9682',
 		}],

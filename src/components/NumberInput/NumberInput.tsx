@@ -1,4 +1,4 @@
-import TextField, {TextFieldProps} from '@mui/material/TextField';
+import TextField, {type TextFieldProps} from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import React from 'react';
 
@@ -10,8 +10,8 @@ export default function NumberInput({onChange, ...rest}: NumberInputProps) {
 	return (
 		<FormControl margin="dense">
 			<TextField
-				inputProps={{min: 0}}
 				onChange={event => onChange && onChange(parseInt(event.target.value))}
+				slotProps={{htmlInput: {min: 0}}}
 				type="number"
 				{...typeof rest.label !== 'string' ? {} : {id: rest.label.toLowerCase().replace(' ', '-')}}
 				{...rest}

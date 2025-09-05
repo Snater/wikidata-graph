@@ -111,17 +111,19 @@ export default function EntitySelect({
 				renderInput={params => (
 					<TextField
 						{...params}
-						InputProps={{
-							...params.InputProps,
-							endAdornment: (
-								<>
-									{loading ? <CircularProgress color="inherit" size={20} /> : null}
-									{params.InputProps.endAdornment}
-								</>
-							),
-						}}
 						fullWidth
 						label={label}
+						slotProps={{
+							input: {
+								...params.InputProps,
+								endAdornment: (
+									<>
+										{loading ? <CircularProgress color="inherit" size={20} /> : null}
+										{params.InputProps.endAdornment}
+									</>
+								),
+							}
+						}}
 					/>
 				)}
 				renderOption={(props, option) => {

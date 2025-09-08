@@ -33,59 +33,91 @@ export default function EntitySelect({
 	const [options, setOptions] = useState<readonly Entity[]>([]);
 	const [loading, setLoading] = useState(false);
 
-	const fetch = useMemo(() => debounce(
-		(input: string, entityType: EntityType, callback: (results: readonly Entity[]) => void) => {
-			searchEntities(input, entityType)
-				.then((response: SearchResponse) => {
-					callback(response.search.map(
-						result => Object.create({
-							id: result.id,
-							label: result.label,
-							description: result.description,
-						})
-					));
-				});
-		},
-		400,
-	), []);
+	const debouncedSearch = useMemo(() => {
+		return debounce(
+			async (
+				input: string,
+				entityType: EntityType,
+				onResult: (results: readonly Entity[]) => void
+			) => {
+				try {
+					const response = await searchEntities(input, entityType);
+
+					onResult(response.search.map(result => ({
+						id: result.id as EntityId,
+						label: result.label,
+						description: result.description,
+					})));
+				} catch (e) {
+					onResult([]);
+				}
+			},
+			400
+		);
+	}, []);
 
 	useEffect(() => {
+		let active = true;
+
 		if (inputValue === '') {
 			setOptions(value ? [value] : []);
+			setLoading(false);
 			return;
 		}
 
 		setLoading(true);
 
-		fetch(inputValue, entityType, results => {
+		debouncedSearch(inputValue, entityType, results => {
+			if (!active) {
+				return;
+			}
+
 			setOptions(results);
 			setLoading(false);
 		});
 
 		return () => {
-			fetch.clear();
-		}
-	}, [entityType, fetch, inputValue, value]);
+			active = false;
+		};
+	}, [inputValue, entityType, value, debouncedSearch]);
 
 	useEffect(() => {
 		if (!entityId) {
 			return;
 		}
 
-		fetch(entityId, entityType, results => {
-			setValue({
-				id: results[0].id,
-				label: results[0].label,
-				description: results[0].description
-			});
-		});
+		let active = true;
+
+		setLoading(true);
+
+		(async () => {
+			try {
+				const response = await searchEntities(entityId, entityType);
+
+				if (!active || !response.search.length) {
+					return;
+				}
+
+				const first = response.search[0];
+
+				setValue({
+					id: first.id as EntityId,
+					label: first.label,
+					description: first.description,
+				});
+			} finally {
+				if (active) {
+					setLoading(false);
+				}
+			}
+		})();
 
 		return () => {
-			fetch.clear();
-		}
-	}, [entityId, entityType, fetch]);
+			active = false;
+		};
+	}, [entityId, entityType]);
 
-	return(
+	return (
 		<FormControl margin="dense">
 			<Autocomplete
 				autoComplete
@@ -96,18 +128,16 @@ export default function EntitySelect({
 				isOptionEqualToValue={(option, value) => option.id === value.id}
 				loading={loading}
 				noOptionsText="No options"
-				onChange={(event, newValue) => {
+				onChange={(_event, newValue) => {
 					if (newValue) {
-						setOptions([newValue, ...options]);
 						setValue(newValue);
-						onChange && onChange(newValue.id);
+						onChange?.(newValue.id);
 					}
 				}}
 				onInputChange={(event, newInputValue) => {
 					setInputValue(newInputValue);
 				}}
 				options={options}
-				value={value}
 				renderInput={params => (
 					<TextField
 						{...params}
@@ -118,22 +148,26 @@ export default function EntitySelect({
 								...params.InputProps,
 								endAdornment: (
 									<>
-										{loading ? <CircularProgress color="inherit" size={20} /> : null}
+										{loading ? (
+											<CircularProgress color="inherit" size={20} />
+										) : null}
 										{params.InputProps.endAdornment}
 									</>
 								),
-							}
+							},
 						}}
 					/>
 				)}
-				renderOption={(props, option) => {
-					return (
-						<ListItem {...props} key={option.id}>
-							<ListItemText primary={option.label} secondary={option.description}/>
-						</ListItem>
-					)
-				}}
-				/>
+				renderOption={(props, option) => (
+					<ListItem {...props} key={option.id}>
+						<ListItemText
+							primary={option.label}
+							secondary={option.description}
+						/>
+					</ListItem>
+				)}
+				value={value}
+			/>
 		</FormControl>
 	);
 }

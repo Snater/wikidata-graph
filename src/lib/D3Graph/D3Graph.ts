@@ -1,8 +1,8 @@
 import './D3Graph.css';
 import * as d3 from 'd3';
 import type {D3GraphLink, D3GraphNode} from '@/lib/D3Graph/types';
-import {D3ZoomEvent, Selection, ZoomBehavior} from 'd3';
-import {GraphLink, GraphNode} from '@/lib/graph/types';
+import type {GraphLink, GraphNode} from '@/lib/graph/types';
+import type {Selection, ZoomBehavior} from 'd3';
 import {attachLabelInteractions, attachNodeDragBehaviour, attachNodeInteractions} from '@/lib/d3/interactions';
 import {D3Renderer} from '@/lib/d3/D3Renderer';
 import type {EntityId} from 'wikibase-sdk';
@@ -43,7 +43,9 @@ class D3Graph {
 		this.tooltipController = createTooltipController();
 
 		this.zoom = d3.zoom<SVGSVGElement, unknown>()
-			.on('zoom', this.onZoom);
+			.on('zoom', event => {
+				this.container.attr('transform', event.transform.toString())
+			});
 
 		this.svg
 			.call(this.zoom)
@@ -126,10 +128,6 @@ class D3Graph {
 		this.simulation.force('center', d3.forceCenter((width / 2) + 100, height / 2));
 
 		this.requestRestart('layout');
-	}
-
-	private onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
-		this.container.attr('transform', event.transform.toString());
 	}
 
 	private requestRestart(reason: 'layout' | 'topology') {

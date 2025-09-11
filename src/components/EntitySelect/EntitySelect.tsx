@@ -86,15 +86,20 @@ export default function EntitySelect({
 			return;
 		}
 
-		let active = true;
+		let cancelled = false;
 
-		setLoading(true);
+		const load = async () => {
+			setLoading(true);
 
-		(async () => {
 			try {
 				const response = await searchEntities(entityId, entityType);
 
-				if (!active || !response.search.length) {
+				if (cancelled) {
+					return;
+				}
+
+				if (!response.search.length) {
+					setLoading(false);
 					return;
 				}
 
@@ -105,15 +110,21 @@ export default function EntitySelect({
 					label: first.label,
 					description: first.description,
 				});
-			} finally {
-				if (active) {
+
+				setLoading(false);
+			} catch (error) {
+				console.error(error);
+
+				if (!cancelled) {
 					setLoading(false);
 				}
 			}
-		})();
+		};
+
+		load();
 
 		return () => {
-			active = false;
+			cancelled = true;
 		};
 	}, [entityId, entityType]);
 

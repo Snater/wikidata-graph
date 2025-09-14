@@ -1,11 +1,10 @@
-import {EntityId, EntityType, SearchResponse} from 'wikibase-sdk';
+import type {EntityId, EntityType} from 'wikibase-sdk';
 import React, {useEffect, useMemo, useState} from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
-import CircularProgress from '@mui/material/CircularProgress';
+import EntitySelectInput from '@/components/EntitySelect/EntitySelectInput';
 import FormControl from '@mui/material/FormControl';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import TextField from '@mui/material/TextField';
 import {debounce} from '@mui/material/utils';
 import {searchEntities} from '@/lib/wikidata/client';
 
@@ -150,24 +149,7 @@ export default function EntitySelect({
 				}}
 				options={options}
 				renderInput={params => (
-					<TextField
-						{...params}
-						fullWidth
-						label={label}
-						slotProps={{
-							input: {
-								...params.InputProps,
-								endAdornment: (
-									<>
-										{loading ? (
-											<CircularProgress color="inherit" size={20} />
-										) : null}
-										{params.InputProps.endAdornment}
-									</>
-								),
-							},
-						}}
-					/>
+					<EntitySelectInput label={label} loading={loading} params={params} />
 				)}
 				renderOption={(props, option) => (
 					<ListItem {...props} key={option.id}>

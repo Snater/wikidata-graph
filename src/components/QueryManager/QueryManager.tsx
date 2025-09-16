@@ -78,14 +78,30 @@ export default function QueryManager(): null {
 			return;
 		}
 
-		generateSparql(query)
-			.then(sparql => {
-				runGraphQuery(sparql).then(data => {
-					if (data) {
-						setResult({root: query.item, ...data});
-					}
-				});
-			});
+		const controller = new AbortController();
+
+		const load = async () => {
+			try {
+				const sparql = await generateSparql(query);
+				const data = await runGraphQuery(sparql, controller.signal);
+
+				if (!data) {
+					return;
+				}
+
+				setResult({root: query.item, ...data});
+			} catch (error) {
+				if ((error as DOMException).name !== 'AbortError') {
+					console.error(error);
+				}
+			}
+		};
+
+		load();
+
+		return () => {
+			controller.abort();
+		};
 	}, [query, setResult]);
 
 	return null;

@@ -17,8 +17,8 @@ const wdk = WBK({
 
 const cache: Record<EntityId, Entity> = {};
 
-async function request<T>(url: string): Promise<T> {
-	const response = await fetch(url);
+async function request<T>(url: string, init?: RequestInit): Promise<T> {
+	const response = await fetch(url, init);
 
 	if (!response.ok) {
 		throw new Error(response.statusText);
@@ -51,8 +51,8 @@ export function searchEntities(search: string, type?: EntityType): Promise<Searc
 	return request(url);
 }
 
-export async function querySparql(query: string): Promise<SparqlRow[]> {
-	const response = await request<SparqlResults>(wdk.sparqlQuery(query));
+export async function querySparql(query: string, signal?: AbortSignal): Promise<SparqlRow[]> {
+	const response = await request<SparqlResults>(wdk.sparqlQuery(query), {signal});
 
 	return simplify.sparqlResults(response);
 }

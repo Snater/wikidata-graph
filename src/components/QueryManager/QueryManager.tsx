@@ -2,7 +2,6 @@
 
 import Query, {extractQuery, isEqual, isQuery} from '../../lib/Query';
 import {useCallback, useEffect} from 'react';
-import PropTypes from 'prop-types';
 import generateSparql from '../../lib/SparqlGenerator';
 import queryString from 'query-string';
 import {runGraphQuery} from '@/lib/graph/service';
@@ -106,7 +105,3 @@ export default function QueryManager(): null {
 
 	return null;
 }
-
-QueryManager.propTypes = {
-	onDataRetrieved: PropTypes.func,
-};

@@ -59,18 +59,27 @@ export default function QueryManager(): null {
 		}
 	}, [setQuery]);
 
-	// Add navigation history entries.
 	useEffect(() => {
 		window.addEventListener('popstate', popStateListener);
 
-		if (query && !matchesQueryString(query) && isNew(query) && !isInitial(query)) {
-			window.history.pushState(query, '', `/?${queryString.stringify(query)}`);
-		}
-
 		return () => {
 			window.removeEventListener('popstate', popStateListener);
+		};
+	}, [popStateListener]);
+
+	useEffect(() => {
+		if (!query) {
+			return;
 		}
-	}, [popStateListener, query]);
+
+		if (!matchesQueryString(query) && isNew(query) && !isInitial(query)) {
+			window.history.pushState(
+				query,
+				'',
+				`/?${queryString.stringify(query)}`
+			);
+		}
+	}, [query]);
 
 	useEffect(() => {
 		if (!query) {

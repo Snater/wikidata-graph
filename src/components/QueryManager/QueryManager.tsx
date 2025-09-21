@@ -17,16 +17,24 @@ export const DEFAULT_QUERY: Query = {
 	sizeProperty: 'P3373',
 };
 
-function matchesQueryString(query: Query) {
-	return queryString.stringify(query) === window.location.search.slice(1);
+function getQueryFromUrl(): Query {
+	const parsed = queryString.parse(window.location.search, {
+		parseNumbers: true,
+	});
+
+	return {
+		item: parsed.item,
+		property: parsed.property,
+		mode: parsed.mode,
+		language: parsed.language,
+		iterations: parsed.iterations,
+		limit: parsed.limit,
+		sizeProperty: parsed.sizeProperty,
+	} as Query;
 }
 
-function isNew(query: Query) {
-	return !window.history.state?.item || !isEqual(query, window.history.state);
-}
-
-function isInitial(query: Query) {
-	return !window.history.state?.item && isEqual(query, DEFAULT_QUERY);
+function isSameAsUrl(query: Query) {
+	return isEqual(query, getQueryFromUrl());
 }
 
 export default function QueryManager(): null {
@@ -72,7 +80,7 @@ export default function QueryManager(): null {
 			return;
 		}
 
-		if (!matchesQueryString(query) && isNew(query) && !isInitial(query)) {
+		if (!isSameAsUrl(query)) {
 			window.history.pushState(
 				query,
 				'',

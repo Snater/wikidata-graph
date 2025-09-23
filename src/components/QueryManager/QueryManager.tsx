@@ -48,23 +48,22 @@ export default function QueryManager(): null {
 	useEffect(() => {
 		if (window.location.search === '') {
 			setQuery(DEFAULT_QUERY);
-		} else {
-			const parsedQueryString = queryString.parse(window.location.search, {parseNumbers: true});
-			const queryStringQuery = {
-				item: parsedQueryString.item,
-				property: parsedQueryString.property,
-				mode: parsedQueryString.mode,
-				language: parsedQueryString.language,
-				iterations: parsedQueryString.iterations,
-				limit: parsedQueryString.limit,
-				sizeProperty: parsedQueryString.sizeProperty,
-			}
-
-			if (isQuery(queryStringQuery)) {
-				window.history.replaceState(queryStringQuery, '', `/${window.location.search}`);
-				setQuery(queryStringQuery);
-			}
+			return;
 		}
+
+		const queryFromUrl = getQueryFromUrl();
+
+		if (!isQuery(queryFromUrl)) {
+			return;
+		}
+
+		window.history.replaceState(
+			queryFromUrl,
+			'',
+			`/?${queryString.stringify(queryFromUrl)}`
+		);
+
+		setQuery(queryFromUrl);
 	}, [setQuery]);
 
 	useEffect(() => {

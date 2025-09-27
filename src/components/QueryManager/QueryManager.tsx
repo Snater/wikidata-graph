@@ -1,6 +1,6 @@
 'use client'
 
-import Query, {extractQuery, isEqual, isQuery} from '../../lib/Query';
+import Query, {extractQuery, isQuery} from '../../lib/Query';
 import {useCallback, useEffect} from 'react';
 import generateSparql from '../../lib/SparqlGenerator';
 import queryString from 'query-string';
@@ -17,7 +17,7 @@ export const DEFAULT_QUERY: Query = {
 	sizeProperty: 'P3373',
 };
 
-function getQueryFromUrl(): Query {
+function getQueryFromUrl() {
 	const parsed = queryString.parse(window.location.search, {
 		parseNumbers: true,
 	});
@@ -33,8 +33,8 @@ function getQueryFromUrl(): Query {
 	} as Query;
 }
 
-function isSameAsUrl(query: Query) {
-	return isEqual(query, getQueryFromUrl());
+function serializeQuery(query: Query) {
+	return `/?${queryString.stringify(query)}`;
 }
 
 export default function QueryManager(): null {
@@ -79,12 +79,11 @@ export default function QueryManager(): null {
 			return;
 		}
 
-		if (!isSameAsUrl(query)) {
-			window.history.pushState(
-				query,
-				'',
-				`/?${queryString.stringify(query)}`
-			);
+		const currentUrl = window.location.pathname + window.location.search;
+		const nextUrl = serializeQuery(query);
+
+		if (currentUrl !== nextUrl) {
+			window.history.pushState(query, '', nextUrl);
 		}
 	}, [query]);
 

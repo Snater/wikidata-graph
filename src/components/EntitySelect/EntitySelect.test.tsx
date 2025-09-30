@@ -41,11 +41,11 @@ test('Basic functionality', async () => {
 });
 
 test('label prop', async () => {
-	const {getByLabelText} = render(
+	const {findByLabelText} = render(
 		<EntitySelect entityId="Q1" entityType="property" label="Label 1"/>
 	);
 
-	expect(getByLabelText('Label 1')).toBeInTheDocument();
+	expect(await findByLabelText('Label 1')).toBeInTheDocument();
 });
 
 test('onChange prop', async () => {

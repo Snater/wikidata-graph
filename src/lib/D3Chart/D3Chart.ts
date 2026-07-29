@@ -12,7 +12,7 @@ import type {Link, Node} from '@/lib/graph/types';
 import Vector, {Point} from '../Vector';
 import {EntityId} from 'wikibase-sdk';
 import {Simulation} from 'd3-force';
-import {attachNodeDragBehaviour} from '@/lib/d3/interactions';
+import {attachNodeDragBehaviour, attachNodeInteractions} from '@/lib/d3/interactions';
 import {createRenderer} from '@/lib/d3/render';
 import {createTooltipController} from '@/lib/d3/tooltip';
 
@@ -118,9 +118,12 @@ class D3Chart {
 		const links = renderer.renderLinks(state.data.links);
 
 		this.circles = renderer.renderNodes(nodes, state.root)
-			.call(attachNodeDragBehaviour(simulation))
-			.on('mouseover', (event, d) => this.tooltipController.show(d, event.srcElement))
-			.on('mouseout', () => this.tooltipController.hide());
+			.call(attachNodeDragBehaviour(simulation));
+
+		attachNodeInteractions(this.circles, {
+			hideTooltip: this.tooltipController.hide,
+			showTooltip: this.tooltipController.show,
+		});
 
 		this.labels = renderer.renderLabels(nodes)
 			.on('click', (_event, d) => window.open(d.uri))
@@ -159,19 +162,6 @@ class D3Chart {
 		const scale = d3.scaleLinear().domain([minSize, maxSize]).range(scaleRange);
 
 		return nodes.map(node => Object.assign(node, {radius: scale(node.size)}));
-	}
-
-	private drawDefs(hasRadius: boolean) {
-		this.svg.append('defs').append('marker')
-			.attr('id', 'triangle')
-			.attr('viewBox', '0 -5 10 10')
-			.attr('refX', hasRadius ? '9' : '15')
-			.attr('markerUnits', 'strokeWidth')
-			.attr('markerWidth', '6')
-			.attr('markerHeight', '6')
-			.attr('orient', 'auto')
-			.append('path')
-			.attr('d', 'M 0 -5 L 10 0 L 0 5');
 	}
 
 	private createSimulation(data: D3ChartState['data']) {

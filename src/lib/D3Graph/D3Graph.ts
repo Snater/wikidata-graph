@@ -20,10 +20,6 @@ type GraphState = {
 	width: number
 }
 
-type D3GraphState = Omit<GraphState, 'data'> & {
-	data: {nodes: D3GraphNode[], links: D3GraphLink[]}
-}
-
 type NodesSelection = Selection<SVGCircleElement, D3GraphNode, SVGElement, undefined>
 type LinksSelection = Selection<SVGLineElement, D3GraphLink, SVGGElement, unknown>
 type LabelsSelection = Selection<SVGTextElement, D3GraphNode, SVGGElement, unknown>
@@ -36,75 +32,56 @@ type View = {
 
 class D3Graph {
 
-	/**
-	 * Manages the tooltip shown when hovering a circle.
-	 */
-	private tooltipController: ReturnType<typeof createTooltipController>
-	/**
-	 * The SVG the data is rendered in.
-	 */
 	private svg: Selection<SVGSVGElement, unknown, null, undefined>
-	/**
-	 * Reference to the zoom.
-	 */
-	private zoom?: ZoomBehavior<SVGSVGElement, unknown>
+	private readonly container: Selection<SVGGElement, unknown, null, undefined>
+	private readonly simulation: d3.Simulation<D3GraphNode, D3GraphLink>
+	private tooltipController: ReturnType<typeof createTooltipController>
+	private zoom: ZoomBehavior<SVGSVGElement, unknown>
 
 	constructor(element: HTMLElement) {
-		this.svg = d3.select<HTMLElement, unknown>(element).append('svg')
+		this.svg = d3.select<HTMLElement, unknown>(element)
+			.append('svg')
 			.attr('class', 'D3Graph');
+
+		this.container = this.svg.append('g');
+
 		this.tooltipController = createTooltipController();
-	}
 
-	update(state: GraphState) {
-
-		// D3 will extend node and link object with properties. Therefore, clone the objects to prevent
-		// D3 specifics leaking outside the class.
-		const clonedState: D3GraphState = {
-			...state,
-			data: {
-				nodes: state.data.nodes.map(node => ({...node})),
-				links: state.data.links.map(link => ({...link})),
-			},
-		}
-
-		this.svg.selectAll('*').remove();
-
-		if (this.zoom) {
-			this.svg
-				.transition()
-				.duration(800)
-				.call(this.zoom.transform, d3.zoomIdentity);
-		}
-
-		this.draw(clonedState);
-
-		this.tooltipController.hide();
-	}
-
-	private draw(state: D3GraphState) {
-		const container = this.svg.append('g');
-
-		this.zoom = d3.zoom<SVGSVGElement, unknown>().on('zoom', event => {
-			this.onZoom(event, container);
-		});
+		this.zoom = d3.zoom<SVGSVGElement, unknown>()
+			.on('zoom', event => this.onZoom(event));
 
 		this.svg
-			.attr('width', state.width)
-			.attr('height', state.height)
 			.call(this.zoom)
 			.call(this.tooltipController.tooltip);
 
-		const graphNodes = calculateRadii(state.data.nodes);
+		this.simulation = d3.forceSimulation<D3GraphNode>()
+			.force(
+				'link',
+				d3.forceLink<D3GraphNode, D3GraphLink>()
+					.id(node => node.id)
+			)
+			.force('charge', d3.forceManyBody());
+	}
 
-		const simulation = this.createSimulation(graphNodes, state.data.links);
+	update(state: GraphState) {
+		const graphNodes = calculateRadii(state.data.nodes.map(node => ({ ...node })));
+		const graphLinks: D3GraphLink[] = state.data.links.map(link => ({...link,}));
 
-		const renderer = createRenderer(container);
-		renderer.init(!graphNodes.some(graphNode => graphNode.radius === undefined));
+		this.svg
+			.attr('width', state.width)
+			.attr('height', state.height);
 
-		const links = renderer.renderLinks(state.data.links);
+		this.updateSimulation(graphNodes, graphLinks, state.width, state.height);
 
-		const nodes = renderer.renderNodes(graphNodes, state.root)
-			.call(attachNodeDragBehaviour(simulation));
+		const renderer = createRenderer(this.container);
+
+		renderer.init(!graphNodes.some(node => node.radius === undefined));
+
+		const links = renderer.renderLinks(graphLinks);
+
+		const nodes = renderer
+			.renderNodes(graphNodes, state.root)
+			.call(attachNodeDragBehaviour(this.simulation));
 
 		attachNodeInteractions(nodes, {
 			hideTooltip: this.tooltipController.hide,
@@ -119,23 +96,35 @@ class D3Graph {
 			showTooltip: this.tooltipController.show,
 		});
 
-		simulation?.on('tick', () => this.renderFrame({nodes, links, labels}));
+		this.simulation.on('tick', () => {
+			this.renderFrame({nodes, links, labels});
+		});
+
+		this.tooltipController.hide();
 	}
 
-	private createSimulation(nodes: D3GraphNode[], links: D3GraphLink[]) {
-		return d3.forceSimulation(nodes)
-			.force('link', d3.forceLink<D3GraphNode, D3GraphLink>(links).id(d => d.id))
-			.force('charge', d3.forceManyBody())
-			.force('center', d3.forceCenter(
-				(parseInt(this.svg.attr('width')) / 2) + 100, parseInt(this.svg.attr('height')) / 2)
-			);
-	}
-
-	private onZoom(
-		event: D3ZoomEvent<SVGSVGElement, unknown>,
-		container: d3.Selection<SVGGElement, unknown, null, undefined>
+	private updateSimulation(
+		nodes: D3GraphNode[],
+		links: D3GraphLink[],
+		width: number,
+		height: number
 	) {
-		container.attr('transform', event.transform.toString());
+		this.simulation.nodes(nodes);
+
+		const linkForce = this.simulation.force<d3.ForceLink<D3GraphNode, D3GraphLink>>('link');
+
+		linkForce?.links(links);
+
+		this.simulation.force(
+			'center',
+			d3.forceCenter((width / 2) + 100, height / 2)
+		);
+
+		this.simulation.alpha(1).restart();
+	}
+
+	private onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
+		this.container.attr('transform', event.transform.toString());
 		this.tooltipController.hide();
 	}
 
